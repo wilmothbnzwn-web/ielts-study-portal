@@ -25,6 +25,7 @@ const API_ROUTES = {
   '/api/reading-articles': 'reading-articles.json',
   '/api/essays': 'essays.json',
   '/api/methodology': 'methodology.json',
+  '/api/dictionary': 'dictionary.json',
 };
 
 const server = http.createServer((req, res) => {

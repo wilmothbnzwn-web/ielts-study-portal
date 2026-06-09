@@ -13,11 +13,43 @@
     .article-card { transition: all 0.2s ease; }
     .article-card:hover { background: #fff; border-color: #bcccdc; }
     .article-card.active { background: #fff; border-color: #334e68; box-shadow: 0 0 0 3px rgba(51,78,104,0.1); }
-    .right-panel-placeholder { background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.015) 10px, rgba(0,0,0,0.015) 20px); }
     .vocab-tag { display: inline-block; padding: 3px 10px; background: #f0f4f8; color: #486581; border-radius: 999px; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
     .vocab-tag:hover { background: #334e68; color: #fff; }
     .strategy-card { border-left: 3px solid transparent; transition: all 0.2s; }
     .strategy-card:hover { border-left-color: #334e68; background: #fff; }
+    #article-body p { cursor: text; user-select: text; }
+
+    /* Tooltip */
+    .tl-tooltip {
+      position: fixed; z-index: 9999;
+      background: #fff; border: 1px solid #d9e2ec;
+      border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      padding: 16px 20px; max-width: 360px; min-width: 200px;
+      animation: tlFadeIn 0.2s ease;
+      font-family: 'Inter', 'system-ui', sans-serif;
+    }
+    @keyframes tlFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .tl-tooltip::before {
+      content: ''; position: absolute; top: -8px; left: 50%;
+      transform: translateX(-50%);
+      border-left: 8px solid transparent; border-right: 8px solid transparent;
+      border-bottom: 8px solid #fff;
+    }
+    .tl-tooltip.arrow-bottom::before { top: auto; bottom: -8px; border-bottom: none; border-top: 8px solid #fff; }
+
+    .tl-close {
+      position: absolute; top: 10px; right: 12px;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: none; background: #f0f4f8; color: #627d98;
+      font-size: 14px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: all 0.15s; line-height: 1;
+    }
+    .tl-close:hover { background: #d9e2ec; color: #102a43; }
+
+    /* History items in right panel */
+    .history-item { transition: all 0.15s; cursor: default; }
+    .history-item:hover { background: #f0f4f8; }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
@@ -40,7 +72,7 @@
 
   <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
     <h1 class="text-3xl font-serif font-bold text-brand-900 mb-2">阅读训练</h1>
-    <p class="text-brand-500 mb-8">学术外刊精读 · 左右分栏沉浸式阅读 · 解题技巧速查</p>
+    <p class="text-brand-500 mb-8">学术外刊精读 · 选中单词即翻译 · 解题技巧速查</p>
 
     <!-- Article Selector -->
     <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
@@ -51,7 +83,7 @@
       <button class="article-card px-4 py-3 rounded-xl border border-brand-200 bg-brand-50/50 text-sm font-medium text-brand-600 whitespace-nowrap" onclick="selectArticle(4)">🏗️ 未来劳动力报告</button>
     </div>
 
-    <!-- Main Layout: Left (Article) + Right (Blank/Strategies) -->
+    <!-- Main Layout: Left (Article) + Right (History/Strategies) -->
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- LEFT: Article -->
       <div class="lg:w-3/5">
@@ -63,7 +95,6 @@
           <h2 id="article-title" class="text-xl md:text-2xl font-serif font-bold text-brand-900 mt-3 mb-1">Select an article</h2>
           <p id="article-source" class="text-sm text-brand-400 mb-6">Source info</p>
           <div id="article-body" class="text-brand-700 leading-relaxed space-y-4 text-[0.95rem]"></div>
-          <!-- Vocabulary Highlights -->
           <div id="article-vocab" class="mt-8 pt-6 border-t border-brand-100">
             <p class="text-xs font-semibold text-brand-400 uppercase tracking-wide mb-3">Key Academic Vocabulary</p>
             <div id="vocab-tags" class="flex flex-wrap gap-2"></div>
@@ -71,14 +102,15 @@
         </div>
       </div>
 
-      <!-- RIGHT: Strategy Panel / Future Word Lookup Area -->
+      <!-- RIGHT: Translation History + Strategy Panel -->
       <div class="lg:w-2/5">
-        <div class="right-panel-placeholder bg-white/60 rounded-2xl border border-dashed border-brand-200 p-8 min-h-[60vh] flex flex-col items-center justify-center text-center">
-          <div class="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-4">
-            <svg class="w-8 h-8 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/></svg>
+        <!-- Translation History -->
+        <div id="history-panel" class="bg-white rounded-2xl border border-brand-100 p-6 min-h-[30vh]">
+          <h3 class="font-bold text-brand-900 mb-1">📖 查词记录</h3>
+          <p class="text-xs text-brand-400 mb-4">选中左侧文章中的任意单词或短语，翻译结果会出现在这里</p>
+          <div id="history-list" class="space-y-2">
+            <p class="text-brand-300 text-sm text-center py-8">👆 去左侧文章中选中单词试试吧</p>
           </div>
-          <p class="text-brand-400 font-medium mb-1">划词翻译区域</p>
-          <p class="text-brand-300 text-sm">选中左侧文章中的任意单词或短语<br>即可查看释义（功能开发中）</p>
         </div>
 
         <!-- Strategy Quick Reference -->
@@ -137,10 +169,20 @@
   <script>
     let articles = [];
     let currentIdx = 0;
+    let dictionary = {};
+    let lookupHistory = [];
 
+    // Load articles
     fetch('/api/reading-articles').then(r=>r.json()).then(data => {
       articles = data;
       renderArticle(0);
+    });
+
+    // Load dictionary
+    fetch('/api/dictionary').then(r=>r.json()).then(data => {
+      dictionary = data;
+    }).catch(() => {
+      console.warn('Dictionary not loaded, using API fallback only');
     });
 
     function selectArticle(idx) {
@@ -163,6 +205,162 @@
       document.getElementById('article-body').innerHTML = a.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
       document.getElementById('vocab-tags').innerHTML = (a.vocabularyHighlights || []).map(v => `<span class="vocab-tag">${v}</span>`).join('');
     }
+
+    // ===================== TRANSLATION FEATURE =====================
+
+    function removeTooltip() {
+      const existing = document.querySelector('.tl-tooltip');
+      if (existing) existing.remove();
+    }
+
+    function translateWord(word) {
+      const lower = word.toLowerCase().trim();
+      // 1. Local dictionary lookup
+      if (dictionary[lower]) return { text: dictionary[lower], source: '本地词典' };
+      if (dictionary[word]) return { text: dictionary[word], source: '本地词典' };
+      // 2. Try case variations
+      const capitalized = lower.charAt(0).toUpperCase() + lower.slice(1);
+      if (dictionary[capitalized]) return { text: dictionary[capitalized], source: '本地词典' };
+      // 3. Return null — caller will try API
+      return null;
+    }
+
+    async function translateViaAPI(text) {
+      try {
+        const resp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh`);
+        const data = await resp.json();
+        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+          const translated = data.responseData.translatedText;
+          if (translated.toLowerCase() !== text.toLowerCase()) {
+            return { text: translated, source: 'MyMemory API' };
+          }
+        }
+      } catch (e) { /* ignore */ }
+      return null;
+    }
+
+    function showTooltip(rect, word, translation) {
+      removeTooltip();
+
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tl-tooltip';
+      tooltip.innerHTML = `
+        <button class="tl-close" onclick="removeTooltip()">✕</button>
+        <div class="mb-1">
+          <span class="text-lg font-bold text-brand-900 font-serif">${escapeHtml(word)}</span>
+          <span class="text-xs text-brand-400 ml-2">${translation.source}</span>
+        </div>
+        <div class="text-base text-brand-700 font-medium">${escapeHtml(translation.text)}</div>
+      `;
+
+      document.body.appendChild(tooltip);
+
+      // Position below selection
+      const tooltipW = tooltip.offsetWidth;
+      const tooltipH = tooltip.offsetHeight;
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+
+      let left = rect.left + rect.width / 2 - tooltipW / 2;
+      let top = rect.bottom + 10;
+
+      // Keep within viewport
+      if (left < 10) left = 10;
+      if (left + tooltipW > viewW - 10) left = viewW - tooltipW - 10;
+      if (top + tooltipH > viewH - 10) {
+        top = rect.top - tooltipH - 10;
+        tooltip.classList.add('arrow-bottom');
+      }
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    function addToHistory(word, translation) {
+      // Dedup
+      lookupHistory = lookupHistory.filter(h => h.word.toLowerCase() !== word.toLowerCase());
+      lookupHistory.unshift({ word, translation, time: Date.now() });
+      if (lookupHistory.length > 20) lookupHistory.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+      if (lookupHistory.length === 0) {
+        list.innerHTML = '<p class="text-brand-300 text-sm text-center py-8">👆 去左侧文章中选中单词试试吧</p>';
+        return;
+      }
+      list.innerHTML = lookupHistory.map(h => `
+        <div class="history-item flex items-start justify-between p-2 rounded-lg">
+          <div>
+            <span class="text-sm font-bold text-brand-900 font-serif">${escapeHtml(h.word)}</span>
+            <span class="text-xs text-brand-400 ml-1">${h.translation.source}</span>
+            <p class="text-sm text-brand-600 mt-0.5">${escapeHtml(h.translation.text)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // mouseup handler
+    document.addEventListener('mouseup', async (e) => {
+      // Small delay to let selection settle
+      setTimeout(async () => {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed || !selection.toString().trim()) {
+          // Don't remove tooltip if clicking inside it
+          if (!e.target.closest('.tl-tooltip')) {
+            removeTooltip();
+          }
+          return;
+        }
+
+        const text = selection.toString().trim();
+        // Limit to reasonable length (single word or short phrase)
+        if (text.length > 80) { removeTooltip(); return; }
+
+        // Check if selection is inside article body
+        const articleBody = document.getElementById('article-body');
+        if (!articleBody) return;
+        if (!articleBody.contains(selection.anchorNode) && !articleBody.contains(selection.focusNode)) {
+          return;
+        }
+
+        const rect = selection.getRangeAt(0).getBoundingClientRect();
+        if (!rect || rect.width === 0) return;
+
+        // Try local dictionary
+        let result = translateWord(text);
+
+        // If not found and it's a single word, try API
+        if (!result && text.split(/\s+/).length <= 3) {
+          result = await translateViaAPI(text);
+        }
+
+        if (!result) {
+          result = { text: '（未找到翻译）', source: '-' };
+        }
+
+        showTooltip(rect, text, result);
+        addToHistory(text, result);
+      }, 10);
+    });
+
+    // Close tooltip on scroll or resize
+    window.addEventListener('scroll', removeTooltip, { passive: true });
+    window.addEventListener('resize', removeTooltip, { passive: true });
+
+    // Click outside to close
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.tl-tooltip')) {
+        removeTooltip();
+      }
+    });
 
     window.selectArticle = selectArticle;
   </script>
