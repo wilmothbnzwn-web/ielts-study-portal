@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -36,7 +37,43 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  // API routes
+  // API route: translate proxy (backend-forwards to MyMemory, avoids CORS preflight)
+  if (pathname === '/api/translate') {
+    const rawText = url.searchParams.get('text');
+    if (!rawText || !rawText.trim()) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Missing text parameter' }));
+      return;
+    }
+    // Clean text: remove newlines, collapse whitespace
+    const cleaned = rawText.replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleaned)}&langpair=en|zh`;
+
+    https.get(apiUrl, (apiRes) => {
+      let body = '';
+      apiRes.on('data', chunk => body += chunk);
+      apiRes.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({
+            translatedText: data.responseData?.translatedText || cleaned,
+            match: data.responseData?.match || 0,
+            source: 'MyMemory API',
+          }));
+        } catch (e) {
+          res.writeHead(502, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Translation service unavailable' }));
+        }
+      });
+    }).on('error', (err) => {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Translation service unreachable' }));
+    });
+    return;
+  }
+
+  // API routes (static JSON)
   if (API_ROUTES[pathname]) {
     const filePath = path.join(DATA_DIR, API_ROUTES[pathname]);
     try {

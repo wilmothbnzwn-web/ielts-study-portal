@@ -47,6 +47,29 @@
     }
     .tl-close:hover { background: #d9e2ec; color: #102a43; }
 
+    /* Skeleton loading */
+    .tl-skeleton {
+      background: linear-gradient(90deg, #f0f4f8 25%, #d9e2ec 50%, #f0f4f8 75%);
+      background-size: 200% 100%;
+      animation: tlShimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes tlShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .tl-spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #d9e2ec;
+      border-top-color: #627d98;
+      border-radius: 50%;
+      animation: tlSpin 0.8s linear infinite;
+    }
+    @keyframes tlSpin {
+      to { transform: rotate(360deg); }
+    }
+
     /* History items in right panel */
     .history-item { transition: all 0.15s; cursor: default; }
     .history-item:hover { background: #f0f4f8; }
@@ -171,6 +194,7 @@
     let currentIdx = 0;
     let dictionary = {};
     let lookupHistory = [];
+    let translateDebounceTimer = null;
 
     // Load articles
     fetch('/api/reading-articles').then(r=>r.json()).then(data => {
@@ -208,42 +232,45 @@
 
     // ===================== TRANSLATION FEATURE =====================
 
+    function cleanText(text) {
+      return text.replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function removeTooltip() {
       const existing = document.querySelector('.tl-tooltip');
       if (existing) existing.remove();
     }
 
-    function translateWord(word) {
-      const lower = word.toLowerCase().trim();
-      // 1. Local dictionary lookup
-      if (dictionary[lower]) return { text: dictionary[lower], source: '本地词典' };
-      if (dictionary[word]) return { text: dictionary[word], source: '本地词典' };
-      // 2. Try case variations
-      const capitalized = lower.charAt(0).toUpperCase() + lower.slice(1);
-      if (dictionary[capitalized]) return { text: dictionary[capitalized], source: '本地词典' };
-      // 3. Return null — caller will try API
-      return null;
-    }
-
-    async function translateViaAPI(text) {
-      try {
-        const resp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh`);
-        const data = await resp.json();
-        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-          const translated = data.responseData.translatedText;
-          if (translated.toLowerCase() !== text.toLowerCase()) {
-            return { text: translated, source: 'MyMemory API' };
-          }
-        }
-      } catch (e) { /* ignore */ }
-      return null;
-    }
-
-    function showTooltip(rect, word, translation) {
+    function showLoadingTooltip(rect, word) {
       removeTooltip();
 
       const tooltip = document.createElement('div');
       tooltip.className = 'tl-tooltip';
+      tooltip.innerHTML = `
+        <button class="tl-close" onclick="removeTooltip()">✕</button>
+        <div class="mb-2">
+          <span class="text-sm font-bold text-brand-900 font-serif">${escapeHtml(word)}</span>
+        </div>
+        <div class="tl-skeleton" style="height: 20px; width: 80%; margin-bottom: 8px;"></div>
+        <div class="tl-skeleton" style="height: 20px; width: 60%;"></div>
+        <p class="text-xs text-brand-400 mt-3 flex items-center gap-2">
+          <span class="tl-spinner"></span> 翻译中...
+        </p>
+      `;
+
+      document.body.appendChild(tooltip);
+      positionTooltip(tooltip, rect);
+      return tooltip;
+    }
+
+    function updateTooltip(tooltip, word, translation) {
+      if (!tooltip || !tooltip.isConnected) return;
       tooltip.innerHTML = `
         <button class="tl-close" onclick="removeTooltip()">✕</button>
         <div class="mb-1">
@@ -252,10 +279,9 @@
         </div>
         <div class="text-base text-brand-700 font-medium">${escapeHtml(translation.text)}</div>
       `;
+    }
 
-      document.body.appendChild(tooltip);
-
-      // Position below selection
+    function positionTooltip(tooltip, rect) {
       const tooltipW = tooltip.offsetWidth;
       const tooltipH = tooltip.offsetHeight;
       const viewW = window.innerWidth;
@@ -264,20 +290,42 @@
       let left = rect.left + rect.width / 2 - tooltipW / 2;
       let top = rect.bottom + 10;
 
-      // Keep within viewport
       if (left < 10) left = 10;
       if (left + tooltipW > viewW - 10) left = viewW - tooltipW - 10;
+
       if (top + tooltipH > viewH - 10) {
         top = rect.top - tooltipH - 10;
         tooltip.classList.add('arrow-bottom');
+      } else {
+        tooltip.classList.remove('arrow-bottom');
       }
 
       tooltip.style.left = left + 'px';
       tooltip.style.top = top + 'px';
     }
 
+    function translateWord(word) {
+      const lower = word.toLowerCase().trim();
+      if (dictionary[lower]) return { text: dictionary[lower], source: '本地词典' };
+      if (dictionary[word]) return { text: dictionary[word], source: '本地词典' };
+      const capitalized = lower.charAt(0).toUpperCase() + lower.slice(1);
+      if (dictionary[capitalized]) return { text: dictionary[capitalized], source: '本地词典' };
+      return null;
+    }
+
+    async function translateViaAPI(text) {
+      try {
+        const resp = await fetch(`/api/translate?text=${encodeURIComponent(text)}`);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (data.translatedText && data.translatedText.toLowerCase() !== text.toLowerCase()) {
+          return { text: data.translatedText, source: data.source || 'MyMemory API' };
+        }
+      } catch (e) { /* ignore */ }
+      return null;
+    }
+
     function addToHistory(word, translation) {
-      // Dedup
       lookupHistory = lookupHistory.filter(h => h.word.toLowerCase() !== word.toLowerCase());
       lookupHistory.unshift({ word, translation, time: Date.now() });
       if (lookupHistory.length > 20) lookupHistory.pop();
@@ -301,54 +349,61 @@
       `).join('');
     }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
+    // Debounced mouseup — 400ms delay prevents firing on every drag
+    document.addEventListener('mouseup', (e) => {
+      if (translateDebounceTimer) {
+        clearTimeout(translateDebounceTimer);
+        translateDebounceTimer = null;
+      }
 
-    // mouseup handler
-    document.addEventListener('mouseup', async (e) => {
-      // Small delay to let selection settle
-      setTimeout(async () => {
-        const selection = window.getSelection();
-        if (!selection || selection.isCollapsed || !selection.toString().trim()) {
-          // Don't remove tooltip if clicking inside it
-          if (!e.target.closest('.tl-tooltip')) {
-            removeTooltip();
-          }
-          return;
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed || !selection.toString().trim()) {
+        return;
+      }
+
+      const rawText = selection.toString().trim();
+
+      const articleBody = document.getElementById('article-body');
+      if (!articleBody) return;
+      if (!articleBody.contains(selection.anchorNode) && !articleBody.contains(selection.focusNode)) {
+        return;
+      }
+
+      const rect = selection.getRangeAt(0).getBoundingClientRect();
+      if (!rect || rect.width === 0) return;
+
+      const cleanedText = cleanText(rawText);
+      if (!cleanedText) return;
+
+      translateDebounceTimer = setTimeout(async () => {
+        translateDebounceTimer = null;
+
+        // Show loading tooltip instantly
+        const tooltip = showLoadingTooltip(rect, cleanedText);
+
+        let result;
+
+        // Single word: try local dictionary first (instant)
+        if (cleanedText.split(/\s+/).length === 1) {
+          result = translateWord(cleanedText);
         }
 
-        const text = selection.toString().trim();
-        // Limit to reasonable length (single word or short phrase)
-        if (text.length > 80) { removeTooltip(); return; }
-
-        // Check if selection is inside article body
-        const articleBody = document.getElementById('article-body');
-        if (!articleBody) return;
-        if (!articleBody.contains(selection.anchorNode) && !articleBody.contains(selection.focusNode)) {
-          return;
-        }
-
-        const rect = selection.getRangeAt(0).getBoundingClientRect();
-        if (!rect || rect.width === 0) return;
-
-        // Try local dictionary
-        let result = translateWord(text);
-
-        // If not found and it's a single word, try API
-        if (!result && text.split(/\s+/).length <= 3) {
-          result = await translateViaAPI(text);
+        // Fallback to backend proxy (supports full sentences)
+        if (!result) {
+          result = await translateViaAPI(cleanedText);
         }
 
         if (!result) {
           result = { text: '（未找到翻译）', source: '-' };
         }
 
-        showTooltip(rect, text, result);
-        addToHistory(text, result);
-      }, 10);
+        if (tooltip && tooltip.isConnected) {
+          updateTooltip(tooltip, cleanedText, result);
+          positionTooltip(tooltip, rect);
+        }
+
+        addToHistory(cleanedText, result);
+      }, 400);
     });
 
     // Close tooltip on scroll or resize
