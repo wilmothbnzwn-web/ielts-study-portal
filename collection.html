@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的收集 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <style>
+    body { background: #fafbfc; }
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active { background: #243b53; color: #fff; }
+    .word-card { transition: all 0.2s ease; }
+    .word-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    .context-highlight { background: #fef3c7; color: #92400e; padding: 0 4px; border-radius: 3px; font-weight: 600; }
+    .syn-tag { display: inline-block; padding: 2px 10px; background: #f0f4f8; color: #486581; border-radius: 999px; font-size: 0.7rem; font-weight: 500; }
+    .audio-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #d9e2ec; background: #fff; cursor: pointer; transition: all 0.15s; color: #627d98; font-size: 14px; }
+    .audio-btn:hover { background: #334e68; color: #fff; border-color: #334e68; }
+    .audio-btn.playing { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(51,78,104,0.2); } 50% { box-shadow: 0 0 0 8px rgba(51,78,104,0); } }
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.6; }
+  </style>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
+        <div class="w-8 h-8 sm:w-9 sm:h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
+        <div class="hidden sm:block"><h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1><p class="text-xs text-brand-400">Academic Reading & Writing</p></div>
+      </a>
+      <!-- Desktop nav -->
+      <nav class="hidden sm:flex gap-1 text-sm">
+        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
+        <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
+        <a href="/reading.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">阅读</a>
+        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
+        <a href="/collection.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">我的收集</a>
+      </nav>
+      <!-- Mobile nav -->
+      <div class="sm:hidden flex gap-1">
+        <a href="/" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">首页</a>
+        <a href="/reading.html" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">阅读</a>
+        <a href="/vocabulary.html" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">词汇</a>
+        <a href="/collection.html" class="text-xs px-2 py-1.5 bg-brand-800 text-white rounded-md">收集</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow w-full">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-brand-900 mb-1">📚 我的收集</h1>
+        <p class="text-sm sm:text-base text-brand-500">阅读中保存的单词与句子 · 本地持久化存储</p>
+      </div>
+      <!-- Tabs -->
+      <div class="flex gap-1 bg-brand-50 rounded-xl p-1">
+        <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium" onclick="switchTab('words')">📝 我的单词</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600" onclick="switchTab('sentences')">📄 我的句子</button>
+      </div>
+    </div>
+
+    <!-- Words Tab -->
+    <div id="tab-words" class="space-y-4">
+      <div id="words-container"></div>
+    </div>
+
+    <!-- Sentences Tab -->
+    <div id="tab-sentences" class="space-y-4" style="display:none;">
+      <div id="sentences-container"></div>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50 mt-8">
+    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · Collection saved in your browser's local storage</p>
+    </div>
+  </footer>
+
+  <script>
+    function getMyWords() {
+      try { return JSON.parse(localStorage.getItem('ielts_myWords') || '[]'); }
+      catch(e) { return []; }
+    }
+
+    function saveMyWords(words) {
+      try { localStorage.setItem('ielts_myWords', JSON.stringify(words)); }
+      catch(e) {}
+    }
+
+    function getMySentences() {
+      try { return JSON.parse(localStorage.getItem('ielts_mySentences') || '[]'); }
+      catch(e) { return []; }
+    }
+
+    function saveMySentences(sentences) {
+      try { localStorage.setItem('ielts_mySentences', JSON.stringify(sentences)); }
+      catch(e) {}
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-words').style.display = tab === 'words' ? 'block' : 'none';
+      document.getElementById('tab-sentences').style.display = tab === 'sentences' ? 'block' : 'none';
+      if (tab === 'words') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.querySelectorAll('.tab-btn')[0].classList.remove('active');
+      }
+    }
+
+    let currentAudio = null;
+
+    function playAudio(wordId, url) {
+      if (!url) return;
+      // Stop any currently playing audio
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      // Reset all audio buttons
+      document.querySelectorAll('.audio-btn').forEach(b => b.classList.remove('playing'));
+
+      const audio = new Audio(url);
+      currentAudio = audio;
+      const btn = document.getElementById('audio-' + wordId);
+      if (btn) btn.classList.add('playing');
+
+      audio.play().catch(() => {
+        // Fallback: open in new tab if autoplay blocked
+        if (btn) btn.classList.remove('playing');
+      });
+      audio.onended = () => {
+        if (btn) btn.classList.remove('playing');
+        currentAudio = null;
+      };
+      audio.onerror = () => {
+        if (btn) btn.classList.remove('playing');
+        currentAudio = null;
+      };
+    }
+
+    function renderWords() {
+      const words = getMyWords();
+      const container = document.getElementById('words-container');
+
+      if (words.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3 class="text-lg font-bold text-brand-700 mb-2">还没有收藏单词</h3>
+            <p class="text-sm text-brand-400 mb-4">去 <a href="/reading.html" class="text-brand-600 underline">阅读训练</a> 选中单词，点击工具提示中的"加入收藏"即可</p>
+            <a href="/reading.html" class="inline-block px-5 py-2.5 bg-brand-800 text-white rounded-xl text-sm font-medium hover:bg-brand-900 transition-colors">去阅读文章 →</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = words.map(w => {
+        const contextHtml = w.contextSentence
+          ? `<p class="text-xs text-brand-500 mt-2 leading-relaxed italic">📖 ${highlightWord(w.contextSentence, w.word)}</p>`
+          : '';
+        const phoneticHtml = w.phonetic
+          ? `<span class="text-xs text-brand-400 font-mono">${escapeHtml(w.phonetic)}</span>`
+          : '';
+        const audioHtml = w.audioUrl
+          ? `<button class="audio-btn flex-shrink-0" id="audio-${w.id}" onclick="playAudio(${w.id},'${escapeHtml(w.audioUrl)}')" title="播放发音">🔊</button>`
+          : '';
+        const synonymsHtml = w.synonyms && w.synonyms.length
+          ? `<div class="flex flex-wrap gap-1 mt-2">${w.synonyms.map(s => `<span class="syn-tag">${escapeHtml(s)}</span>`).join('')}</div>`
+          : '';
+
+        return `
+        <div class="word-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-lg font-bold text-brand-900 font-serif">${escapeHtml(w.word)}</h3>
+                ${phoneticHtml}
+                ${audioHtml}
+              </div>
+              <p class="text-sm text-brand-700 font-medium mt-1">${escapeHtml(w.chinese)}</p>
+              ${synonymsHtml}
+              ${contextHtml}
+            </div>
+            <button class="text-xs text-brand-300 hover:text-red-500 transition-colors flex-shrink-0 mt-1" onclick="deleteWord(${w.id})" title="删除">🗑</button>
+          </div>
+          <p class="text-xs text-brand-300 mt-3">${new Date(w.savedAt).toLocaleString('zh-CN')}</p>
+        </div>`;
+      }).join('');
+    }
+
+    function highlightWord(sentence, word) {
+      if (!sentence || !word) return escapeHtml(sentence || '');
+      const escaped = sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      try {
+        const regex = new RegExp(`\\b(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b`, 'gi');
+        return escapeHtml(sentence).replace(
+          new RegExp(`\\b(${escapeHtml(word)})\\b`, 'gi'),
+          '<mark class="context-highlight">$1</mark>'
+        );
+      } catch(e) {
+        return escapeHtml(sentence);
+      }
+    }
+
+    function renderSentences() {
+      const sentences = getMySentences();
+      const container = document.getElementById('sentences-container');
+
+      if (sentences.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <h3 class="text-lg font-bold text-brand-700 mb-2">还没有收藏句子</h3>
+            <p class="text-sm text-brand-400 mb-4">去 <a href="/reading.html" class="text-brand-600 underline">阅读训练</a> 选中长句，点击工具提示中的"加入收藏"即可</p>
+            <a href="/reading.html" class="inline-block px-5 py-2.5 bg-brand-800 text-white rounded-xl text-sm font-medium hover:bg-brand-900 transition-colors">去阅读文章 →</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = sentences.map(s => {
+        const hfwHtml = s.highFreqWords && s.highFreqWords.length
+          ? `<div class="flex flex-wrap gap-1.5 mt-3">
+              <span class="text-xs text-brand-400 font-semibold">🏷 高频词汇:</span>
+              ${s.highFreqWords.map(h => `<span class="syn-tag bg-amber-50 text-amber-700">${escapeHtml(h.word)} <span class="text-amber-400">${escapeHtml(h.chinese)}</span></span>`).join('')}
+            </div>`
+          : '<p class="text-xs text-brand-300 mt-3">未匹配到高频词汇</p>';
+
+        return `
+        <div class="word-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-brand-800 leading-relaxed font-serif">${escapeHtml(s.sentence)}</p>
+              <p class="text-sm text-brand-600 font-medium mt-2">${escapeHtml(s.chinese)}</p>
+              ${hfwHtml}
+            </div>
+            <button class="text-xs text-brand-300 hover:text-red-500 transition-colors flex-shrink-0 mt-1" onclick="deleteSentence(${s.id})" title="删除">🗑</button>
+          </div>
+          <p class="text-xs text-brand-300 mt-3">${new Date(s.savedAt).toLocaleString('zh-CN')}</p>
+        </div>`;
+      }).join('');
+    }
+
+    function deleteWord(id) {
+      const words = getMyWords().filter(w => w.id !== id);
+      saveMyWords(words);
+      renderWords();
+    }
+
+    function deleteSentence(id) {
+      const sentences = getMySentences().filter(s => s.id !== id);
+      saveMySentences(sentences);
+      renderSentences();
+    }
+
+    // Init
+    renderWords();
+    renderSentences();
+  </script>
+</body>
+</html>

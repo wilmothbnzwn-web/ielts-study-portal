@@ -73,6 +73,19 @@
     /* History items in right panel */
     .history-item { transition: all 0.15s; cursor: default; }
     .history-item:hover { background: #f0f4f8; }
+
+    /* Save button */
+    .tl-save-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 14px; border-radius: 999px;
+      border: 1px solid #d9e2ec; background: #fafbfc;
+      color: #486581; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tl-save-btn:hover { background: #334e68; color: #fff; border-color: #334e68; }
+    .tl-save-btn.saved { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; pointer-events: none; }
+    .context-highlight { background: #fef3c7; color: #92400e; padding: 0 4px; border-radius: 3px; font-weight: 600; }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
@@ -89,6 +102,7 @@
         <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
         <a href="/reading.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">阅读</a>
         <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
+        <a href="/collection.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">我的收集</a>
       </nav>
     </div>
   </header>
@@ -195,6 +209,8 @@
     let dictionary = {};
     let lookupHistory = [];
     let translateDebounceTimer = null;
+    let currentSelectionContext = null;
+    let ieltsVocab = [];
 
     // Load articles
     fetch('/api/reading-articles').then(r=>r.json()).then(data => {
@@ -207,6 +223,13 @@
       dictionary = data;
     }).catch(() => {
       console.warn('Dictionary not loaded, using API fallback only');
+    });
+
+    // Load IELTS vocabulary for sentence enrichment
+    fetch('/api/vocabulary').then(r=>r.json()).then(data => {
+      ieltsVocab = data;
+    }).catch(() => {
+      console.warn('Vocabulary not loaded for sentence enrichment');
     });
 
     function selectArticle(idx) {
@@ -271,13 +294,18 @@
 
     function updateTooltip(tooltip, word, translation) {
       if (!tooltip || !tooltip.isConnected) return;
+      const isWord = word.split(/\s+/).length <= 3;
       tooltip.innerHTML = `
         <button class="tl-close" onclick="removeTooltip()">✕</button>
         <div class="mb-1">
           <span class="text-lg font-bold text-brand-900 font-serif">${escapeHtml(word)}</span>
           <span class="text-xs text-brand-400 ml-2">${translation.source}</span>
         </div>
-        <div class="text-base text-brand-700 font-medium">${escapeHtml(translation.text)}</div>
+        <div class="text-base text-brand-700 font-medium mb-3">${escapeHtml(translation.text)}</div>
+        <div class="pt-2 border-t border-brand-100 flex items-center justify-between gap-2">
+          <span class="text-xs text-brand-400">${isWord ? '单词/短语' : '长句'} · 可保存至收集</span>
+          <button class="tl-save-btn" id="tl-save-btn" onclick="saveToCollection()">📌 加入收藏</button>
+        </div>
       `;
     }
 
@@ -378,6 +406,14 @@
       translateDebounceTimer = setTimeout(async () => {
         translateDebounceTimer = null;
 
+        // Store selection context for save-to-collection
+        currentSelectionContext = {
+          rect: rect,
+          text: cleanedText,
+          anchorNode: selection.anchorNode,
+          isWord: cleanedText.split(/\s+/).length <= 3,
+        };
+
         // Show loading tooltip instantly
         const tooltip = showLoadingTooltip(rect, cleanedText);
 
@@ -396,6 +432,9 @@
         if (!result) {
           result = { text: '（未找到翻译）', source: '-' };
         }
+
+        // Store translation in context
+        currentSelectionContext.translation = result;
 
         if (tooltip && tooltip.isConnected) {
           updateTooltip(tooltip, cleanedText, result);
@@ -417,6 +456,149 @@
       }
     });
 
+    // ===================== COLLECTION FEATURE =====================
+
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function getMyWords() {
+      try { return JSON.parse(localStorage.getItem('ielts_myWords') || '[]'); }
+      catch(e) { return []; }
+    }
+
+    function saveMyWords(words) {
+      try { localStorage.setItem('ielts_myWords', JSON.stringify(words)); }
+      catch(e) { console.warn('localStorage full or unavailable'); }
+    }
+
+    function getMySentences() {
+      try { return JSON.parse(localStorage.getItem('ielts_mySentences') || '[]'); }
+      catch(e) { return []; }
+    }
+
+    function saveMySentences(sentences) {
+      try { localStorage.setItem('ielts_mySentences', JSON.stringify(sentences)); }
+      catch(e) { console.warn('localStorage full or unavailable'); }
+    }
+
+    function extractContextSentence(anchorNode) {
+      // Walk up to find the closest <p> element
+      let node = anchorNode;
+      while (node && node.nodeName !== 'P') {
+        node = node.parentNode;
+      }
+      if (node && node.nodeName === 'P') {
+        return node.textContent.trim();
+      }
+      return null;
+    }
+
+    function highlightWordInSentence(sentence, word) {
+      if (!sentence || !word) return escapeHtml(sentence || '');
+      const regex = new RegExp(`\\b(${escapeRegex(word)})\\b`, 'gi');
+      return escapeHtml(sentence).replace(
+        new RegExp(`\\b(${escapeRegex(escapeHtml(word))})\\b`, 'gi'),
+        '<mark class="context-highlight">$1</mark>'
+      );
+    }
+
+    async function enrichWord(word) {
+      try {
+        const resp = await fetch(`/api/dictionary-lookup?word=${encodeURIComponent(word)}`);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (data.found) {
+          return {
+            phonetic: data.phonetic || '',
+            audioUrl: data.audioUrl || '',
+            synonyms: data.synonyms || [],
+          };
+        }
+      } catch (e) { /* ignore */ }
+      return null;
+    }
+
+    function matchHighFreqWords(sentence) {
+      if (!ieltsVocab.length) return [];
+      const words = sentence.toLowerCase().split(/[^a-z-]+/).filter(w => w.length > 2);
+      const matched = [];
+      const seen = new Set();
+      ieltsVocab.forEach(v => {
+        const vw = v.word.toLowerCase();
+        if (words.includes(vw) && !seen.has(vw)) {
+          seen.add(vw);
+          matched.push({ word: v.word, chinese: v.chinese });
+        }
+      });
+      return matched;
+    }
+
+    async function saveToCollection() {
+      if (!currentSelectionContext) return;
+
+      const ctx = currentSelectionContext;
+      const btn = document.getElementById('tl-save-btn');
+      if (!btn || btn.classList.contains('saved')) return;
+
+      if (ctx.isWord) {
+        // === Save WORD ===
+        btn.textContent = '⏳ 收集中...';
+        btn.style.pointerEvents = 'none';
+
+        const word = ctx.text;
+        const translation = ctx.translation;
+        const contextSentence = extractContextSentence(ctx.anchorNode);
+        const enriched = await enrichWord(word);
+
+        const entry = {
+          id: Date.now(),
+          word: word,
+          chinese: translation?.text || '',
+          phonetic: enriched?.phonetic || '',
+          audioUrl: enriched?.audioUrl || '',
+          synonyms: enriched?.synonyms || [],
+          contextSentence: contextSentence || '',
+          savedAt: Date.now(),
+        };
+
+        // Dedup by word (case-insensitive)
+        const words = getMyWords().filter(w => w.word.toLowerCase() !== word.toLowerCase());
+        words.unshift(entry);
+        if (words.length > 100) words.pop();
+        saveMyWords(words);
+
+        btn.textContent = '✅ 已保存';
+        btn.classList.add('saved');
+      } else {
+        // === Save SENTENCE ===
+        btn.textContent = '⏳ 收集中...';
+        btn.style.pointerEvents = 'none';
+
+        const sentence = ctx.text;
+        const translation = ctx.translation;
+        const highFreqWords = matchHighFreqWords(sentence);
+
+        const entry = {
+          id: Date.now(),
+          sentence: sentence,
+          chinese: translation?.text || '',
+          highFreqWords: highFreqWords,
+          savedAt: Date.now(),
+        };
+
+        // Dedup by sentence content
+        const sentences = getMySentences().filter(s => s.sentence.toLowerCase() !== sentence.toLowerCase());
+        sentences.unshift(entry);
+        if (sentences.length > 100) sentences.pop();
+        saveMySentences(sentences);
+
+        btn.textContent = '✅ 已保存';
+        btn.classList.add('saved');
+      }
+    }
+
+    window.saveToCollection = saveToCollection;
     window.selectArticle = selectArticle;
   </script>
 </body>

@@ -73,6 +73,64 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // API route: dictionary lookup proxy (Free Dictionary API)
+  if (pathname === '/api/dictionary-lookup') {
+    const word = url.searchParams.get('word');
+    if (!word || !word.trim()) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Missing word parameter' }));
+      return;
+    }
+    const cleaned = word.trim().toLowerCase().replace(/[^a-z-]/g, '');
+    const apiUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleaned)}`;
+
+    https.get(apiUrl, { headers: { 'Accept': 'application/json' } }, (apiRes) => {
+      let body = '';
+      apiRes.on('data', chunk => body += chunk);
+      apiRes.on('end', () => {
+        if (apiRes.statusCode === 404) {
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ found: false, word: cleaned }));
+          return;
+        }
+        try {
+          const data = JSON.parse(body);
+          // Extract useful fields
+          const entry = Array.isArray(data) ? data[0] : data;
+          const phonetic = entry.phonetic || entry.phonetics?.find(p => p.text)?.text || '';
+          const audioUrl = entry.phonetics?.find(p => p.audio)?.audio || '';
+          const synonyms = [];
+          if (entry.meanings) {
+            entry.meanings.forEach(m => {
+              if (m.definitions) {
+                m.definitions.forEach(d => {
+                  if (d.synonyms) synonyms.push(...d.synonyms);
+                });
+              }
+              if (m.synonyms) synonyms.push(...m.synonyms);
+            });
+          }
+          const uniqueSynonyms = [...new Set(synonyms)].slice(0, 10);
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({
+            found: true,
+            word: entry.word || cleaned,
+            phonetic: phonetic,
+            audioUrl: audioUrl,
+            synonyms: uniqueSynonyms,
+          }));
+        } catch (e) {
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ found: false, word: cleaned }));
+        }
+      });
+    }).on('error', () => {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ found: false, word: cleaned }));
+    });
+    return;
+  }
+
   // API routes (static JSON)
   if (API_ROUTES[pathname]) {
     const filePath = path.join(DATA_DIR, API_ROUTES[pathname]);
