@@ -1,0 +1,11 @@
+{
+  "name": "ielts-study-portal",
+  "version": "1.0.0",
+  "description": "IELTS Academic Reading & Writing Study Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "license": "MIT"
+}

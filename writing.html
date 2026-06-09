@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>写作方法论 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <style>
+    body { background: #fafbfc; }
+    .prose h2 { font-size: 1.5rem; font-weight: 700; color: #102a43; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #d9e2ec; }
+    .prose h3 { font-size: 1.15rem; font-weight: 700; color: #243b53; margin-top: 1.8rem; margin-bottom: 0.75rem; }
+    .prose p { color: #486581; line-height: 1.75; margin-bottom: 1rem; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.85rem; }
+    .prose th { background: #f0f4f8; color: #102a43; font-weight: 600; padding: 10px 12px; text-align: left; border: 1px solid #d9e2ec; }
+    .prose td { padding: 10px 12px; border: 1px solid #d9e2ec; color: #486581; vertical-align: top; line-height: 1.6; }
+    .prose blockquote { border-left: 3px solid #334e68; padding-left: 1rem; color: #627d98; font-style: italic; margin: 1rem 0; }
+    .prose ul, .prose ol { color: #486581; line-height: 1.8; margin-bottom: 1rem; padding-left: 1.5rem; }
+    .prose code { background: #f0f4f8; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+    .prose pre { background: #102a43; color: #d9e2ec; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.7; margin: 1rem 0; }
+    .tab-btn.active { background: #243b53; color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-cc { background: #dbeafe; color: #1e40af; }
+    .badge-lr { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
+        <div><h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1><p class="text-xs text-brand-400">Academic Reading & Writing</p></div>
+      </a>
+      <nav class="flex gap-1 text-sm">
+        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
+        <a href="/writing.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">写作</a>
+        <a href="/reading.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">阅读</a>
+        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10 flex-grow w-full">
+    <h1 class="text-3xl font-serif font-bold text-brand-900 mb-2">雅思写作方法论</h1>
+    <p class="text-brand-500 mb-8">基于前考官 Simon 教学体系、官方评分标准与 Band 8+ 范文深度拆解</p>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-8 flex-wrap">
+      <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="switchTab('descriptors')">评分标准</button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors" onclick="switchTab('simon')">Simon 写作法</button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors" onclick="switchTab('essays')">高分范文拆解</button>
+    </div>
+
+    <!-- Tab: Band Descriptors -->
+    <div id="tab-descriptors" class="tab-content active prose">
+      <div id="descriptors-content"><p class="text-brand-400">Loading...</p></div>
+    </div>
+
+    <!-- Tab: Simon Method -->
+    <div id="tab-simon" class="tab-content prose">
+      <div id="simon-content"><p class="text-brand-400">Loading...</p></div>
+    </div>
+
+    <!-- Tab: Essays -->
+    <div id="tab-essays" class="tab-content prose">
+      <div id="essays-content"><p class="text-brand-400">Loading...</p></div>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50">
+    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · <a href="/" class="text-brand-500 hover:text-brand-700">Home</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Tab switching
+    window.switchTab = function(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.classList.add('bg-brand-50','text-brand-600'); });
+      event.target.classList.add('active');
+      event.target.classList.remove('bg-brand-50','text-brand-600');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-'+name).classList.add('active');
+    };
+
+    // Load band descriptors
+    fetch('/api/band-descriptors').then(r=>r.json()).then(data => {
+      let html = '';
+      // Task 2 first
+      html += `<h2>${data.task2.title}</h2>`;
+      html += `<p><strong>计分规则：</strong>四项标准各占 25% 权重。Task 2 在总分中权重是 Task 1 的两倍。最终 Writing Band Score 为四项加权后取整（如 6.75 → 7.0）。</p>`;
+      html += `<table><thead><tr><th>Band</th><th>Task Response (TR)</th><th>Coherence & Cohesion (CC)</th><th>Lexical Resource (LR)</th><th>Grammatical Range & Accuracy (GRA)</th></tr></thead><tbody>`;
+      data.task2.bands.forEach(b => {
+        html += `<tr><td class="font-bold text-brand-900">${b.band}</td><td>${b.tr}</td><td>${b.cc}</td><td>${b.lr}</td><td>${b.gra}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+
+      html += `<h2>${data.task1.title}</h2>`;
+      html += `<table><thead><tr><th>Band</th><th>Task Achievement (TA)</th><th>Coherence & Cohesion (CC)</th><th>Lexical Resource (LR)</th><th>Grammatical Range & Accuracy (GRA)</th></tr></thead><tbody>`;
+      data.task1.bands.forEach(b => {
+        html += `<tr><td class="font-bold text-brand-900">${b.band}</td><td>${b.ta}</td><td>${b.cc}</td><td>${b.lr}</td><td>${b.gra}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      document.getElementById('descriptors-content').innerHTML = html;
+    });
+
+    // Load Simon method
+    fetch('/api/methodology').then(r=>r.json()).then(data => {
+      let html = '';
+
+      // Task 2
+      html += `<h2>${data.task2.title}</h2>`;
+      html += `<blockquote><strong>核心理念：</strong>${data.task2.corePrinciple}</blockquote>`;
+
+      html += `<h3>时间与句数分配</h3>`;
+      html += `<table><thead><tr><th>环节</th><th>句数</th><th>时间</th><th>词数（约）</th></tr></thead><tbody>`;
+      data.task2.timeAllocation.forEach(t => {
+        html += `<tr><td><strong>${t.stage}</strong></td><td>${t.sentences}</td><td>${t.time}</td><td>${t.words}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+
+      // Introduction
+      html += `<h3>Introduction（引言段）— 2 句话定生死</h3>`;
+      const intro = data.task2.paragraphGuide.introduction;
+      html += `<table><thead><tr><th>句子</th><th>功能</th><th>示例模板</th></tr></thead><tbody>`;
+      html += `<tr><td><strong>第1句</strong></td><td>${intro.sentence1.function}</td><td><code>${intro.sentence1.template}</code></td></tr>`;
+      html += `<tr><td><strong>第2句</strong></td><td>${intro.sentence2.function}</td><td><code>${intro.sentence2.template}</code></td></tr>`;
+      html += `</tbody></table>`;
+      html += `<blockquote>⚠️ <strong>铁律：</strong>${intro.sentence2.tip}</blockquote>`;
+
+      // Body paragraphs
+      html += `<h3>Main Body Paragraphs（主体段）— 两种组织方式</h3>`;
+      const bp = data.task2.paragraphGuide.bodyParagraphs;
+      html += `<h4>方式A：${bp.methodA.name}</h4><p>适用场景：${bp.methodA.use}。${bp.methodA.structure}。</p>`;
+      html += `<h4>方式B：${bp.methodB.name}</h4><p>${bp.methodB.use}</p>`;
+      html += `<table><thead><tr><th>句位</th><th>阶段</th><th>说明</th></tr></thead><tbody>`;
+      bp.methodB.structure.forEach(s => {
+        html += `<tr><td><strong>${s.position}</strong></td><td>${s.phase}</td><td>${s.description}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      html += `<blockquote><strong>Simon 核心口诀：</strong>"${bp.methodB.simonsQuote}"</blockquote>`;
+
+      // Conclusion
+      html += `<h3>Conclusion（结论段）— 1 句话收官</h3>`;
+      html += `<ul><li>❌ <strong>${data.task2.paragraphGuide.conclusion.rule1}</strong></li><li>✅ <strong>${data.task2.paragraphGuide.conclusion.rule2}</strong></li></ul>`;
+      html += `<p>模板：<code>${data.task2.paragraphGuide.conclusion.template}</code></p>`;
+
+      // Essay types
+      html += `<h3>四大题型分类框架</h3>`;
+      html += `<table><thead><tr><th>题型</th><th>中文</th><th>四段式模板要点</th></tr></thead><tbody>`;
+      data.task2.essayTypes.forEach(e => {
+        html += `<tr><td><strong>${e.type}</strong></td><td>${e.chinese}</td><td>${e.structure}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+
+      // Golden rules
+      html += `<h3>Simon 核心写作原则</h3>`;
+      html += `<ol>`;
+      data.task2.goldenRules.forEach(r => {
+        html += `<li><strong>${r.principle}：</strong>${r.rule}</li>`;
+      });
+      html += `</ol>`;
+
+      // Task 1
+      html += `<hr style="margin:2.5rem 0;border-color:#d9e2ec;">`;
+      html += `<h2>${data.task1.title}</h2>`;
+
+      html += `<h3>核心四段式结构</h3>`;
+      html += `<table><thead><tr><th>段落</th><th>功能</th><th>词数</th><th>关键要求</th></tr></thead><tbody>`;
+      data.task1.paragraphStructure.forEach(p => {
+        html += `<tr><td><strong>${p.paragraph}</strong></td><td>${p.purpose}</td><td>${p.words}</td><td>${p.keyRule}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      html += `<blockquote>⚠️ Task 1 不需要 Conclusion！写完 Details B 即可收笔。</blockquote>`;
+
+      html += `<h3>Overview（总览段）— Band 7 的关键分水岭</h3>`;
+      html += `<blockquote>"${data.task1.simonsQuote}"</blockquote>`;
+      html += `<ul>${data.task1.overviewGoldenRules.map(r => `<li>${r}</li>`).join('')}</ul>`;
+
+      html += `<h3>分组对比策略</h3>`;
+      html += `<table><thead><tr><th>图表类型</th><th>策略</th></tr></thead><tbody>`;
+      data.task1.groupingStrategies.forEach(g => {
+        html += `<tr><td><strong>${g.chartType}</strong></td><td>${g.strategy}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+
+      html += `<h3>时态铁律</h3><p>${data.task1.tenseRule}</p>`;
+
+      html += `<h3>Band 7+ 速查清单</h3>`;
+      html += `<table><thead><tr><th>✅ 必须做</th><th>❌ 不要做</th></tr></thead><tbody>`;
+      const maxLen = Math.max(data.task1.band7Checklist.do.length, data.task1.band7Checklist.dont.length);
+      for (let i = 0; i < maxLen; i++) {
+        html += `<tr><td>${data.task1.band7Checklist.do[i] || ''}</td><td>${data.task1.band7Checklist.dont[i] || ''}</td></tr>`;
+      }
+      html += `</tbody></table>`;
+
+      document.getElementById('simon-content').innerHTML = html;
+    });
+
+    // Load essays
+    fetch('/api/essays').then(r=>r.json()).then(essays => {
+      let html = '';
+      essays.forEach(e => {
+        html += `<h2>${e.title}</h2>`;
+        html += `<blockquote><strong>题目：</strong>${e.question}<br><strong>题型：</strong>${e.type} | <strong>综合评分：</strong>Band ${e.band}</blockquote>`;
+
+        html += `<h3>范文全文</h3>`;
+        html += e.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
+
+        // CC Analysis
+        html += `<h3>📊 CC（Coherence & Cohesion）得分亮点分析</h3>`;
+        html += `<p><strong>整体评级：</strong>${e.ccAnalysis.overall}</p>`;
+        html += `<table><thead><tr><th>评估维度</th><th>表现分析</th></tr></thead><tbody>`;
+        e.ccAnalysis.highlights.forEach(h => {
+          html += `<tr><td><strong>${h.dimension}</strong></td><td>${h.comment}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+
+        // LR Analysis
+        html += `<h3>📊 LR（Lexical Resource）得分亮点分析</h3>`;
+        html += `<p><strong>整体评级：</strong>${e.lrAnalysis.overall}</p>`;
+        html += `<table><thead><tr><th>词汇类别</th><th>使用实例</th></tr></thead><tbody>`;
+        e.lrAnalysis.highlights.forEach(h => {
+          html += `<tr><td><strong>${h.category}</strong></td><td><code>${h.items.join('</code> &nbsp;·&nbsp; <code>')}</code></td></tr>`;
+        });
+        html += `</tbody></table>`;
+        html += `<hr style="margin:2.5rem 0;border-color:#d9e2ec;">`;
+      });
+      document.getElementById('essays-content').innerHTML = html;
+    });
+  </script>
+</body>
+</html>
