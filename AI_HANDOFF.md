@@ -24,7 +24,8 @@
 
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| **Frontend** | Pure HTML/CSS/JS (no framework) | 5 standalone `.html` pages, each self-contained |
+| **Frontend** | Pure HTML/CSS/JS (no framework) | 5 standalone `.html` pages + 1 shared JS component |
+| **Shared Components** | `js/vocab-card.js` — VocabCard() | Reusable 3D-flip vocabulary card used by both vocabulary.html & collection.html |
 | **CSS** | Tailwind CSS via CDN (`cdn.tailwindcss.com`) | Custom `brand` color palette + `serif`/`sans` font families configured inline |
 | **Backend (local)** | Node.js `http` module — zero npm dependencies | `server.js` serves static files + 2 dynamic proxy routes + 6 static JSON API routes |
 | **Backend (production)** | Netlify Serverless Functions | 8 functions under `netlify/functions/`, auto-deployed |
@@ -42,9 +43,11 @@ IELTS_Study_Portal/
 ├── index.html                          # Landing page (hero + 3 feature cards)
 ├── writing.html                        # Writing methodology (3 tabs: descriptors, Simon, essays)
 ├── reading.html                        # Reading training (5 articles + translation + collection)
-├── vocabulary.html                     # 50 IELTS vocabulary cards (filterable, flip animation)
-├── collection.html                     # My Collection (word + sentence tabs, localStorage)
+├── vocabulary.html                     # 288 IELTS vocabulary cards (filterable, flip animation, VocabCard component)
+├── collection.html                     # My Collection (word tabs use VocabCard + sentence tabs, localStorage)
 ├── server.js                           # Local dev server (port 3456, all API routes)
+├── js/
+│   └── vocab-card.js                   # Shared VocabCard component + playAudio() + toggleCard()
 ├── package.json                        # Minimal, zero deps
 ├── netlify.toml                        # Netlify config: build, functions, redirects
 ├── vercel.json                         # Vercel fallback (UNUSED — left from early attempt)
@@ -190,9 +193,100 @@ User selects text in article
 
 ---
 
-## 6. Core Feature: Collection System (个性化生词本与长句收集)
+## 6. Shared Component: VocabCard (`js/vocab-card.js`)
 
-### 6.1 Classification Logic
+### 6.1 Overview
+
+`VocabCard(word, options)` is the shared vocabulary card renderer used by both `vocabulary.html` and `collection.html`. It generates a CSS 3D flip card with front (word info) and back (synonyms + example) sides.
+
+### 6.2 Exports (global scope)
+
+| Function | Purpose |
+|----------|---------|
+| `VocabCard(w, opts)` | Returns HTML string for a vocabulary card |
+| `toggleCard(cardId)` | Flips card by setting inline `rotateY` transform on `.card-inner` |
+| `playAudio(cardId, url)` | Plays pronunciation audio via HTML5 `Audio`, manages button pulse state |
+| `getThemeColor(theme)` | Returns Tailwind CSS classes for theme badge |
+| `renderDifficultyDots(level)` | Returns 1–5 difficulty dot HTML |
+
+### 6.3 VocabCard Parameters
+
+**Word data (`w`):**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `word` | string | ✅ | The vocabulary word |
+| `chinese` | string | ✅ | Chinese translation |
+| `pos` | string | — | Part of speech (noun, verb, adjective…) |
+| `phonetic` | string | — | IPA phonetic transcription |
+| `audioUrl` | string | — | URL to pronunciation audio (triggers 🔊 button) |
+| `synonyms` | string[] | — | Synonym list (displayed on back) |
+| `definition` | string | — | English definition (front, line-clamp-2) |
+| `example` | string | — | Example sentence (back) |
+| `contextSentence` | string | — | Fallback for definition (front) AND example (back) |
+| `contextHtml` | string | — | Raw HTML override for front context display (used for word highlighting in collection) |
+| `theme` | string | — | Theme/category (renders as colored badge) |
+| `difficulty` | number | — | Difficulty 1–5 (renders as dots) |
+
+**Options (`opts`):**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `flippable` | boolean | `true` | Enables 3D flip to reveal synonyms/example on back |
+| `showAudio` | boolean | `true` | Shows 🔊 audio button when `audioUrl` is present |
+| `showDelete` | boolean | `false` | Shows 🗑 delete button (calls global `deleteWord(id)`) |
+| `showTimestamp` | boolean | `false` | Shows saved-at timestamp below card content |
+| `cardIdPrefix` | string | `'vocab'` | Prefix for DOM id (`${prefix}-${id}`) |
+| `savedAt` | number | `null` | Timestamp for display when `showTimestamp` is true |
+
+### 6.4 Card DOM Structure
+
+```
+div.card.vocab-card#<cardIdPrefix>-<id>  [onclick=toggleCard]
+  └── div.card-inner                      [style=transform:rotateY(...)]
+        ├── div.card-front
+        │     ├── header: word (h3) + phonetic + audio-btn + theme-badge + delete-btn
+        │     ├── chinese translation (p)
+        │     ├── definition/context (p, line-clamp-2)
+        │     ├── difficulty dots (optional)
+        │     └── flip hint (optional)
+        └── div.card-back
+              ├── Synonyms label + tag cloud
+              ├── Example label + sentence
+              └── flip-back hint
+```
+
+### 6.5 Data Adapter Pattern (collection.html)
+
+Since `localStorage` myWords entries lack `pos`/`definition`/`theme`/`difficulty`, `collection.html` uses an adapter function:
+
+```javascript
+function adaptMyWord(w) {
+  return {
+    id: w.id,
+    word: w.word,
+    chinese: w.chinese || '',
+    phonetic: w.phonetic || '',
+    audioUrl: w.audioUrl || '',
+    synonyms: w.synonyms || [],
+    definition: '',                          // not available from reading lookup
+    example: '',                             // use contextSentence instead
+    contextSentence: w.contextSentence || '',
+    contextHtml: highlightWord(w.contextSentence, w.word),  // pre-highlighted
+    pos: '', theme: '', difficulty: 0,
+  };
+}
+```
+
+### 6.6 Flip State
+
+Card flip state is stored in `window._vocabCardFlipped` (a `Set` of card IDs). This persists across filter changes within a page session. The `toggleCard()` function toggles membership in this Set and applies inline `rotateY` transform accordingly.
+
+---
+
+## 7. Core Feature: Collection System (个性化生词本与长句收集)
+
+### 7.1 Classification Logic
 
 ```javascript
 isWord = cleanedText.split(/\s+/).length <= 3
@@ -200,7 +294,7 @@ isWord = cleanedText.split(/\s+/).length <= 3
 // >3 words → saved as "sentence"
 ```
 
-### 6.2 Word Save Flow
+### 7.2 Word Save Flow
 
 ```
 User clicks "📌 加入收藏" on tooltip
@@ -227,7 +321,7 @@ User clicks "📌 加入收藏" on tooltip
   Button changes to "✅ 已保存" (disabled, green)
 ```
 
-### 6.3 Sentence Save Flow
+### 7.3 Sentence Save Flow
 
 ```
 User clicks "📌 加入收藏" on tooltip (for text with >3 words)
@@ -248,7 +342,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
   Button changes to "✅ 已保存"
 ```
 
-### 6.4 localStorage Data Structures
+### 7.4 localStorage Data Structures
 
 **Key: `ielts_myWords`** — Array of word entries:
 ```json
@@ -289,19 +383,24 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 - Max: 100 entries
 - `highFreqWords` may be empty array if no IELTS vocab matches found
 
-### 6.5 Collection Page (`collection.html`)
+### 7.5 Collection Page (`collection.html`)
 
 - Two tabs: "📝 我的单词" / "📄 我的句子"
 - Reads directly from `localStorage` on page load
-- Word cards display: word, phonetics, 🔊 audio button (HTML5 `Audio` API), Chinese translation, synonym tags, context sentence with word highlighted via `<mark class="context-highlight">`
-- Sentence cards display: original text, Chinese translation, matched high-frequency word tags
-- Delete button (🗑) on each card removes entry and re-renders
+- **Word cards**: Rendered via shared `VocabCard()` component with 3D flip animation (same UI as vocabulary.html)
+  - Data adapter (`adaptMyWord()`) maps localStorage fields → VocabCard props
+  - Front: word, phonetic, 🔊 audio button, Chinese translation, context sentence with highlighted word
+  - Back: synonym tags, context sentence as example, flip-back hint
+  - Delete button (🗑) + saved timestamp on each card
+  - Responsive grid: 1→2→3 columns
+- **Sentence cards**: Flat cards (no flip) — original text, Chinese translation, matched high-frequency word tags
+- Delete button (🗑) on each entry removes and re-renders
 - Empty states with CTA to go read articles
-- `playAudio(wordId, url)`: creates `new Audio(url)`, handles autoplay blocking gracefully, shows pulse animation on playing button
+- Audio playback via shared `playAudio()` from `js/vocab-card.js`
 
 ---
 
-## 7. Page-by-Page Reference
+## 8. Page-by-Page Reference
 
 ### index.html
 - Hero section + 3 feature cards (Writing, Reading, Vocabulary)
@@ -321,18 +420,27 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 - Desktop-only navigation
 
 ### vocabulary.html
-- 50 vocabulary cards with CSS 3D flip animation (`.card-inner`, `rotateY(180deg)`)
+- 288 vocabulary cards rendered via shared `VocabCard()` component (`js/vocab-card.js`)
+- CSS 3D flip animation (`.card-inner`, `rotateY(180deg)`) — front: word/pos/theme/phonetic/audio/definition/difficulty; back: synonyms/example
 - Filter by theme (6 categories) + difficulty (1-5 stars)
+- Audio pronunciation button (🔊) on cards with `audioUrl` — uses shared `playAudio()`
 - Responsive grid: 1→2→3→4 columns
 - Desktop + mobile navigation
 
 ### collection.html
-- See §6.5 above
+- **My Words tab**: Renders saved words as VocabCard components (same 3D flip UI as vocabulary.html)
+  - Data adapter (`adaptMyWord()`) maps localStorage fields → VocabCard props
+  - Context sentences displayed with highlighted target word on card front
+  - Full example + synonyms on card back (flip to reveal)
+  - Delete button + save timestamp on each card
+  - Responsive grid: 1→2→3 columns
+- **My Sentences tab**: Flat cards with sentence text, Chinese translation, matched high-frequency word tags
+- See §6.5 for data flow details
 - Desktop + mobile navigation
 
 ---
 
-## 8. External API Reference
+## 9. External API Reference
 
 ### MyMemory Translation API
 - **URL**: `https://api.mymemory.translated.net/get?q=<text>&langpair=en|zh`
@@ -357,7 +465,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 
 ---
 
-## 9. Git History
+## 10. Git History
 
 ```
 fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
@@ -371,7 +479,7 @@ All commits on `main` branch. Branch is protected only by being private.
 
 ---
 
-## 10. Known Limitations & Future TODOs
+## 11. Known Limitations & Future TODOs
 
 ### Architectural Limitations
 
@@ -393,7 +501,7 @@ A full-text search for `TODO`, `FIXME`, `HACK`, `XXX` returned zero results. All
 
 ---
 
-## 11. Development Workflow
+## 12. Development Workflow
 
 ### Local Development
 ```bash
@@ -428,7 +536,7 @@ git push
 
 ---
 
-## 12. Key Configuration Values
+## 13. Key Configuration Values
 
 | Config | Value | Location |
 |--------|-------|----------|
@@ -439,7 +547,7 @@ git push
 | Collection max entries | `100` per type | `reading.html` (in `saveMyWords`/`saveMySentences`) |
 | History max entries | `20` | `reading.html` (in `addToHistory`) |
 | Dictionary entries | `558` | `data/dictionary.json` |
-| Vocabulary entries | `50` | `data/vocabulary.json` |
+| Vocabulary entries | `288` | `data/vocabulary.json` |
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 
