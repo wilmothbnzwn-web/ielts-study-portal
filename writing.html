@@ -109,6 +109,9 @@
       });
       html += `</tbody></table>`;
       document.getElementById('descriptors-content').innerHTML = html;
+    }).catch(function (e) {
+      console.error('Failed to load band descriptors', e);
+      document.getElementById('descriptors-content').innerHTML = '<p class="text-brand-400">评分标准加载失败，请刷新页面重试</p>';
     });
 
     // Load Simon method
@@ -202,6 +205,9 @@
       html += `</tbody></table>`;
 
       document.getElementById('simon-content').innerHTML = html;
+    }).catch(function (e) {
+      console.error('Failed to load methodology', e);
+      document.getElementById('simon-content').innerHTML = '<p class="text-brand-400">写作方法论加载失败，请刷新页面重试</p>';
     });
 
     // Load essays
@@ -234,6 +240,9 @@
         html += `<hr style="margin:2.5rem 0;border-color:#d9e2ec;">`;
       });
       document.getElementById('essays-content').innerHTML = html;
+    }).catch(function (e) {
+      console.error('Failed to load essays', e);
+      document.getElementById('essays-content').innerHTML = '<p class="text-brand-400">范文数据加载失败，请刷新页面重试</p>';
     });
   </script>
 </body>

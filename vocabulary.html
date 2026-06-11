@@ -96,10 +96,16 @@
   <script>
     let allWords = [];
 
-    fetch('/api/vocabulary').then(r=>r.json()).then(data => {
-      allWords = data;
-      renderCards(allWords);
-    });
+    fetch('/api/vocabulary')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        allWords = data;
+        renderCards(allWords);
+      })
+      .catch(function (e) {
+        console.error('Failed to load vocabulary data', e);
+        document.getElementById('vocab-grid').innerHTML = '<p class="text-brand-400 col-span-full text-center py-12">词库加载失败，请刷新页面重试</p>';
+      });
 
     function renderCards(words) {
       const grid = document.getElementById('vocab-grid');

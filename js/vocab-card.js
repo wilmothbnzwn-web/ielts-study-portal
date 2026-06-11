@@ -130,7 +130,7 @@ function VocabCard(w, opts) {
     frontText = escapeHtml(w.contextSentence);
   }
   var definitionHtml = frontText
-    ? '<p class="text-xs text-brand-400 leading-relaxed line-clamp-2">' + frontText + '</p>'
+    ? '<div class="text-xs text-brand-400 leading-relaxed line-clamp-3 break-words">' + frontText + '</div>'
     : '';
 
   // Difficulty dots
@@ -179,7 +179,7 @@ function VocabCard(w, opts) {
 
   // ── Non-flippable or no back content → flat card ──
   if (!flippable || !hasFlipContent) {
-    return '<div class="vocab-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5 max-w-full overflow-hidden" id="' + cardId + '">' + frontHtml + '</div>';
+    return '<div class="vocab-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5 max-w-full overflow-hidden min-h-[16rem]" id="' + cardId + '">' + frontHtml + '</div>';
   }
 
   // ── Back side ──
@@ -198,20 +198,20 @@ function VocabCard(w, opts) {
     : '';
 
   var backHtml =
-    '<div class="card-back bg-brand-50 rounded-2xl p-4 sm:p-5 flex flex-col justify-center overflow-hidden">' +
+    '<div class="card-back bg-brand-50 rounded-2xl p-4 sm:p-5 flex flex-col overflow-y-auto">' +
       '<p class="text-xs font-semibold text-brand-400 uppercase tracking-wide mb-2">Synonyms</p>' +
       synonymsHtml +
       '<p class="text-xs font-semibold text-brand-400 uppercase tracking-wide mb-1">Example</p>' +
       exampleHtml +
-      '<p class="text-xs text-brand-300 mt-3">点击翻转回到正面 →</p>' +
+      '<p class="text-xs text-brand-300 mt-auto pt-3">点击翻转回到正面 →</p>' +
     '</div>';
 
   // Check flip state
   var isFlipped = window._vocabCardFlipped && window._vocabCardFlipped.has(cardId);
 
-  return '<div class="card vocab-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5 max-w-full overflow-hidden" id="' + cardId + '" onclick="toggleCard(\'' + cardId + '\')">' +
+  return '<div class="card vocab-card bg-white rounded-2xl border border-brand-100 p-4 sm:p-5 max-w-full overflow-hidden min-h-[16rem]" id="' + cardId + '" onclick="toggleCard(\'' + cardId + '\')">' +
     '<div class="card-inner" style="transform:' + (isFlipped ? 'rotateY(180deg)' : 'none') + '">' +
-      '<div class="card-front">' + frontHtml + '</div>' +
+      '<div class="card-front overflow-hidden">' + frontHtml + '</div>' +
       backHtml +
     '</div>' +
   '</div>';

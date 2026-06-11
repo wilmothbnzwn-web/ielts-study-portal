@@ -212,10 +212,38 @@
     let currentSelectionContext = null;
     let ieltsVocab = [];
 
+    /**
+     * Fetch with retry — wraps fetch with up to `maxRetries` attempts,
+     * 1s delay between retries. Returns null on total failure so callers
+     * can degrade gracefully instead of crashing.
+     */
+    async function fetchWithRetry(url, opts, maxRetries) {
+      maxRetries = maxRetries || 2;
+      opts = opts || {};
+      var lastErr = null;
+      for (var attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          var resp = await fetch(url, opts);
+          return resp;
+        } catch (e) {
+          lastErr = e;
+          console.warn('fetchWithRetry attempt ' + (attempt + 1) + '/' + (maxRetries + 1) + ' failed for ' + url + ': ' + e.message);
+          if (attempt < maxRetries) {
+            await new Promise(function (r) { return setTimeout(r, 1000); });
+          }
+        }
+      }
+      console.error('fetchWithRetry: all ' + (maxRetries + 1) + ' attempts failed for ' + url, lastErr);
+      return null;
+    }
+
     // Load articles
     fetch('/api/reading-articles').then(r=>r.json()).then(data => {
       articles = data;
       renderArticle(0);
+    }).catch(function (e) {
+      console.error('Failed to load reading articles', e);
+      document.getElementById('article-body').innerHTML = '<p class="text-brand-400 text-center py-12">文章加载失败，请刷新页面重试</p>';
     });
 
     // Load dictionary
@@ -343,13 +371,15 @@
 
     async function translateViaAPI(text) {
       try {
-        const resp = await fetch(`/api/translate?text=${encodeURIComponent(text)}`);
-        if (!resp.ok) return null;
+        const resp = await fetchWithRetry(`/api/translate?text=${encodeURIComponent(text)}`);
+        if (!resp || !resp.ok) return null;
         const data = await resp.json();
         if (data.translatedText && data.translatedText.toLowerCase() !== text.toLowerCase()) {
           return { text: data.translatedText, source: data.source || 'MyMemory API' };
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {
+        console.warn('translateViaAPI failed after retries', e);
+      }
       return null;
     }
 
@@ -505,8 +535,8 @@
 
     async function enrichWord(word) {
       try {
-        const resp = await fetch(`/api/dictionary-lookup?word=${encodeURIComponent(word)}`);
-        if (!resp.ok) return null;
+        const resp = await fetchWithRetry(`/api/dictionary-lookup?word=${encodeURIComponent(word)}`);
+        if (!resp || !resp.ok) return null;
         const data = await resp.json();
         if (data.found) {
           return {
@@ -515,7 +545,9 @@
             synonyms: data.synonyms || [],
           };
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {
+        console.warn('enrichWord failed after retries for "' + word + '"', e);
+      }
       return null;
     }
 
