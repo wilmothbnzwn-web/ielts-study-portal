@@ -28,6 +28,7 @@ const API_ROUTES = {
   '/api/methodology': 'methodology.json',
   '/api/dictionary': 'dictionary.json',
   '/api/mock-test-1': 'mock-test-1.json',
+  '/api/reading-tests': 'reading_tests.json',
 };
 
 const server = http.createServer((req, res) => {
@@ -197,6 +198,7 @@ server.listen(PORT, () => {
   console.log('');
   console.log('  Pages:');
   console.log(`    Home:        http://localhost:${PORT}/`);
+  console.log(`    Library:     http://localhost:${PORT}/reading-library.html`);
   console.log(`    Mock Test:   http://localhost:${PORT}/mock-test.html`);
   console.log(`    Writing:     http://localhost:${PORT}/writing.html`);
   console.log(`    Reading:     http://localhost:${PORT}/reading.html`);

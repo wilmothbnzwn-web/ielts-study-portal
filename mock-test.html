@@ -408,6 +408,7 @@
   <!-- ==================== TOP EXAM BAR ==================== -->
   <div id="exam-topbar">
     <div class="flex items-center gap-4">
+      <a href="/reading-library.html" class="topbar-btn" title="返回题库大厅" style="text-decoration:none;">←</a>
       <span class="test-label">IELTS Academic · Reading</span>
       <span class="section-indicator" id="section-indicator">Section 1 of 3</span>
     </div>
@@ -500,18 +501,59 @@ let fontSizeLevel = 0; // 0=normal, 1=large, 2=xlarge
 
 // ==================== LOAD TEST DATA ====================
 let testData = null;
+let currentTestMeta = null; // Stores id, title, topic etc before wrapping
+let totalQuestionCount = 0; // Actual question count for this test
 
 async function loadTestData() {
+  // Parse ?testId= from URL query string
+  const urlParams = new URLSearchParams(window.location.search);
+  const testId = urlParams.get('testId');
+
   try {
-    const res = await fetch('/api/mock-test-1');
-    testData = await res.json();
+    const res = await fetch('/api/reading-tests');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const tests = data.tests || [];
+
+    let test = null;
+
+    // Find the requested test, or fall back to the first available
+    if (testId) {
+      test = tests.find(t => t.id === testId);
+    }
+    if (!test && tests.length > 0) {
+      test = tests[0];
+    }
+    if (!test) {
+      document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">题库暂无可用试卷，请先 <a href="/reading-library.html" style="color:#334e68;">返回题库大厅</a>。</p>';
+      return;
+    }
+
+    currentTestMeta = { id: test.id, title: test.title, topic: test.topic, source: test.source, difficulty: test.difficulty };
+
+    // Wrap into expected format (passages array) for backward compat with rendering code
+    testData = {
+      testId: test.id,
+      testName: test.source || test.title,
+      totalTime: test.totalTime,
+      passages: [{
+        id: 1,
+        title: test.title,
+        passageText: test.passageText,
+        wordCount: test.wordCount,
+        questions: test.questions
+      }]
+    };
+
+    totalQuestionCount = test.questions.length;
+
     renderPassage();
     renderQuestions();
     renderBottomNav();
     updateSectionIndicator();
   } catch (err) {
     console.error('Failed to load test data:', err);
-    document.getElementById('passage-content').innerHTML = '<p style="color:red;">加载试卷失败，请刷新重试。</p>';
+    document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">加载试卷失败，请 <a href="/reading-library.html" style="color:#334e68;">返回题库大厅</a> 重试。</p>';
   }
 }
 
@@ -534,11 +576,13 @@ function renderQuestions() {
 
   let html = '';
 
-  // Questions 1-7: TRUE/FALSE/NOT GIVEN
+  // Questions section header
   const tfnQuestions = passage.questions.filter(q => q.type === 'true_false_not_given');
+  const tfnStart = tfnQuestions.length > 0 ? tfnQuestions[0].id : 0;
+  const tfnEnd = tfnQuestions.length > 0 ? tfnQuestions[tfnQuestions.length - 1].id : 0;
   if (tfnQuestions.length > 0) {
-    html += `<div class="section-header">Questions 1–${tfnQuestions.length}</div>`;
-    html += `<div class="section-instruction">Do the following statements agree with the information given in Reading Passage 1?<br>In boxes <b>1–${tfnQuestions.length}</b> on your answer sheet, write:<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this</div>`;
+    html += `<div class="section-header">Questions ${tfnStart}–${tfnEnd}</div>`;
+    html += `<div class="section-instruction">Do the following statements agree with the information given in Reading Passage 1?<br>In boxes <b>${tfnStart}–${tfnEnd}</b> on your answer sheet, write:<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this</div>`;
 
     tfnQuestions.forEach((q, idx) => {
       const userAns = userAnswers[q.id];
@@ -555,7 +599,7 @@ function renderQuestions() {
     });
   }
 
-  // Questions 8-13: Short Answer
+  // Short Answer questions
   const saQuestions = passage.questions.filter(q => q.type === 'short_answer');
   if (saQuestions.length > 0) {
     const startNum = saQuestions[0].id;
@@ -574,11 +618,13 @@ function renderQuestions() {
     });
   }
 
-  // Placeholder for questions 14-40 (Passages 2 & 3)
-  html += `<div style="margin-top:32px; padding:20px; background:#fff; border:1px dashed #d9e2ec; border-radius:12px; text-align:center;">`;
-  html += `<div style="font-size:15px; font-weight:600; color:#627d98; margin-bottom:8px;">📋 Section 2 & 3 — 即将上线</div>`;
-  html += `<div style="font-size:13px; color:#9fb3c8;">Passage 2 和 Passage 3 的题目正在建设中。<br>当前 MVP 版本仅展示 Passage 1（Questions 1-13）的完整作答体验。</div>`;
-  html += `</div>`;
+  // Placeholder for remaining passages (if fewer than 40 questions)
+  if (passage.questions.length < 40) {
+    html += `<div style="margin-top:32px; padding:20px; background:#fff; border:1px dashed #d9e2ec; border-radius:12px; text-align:center;">`;
+    html += `<div style="font-size:15px; font-weight:600; color:#627d98; margin-bottom:8px;">📋 更多文章 — 即将上线</div>`;
+    html += `<div style="font-size:13px; color:#9fb3c8;">Passage 2 和 Passage 3 的题目正在建设中。<br>当前版本包含 ${passage.questions.length} 道题的完整作答体验。</div>`;
+    html += `</div>`;
+  }
 
   container.innerHTML = html;
 }
@@ -796,25 +842,30 @@ function renderBottomNav() {
   // Previous arrow
   html += `<button class="nav-arrow" onclick="navPrev()" title="上一题">◀</button>`;
 
-  // Passage 1: Questions 1-13
-  for (let i = 1; i <= 13; i++) {
+  // Passage 1: Actual questions
+  for (let i = 1; i <= totalQuestionCount; i++) {
     const isAnswered = userAnswers[i] !== undefined && userAnswers[i] !== '';
     const isCurrent = (i - 1) === currentQuestionIndex;
     html += `<div class="nav-q-block${isCurrent ? ' current-nav' : ''}${isAnswered ? ' answered-nav' : ''}" onclick="jumpToQuestion(${i - 1})" title="第${i}题">${i}</div>`;
   }
 
-  html += `<div class="nav-section-divider"></div>`;
+  // If test has fewer than 40 questions, show placeholders for remaining sections
+  if (totalQuestionCount < 40) {
+    html += `<div class="nav-section-divider"></div>`;
 
-  // Passage 2 placeholder: Questions 14-26
-  for (let i = 14; i <= 26; i++) {
-    html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 2 — 即将上线">${i}</div>`;
-  }
+    // Passage 2 placeholder
+    const p2Start = totalQuestionCount + 1;
+    const p2End = Math.min(p2Start + 12, 26);
+    for (let i = p2Start; i <= p2End; i++) {
+      html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 2 — 即将上线">${i}</div>`;
+    }
 
-  html += `<div class="nav-section-divider"></div>`;
-
-  // Passage 3 placeholder: Questions 27-40
-  for (let i = 27; i <= 40; i++) {
-    html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 3 — 即将上线">${i}</div>`;
+    if (p2End < 40) {
+      html += `<div class="nav-section-divider"></div>`;
+      for (let i = Math.max(p2End + 1, 27); i <= 40; i++) {
+        html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 3 — 即将上线">${i}</div>`;
+      }
+    }
   }
 
   // Next arrow
@@ -825,8 +876,8 @@ function renderBottomNav() {
 
 function jumpToQuestion(index) {
   if (testSubmitted) return;
-  // Only allow jumping to questions 1-13 in MVP
-  if (index >= 13) return;
+  // Only allow jumping to actual questions
+  if (index >= totalQuestionCount) return;
 
   currentQuestionIndex = index;
   const qid = index + 1;
@@ -849,7 +900,7 @@ function navPrev() {
 }
 
 function navNext() {
-  if (currentQuestionIndex < 12) { // MVP: only up to q13
+  if (currentQuestionIndex < totalQuestionCount - 1) {
     jumpToQuestion(currentQuestionIndex + 1);
   }
 }
@@ -972,7 +1023,9 @@ function escapeHtml(str) {
 }
 
 function updateSectionIndicator() {
-  document.getElementById('section-indicator').textContent = 'Section 1 of 3 · Passage 1';
+  const title = currentTestMeta ? currentTestMeta.title : 'Passage 1';
+  const shortTitle = title.length > 35 ? title.substring(0, 35) + '…' : title;
+  document.getElementById('section-indicator').textContent = 'Passage 1 · ' + shortTitle;
 }
 
 function changeFontSize() {

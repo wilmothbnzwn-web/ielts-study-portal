@@ -16,7 +16,7 @@
 | **Deploy Platform** | Netlify (auto-deploy on `git push` to `main`) |
 | **Local Dev Port** | `3456` (start with `node server.js` or `npm start`) |
 | **Last Updated** | 2026-06-15 |
-| **Total Commits** | 6 (see §12 Git History) |
+| **Total Commits** | 7 (see §13 Git History) |
 
 ---
 
@@ -24,12 +24,12 @@
 
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| **Frontend** | Pure HTML/CSS/JS (no framework) | 6 standalone `.html` pages + 1 shared JS component |
+| **Frontend** | Pure HTML/CSS/JS (no framework) | 7 standalone `.html` pages + 1 shared JS component |
 | **Shared Components** | `js/vocab-card.js` — VocabCard() | Reusable 3D-flip vocabulary card used by both vocabulary.html & collection.html |
 | **CSS** | Tailwind CSS via CDN (`cdn.tailwindcss.com`) | Custom `brand` color palette + `serif`/`sans` font families configured inline |
-| **Backend (local)** | Node.js `http` module — zero npm dependencies | `server.js` serves static files + 2 dynamic proxy routes + 7 static JSON API routes |
-| **Backend (production)** | Netlify Serverless Functions | 9 functions under `netlify/functions/`, auto-deployed |
-| **Data Layer** | Static JSON files in `data/` | 7 files; no database |
+| **Backend (local)** | Node.js `http` module — zero npm dependencies | `server.js` serves static files + 2 dynamic proxy routes + 8 static JSON API routes |
+| **Backend (production)** | Netlify Serverless Functions | 10 functions under `netlify/functions/`, auto-deployed |
+| **Data Layer** | Static JSON files in `data/` | 8 files; no database |
 | **Persistence (client)** | `localStorage` | Two keys: `ielts_myWords` and `ielts_mySentences` |
 | **External APIs (proxied)** | MyMemory Translation API, Free Dictionary API | Both called server-side to avoid CORS |
 | **package.json** | `{ "scripts": { "start": "node server.js", "dev": "node server.js" } }` | Zero `dependencies` / `devDependencies` |
@@ -41,7 +41,8 @@
 ```
 IELTS_Study_Portal/
 ├── index.html                          # Landing page (hero + 3 feature cards)
-├── mock-test.html                      # ★ NEW: Computer-delivered IELTS reading mock test (split-pane, timer, highlighting, bottom nav)
+├── reading-library.html                # ★ NEW: Reading test library (cards → mock test with ?testId=)
+├── mock-test.html                      # Computer-delivered IELTS reading mock test (split-pane, timer, highlighting, bottom nav, dynamic ?testId= routing)
 ├── writing.html                        # Writing methodology (3 tabs: descriptors, Simon, essays)
 ├── reading.html                        # Reading training (5 articles + translation + collection)
 ├── vocabulary.html                     # 288 IELTS vocabulary cards (filterable, flip animation, VocabCard component)
@@ -54,14 +55,15 @@ IELTS_Study_Portal/
 ├── vercel.json                         # Vercel fallback (UNUSED — left from early attempt)
 ├── .gitignore                          # node_modules, .env, .vercel, .netlify, .DS_Store
 │
-├── data/                               # Static JSON data files (7 files)
+├── data/                               # Static JSON data files (8 files)
 │   ├── dictionary.json                 # 558-entry EN→ZH word dictionary
 │   ├── vocabulary.json                 # 50 IELTS core words with full metadata
 │   ├── reading-articles.json           # 5 academic articles with vocab highlights
 │   ├── essays.json                     # 3 Band 8+ sample essays
 │   ├── methodology.json                # Simon's writing methodology content
 │   ├── band-descriptors.json           # Official IELTS band descriptors
-│   └── mock-test-1.json                # ★ NEW: Cam 9 Test 1 mock exam (passage + 13 questions)
+│   ├── mock-test-1.json                # Cam 9 Test 1 mock exam (passage + 13 questions) — kept for backward compat
+│   └── reading_tests.json              # ★ NEW: Aggregate test library (3 tests with metadata + content)
 │
 ├── api/                                # LEGACY Vercel serverless functions (UNUSED)
 │   ├── band-descriptors.js
@@ -70,27 +72,124 @@ IELTS_Study_Portal/
 │   ├── reading-articles.js
 │   └── vocabulary.js
 │
-└── netlify/functions/                  # Active Netlify serverless functions (9 files)
+└── netlify/functions/                  # Active Netlify serverless functions (10 files)
     ├── band-descriptors.js             # Serves data/band-descriptors.json
     ├── essays.js                       # Serves data/essays.json
     ├── methodology.js                  # Serves data/methodology.json
     ├── reading-articles.js             # Serves data/reading-articles.json
     ├── vocabulary.js                   # Serves data/vocabulary.json
     ├── dictionary.js                   # Serves data/dictionary.json
-    ├── mock-test-1.js                  # ★ NEW: Serves data/mock-test-1.json
+    ├── mock-test-1.js                  # Serves data/mock-test-1.json
+    ├── reading-tests.js                # ★ NEW: Serves data/reading_tests.json
     ├── translate.js                    # Proxies MyMemory Translation API
     └── dictionary-lookup.js            # Proxies Free Dictionary API
 ```
 
 ---
 
-## 4. New Module: Computer-Delivered Mock Test (机考模拟)
+## 4. New Module: Reading Test Library (题库大厅)
 
 ### 4.1 Overview
 
+`reading-library.html` is the test library landing page that lists all available IELTS reading mock tests. It serves as the entry point before entering the mock test interface, replacing the previously hardcoded single-test flow.
+
+### 4.2 Card-Based UI
+
+Each test is rendered as a card in a responsive grid (1→2→3 columns). Cards display:
+- **Topic tag** (colored badge with icon: Science🔬 / Environment🌍 / History📜 / Economics💼 / Sociology👥)
+- **Title** (serif font, large)
+- **Excerpt** (120-char preview of passage text)
+- **Source** (e.g. "Cambridge IELTS 9 Test 1 Passage 1")
+- **Difficulty** rating (1-5 dots with label)
+- **Question count** + **Time estimate**
+- **CTA arrow** ("进入模考 →")
+
+Card hover: translateY(-6px) + enlarged shadow + arrow slides right. Skeleton loading placeholders shown while data loads.
+
+### 4.3 Dynamic Routing (Dynamic Routing)
+
+```
+reading-library.html                  mock-test.html?testId=cam9-test1
+┌──────────────────────┐  click card  ┌──────────────────────────────────┐
+│ [Science] Perkin      │ ──────────→ │ Loads test with id="cam9-test1"  │
+│ [Environment] Bears   │             │ Retrieves from /api/reading-tests │
+│ [History] Tea         │             │ Wraps into passages[] for render  │
+└──────────────────────┘             └──────────────────────────────────┘
+```
+
+**Routing mechanism**: `mock-test.html` reads `?testId=<id>` from `URLSearchParams`. It fetches `/api/reading-tests`, finds the matching test by `id`, and wraps it into the expected `passages[]` format for backward compatibility with the rendering code. If no `testId` is provided, or the ID is not found, it falls back to the first available test.
+
+**Back navigation**: The mock test top bar now includes a "←" back button that links to `/reading-library.html`.
+
+### 4.4 Test Data Structure (`data/reading_tests.json`)
+
+All 3 mock tests are stored in a single JSON file with structure:
+
+```json
+{
+  "tests": [
+    {
+      "id": "cam9-test1",
+      "title": "William Henry Perkin — The man who invented synthetic dyes",
+      "topic": "Science",
+      "source": "Cambridge IELTS 9 Test 1 Passage 1",
+      "difficulty": 3,
+      "totalTime": 3600,
+      "wordCount": 740,
+      "questionCount": 13,
+      "passageText": "<p>...</p>",
+      "questions": [
+        { "id": 1, "type": "true_false_not_given", "questionText": "...", "options": ["TRUE","FALSE","NOT GIVEN"], "correctAnswer": 1 },
+        { "id": 8, "type": "short_answer", "questionText": "...", "correctAnswer": "mauve", "wordLimit": 2 }
+      ]
+    }
+  ]
+}
+```
+
+**Available tests** (3 as of 2026-06-15):
+
+| ID | Title | Topic | Difficulty | Questions | Time |
+|----|-------|-------|------------|-----------|------|
+| `cam9-test1` | William Henry Perkin — Synthetic Dyes | Science | ★★★ | 13 (7 TFN + 6 SA) | 60 min |
+| `cam16-test1` | Why We Need to Protect Polar Bears | Environment | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam10-test2` | Tea and the Industrial Revolution | History | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
+
+### 4.5 Compatibility Layer
+
+`mock-test.html` wraps the flat test object into the legacy `passages[]` format:
+```javascript
+testData = {
+  testId: test.id,
+  testName: test.source || test.title,
+  totalTime: test.totalTime,
+  passages: [{
+    id: 1, title: test.title,
+    passageText: test.passageText,
+    wordCount: test.wordCount,
+    questions: test.questions
+  }]
+};
+```
+This ensures all existing rendering code (`renderPassage()`, `renderQuestions()`, `renderBottomNav()`, `submitTest()`) works without modification.
+
+### 4.6 Dynamic Question Count
+
+The bottom navigator now adapts to the actual number of questions instead of hardcoding 13:
+- `totalQuestionCount` tracks the real question count
+- `navNext()`, `jumpToQuestion()`, and `renderBottomNav()` all reference `totalQuestionCount`
+- Placeholder blocks for passages 2 & 3 are shown only when `totalQuestionCount < 40`
+- Section headers use `questions[0].id` and `questions[last].id` for dynamic ranges
+
+---
+
+## 5. Computer-Delivered Mock Test Interface (机考模拟界面)
+
+### 5.1 Overview
+
 `mock-test.html` is a standalone simulation of the official IELTS computer-delivered Reading test interface, built from web research on the 2025 updated IDP/British Council system. It uses the same zero-dependency architecture (pure HTML/CSS/JS + Tailwind CDN).
 
-### 4.2 UI Layout (Research-Backed)
+### 5.2 UI Layout (Research-Backed)
 
 Based on research of the official IDP/British Council computer-based IELTS interface (2024-2025 updates):
 
@@ -102,7 +201,7 @@ Based on research of the official IDP/British Council computer-based IELTS inter
 | **Timer** | Monospace font, 60:00 → counts down. Yellow pulse warning at 10 min remaining, red pulse danger at 5 min. Auto-submits at 0:00. |
 | **Font size** | 3-level toggle (16px/18px/20px) — matching official accessibility feature. |
 
-### 4.3 Core Interaction: Text Highlighting
+### 5.3 Core Interaction: Text Highlighting
 
 ```
 User selects text in passage pane (mouseup)
@@ -129,14 +228,14 @@ User selects text in passage pane (mouseup)
 
 **Known limitation for MVP**: Highlights are DOM-only (not persisted across passage re-renders). In production, could serialize highlight positions as character offsets and reapply on re-render.
 
-### 4.4 Question Types Implemented (MVP)
+### 5.4 Question Types Implemented (MVP)
 
 | Type | UI Component | Validation |
 |------|-------------|------------|
 | **TRUE/FALSE/NOT GIVEN** | 3-option button group (flex-wrap, equal width). Selected = filled border. After submit: green = correct, red = incorrect. | Exact index match (0=TRUE, 1=FALSE, 2=NOT GIVEN) |
 | **Short Answer** | Text input (max 360px) with word limit hint in placeholder. After submit: green/red border + correct answer hint. | Case-insensitive trimmed string comparison |
 
-### 4.5 Answer Tracking & Navigation
+### 5.5 Answer Tracking & Navigation
 
 - **State**: `userAnswers = { questionId: answerValue }` — in-memory object, no localStorage persistence (matches exam behavior — answers lost on page leave).
 - **Bottom nav**: Re-rendered on each answer change. `answered-nav` class applied when `userAnswers[qid]` is truthy.
@@ -144,7 +243,7 @@ User selects text in passage pane (mouseup)
 - **Keyboard**: `Tab` = next question, `Ctrl+←` = prev, `Ctrl+→` = next.
 - **Auto-save**: Every interaction (TFN click, text input) instantly saves to `userAnswers`.
 
-### 4.6 Scoring & Review
+### 5.6 Scoring & Review
 
 ```
 User clicks ✓ (submit) or timer reaches 0:00
@@ -160,7 +259,7 @@ User clicks ✓ (submit) or timer reaches 0:00
   "重新开始" button: resets all state (timer, answers, highlights)
 ```
 
-### 4.7 Test Data Structure (`data/mock-test-1.json`)
+### 5.7 Test Data Structure (`data/mock-test-1.json`)
 
 Based on **Cambridge IELTS 9 Test 1 Passage 1** (William Henry Perkin — synthetic dyes). 13 questions covering 2 types:
 
@@ -186,7 +285,7 @@ Based on **Cambridge IELTS 9 Test 1 Passage 1** (William Henry Perkin — synthe
 **Questions 8-13**: Short Answer — text inputs with word limit  
 **Questions 14-40**: Placeholder (Passages 2 & 3 shown as "upcoming" at 40% opacity in navigator)
 
-### 4.8 CSS Architecture
+### 5.8 CSS Architecture
 
 All styles are inline in `<style>` block (following project convention — no external CSS files). Key design tokens:
 
@@ -197,7 +296,7 @@ All styles are inline in `<style>` block (following project convention — no ex
 - Top bar: `#1a1a2e` (dark navy, matches official dark theme)
 - Responsive: at 768px breakpoint, split pane becomes vertical stack (45%/55%)
 
-### 4.9 Future Enhancements (v2)
+### 5.9 Future Enhancements (v2)
 
 | Feature | Notes |
 |---------|-------|
@@ -211,7 +310,7 @@ All styles are inline in `<style>` block (following project convention — no ex
 
 ---
 
-## 5. API Architecture
+## 6. API Architecture
 
 ### 9.1 Local Development (server.js)
 
@@ -228,6 +327,7 @@ All styles are inline in `<style>` block (following project convention — no ex
    - `GET /api/essays` → `data/essays.json`
    - `GET /api/methodology` → `data/methodology.json`
    - `GET /api/mock-test-1` → `data/mock-test-1.json`
+   - `GET /api/reading-tests` → `data/reading_tests.json`
    - `GET /api/dictionary` → `data/dictionary.json`
 
 3. **Static file serving**: Serves `.html` files from root directory. Falls back to `public/` (legacy), then to `index.html`.
@@ -264,7 +364,7 @@ When adding a new API route, you must update both.
 
 ---
 
-## 7. Core Feature: Word Selection Translation (划词翻译)
+## 8. Core Feature: Word Selection Translation (划词翻译)
 
 ### 9.1 Implementation Location
 All translation logic lives in `reading.html` inline `<script>` (lines ~233–440).
@@ -324,7 +424,7 @@ User selects text in article
 
 ---
 
-## 8. Shared Component: VocabCard (`js/vocab-card.js`)
+## 9. Shared Component: VocabCard (`js/vocab-card.js`)
 
 ### 9.1 Overview
 
@@ -415,7 +515,7 @@ Card flip state is stored in `window._vocabCardFlipped` (a `Set` of card IDs). T
 
 ---
 
-## 9. Core Feature: Collection System (个性化生词本与长句收集)
+## 10. Core Feature: Collection System (个性化生词本与长句收集)
 
 ### 9.1 Classification Logic
 
@@ -531,22 +631,31 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 
 ---
 
-## 10. Page-by-Page Reference
+## 11. Page-by-Page Reference
 
 ### index.html
 - Hero section + **4 feature cards** (Mock Test, Writing, Reading, Vocabulary)
-- Navigation: desktop (`hidden sm:flex`) + mobile (`sm:hidden`) — includes **机考模拟** link
+- Navigation: desktop (`hidden sm:flex`) + mobile (`sm:hidden`) — includes **题库大厅** and **机考模拟** links
 
-### mock-test.html ★ NEW
-- Full computer-delivered IELTS Reading mock test simulation
+### reading-library.html ★ NEW
+- Test library landing page with card-based UI (responsive 1→2→3 columns)
+- Cards display topic tag, title, excerpt, source, difficulty, question count, time estimate
+- Skeleton loading placeholders; hover animation (translateY + shadow)
+- Click card → navigates to `mock-test.html?testId=<id>` for dynamic routing
+- Stats bar showing total tests, questions, and topic areas
+- See §4 for full module documentation
+
+### mock-test.html
+- Full computer-delivered IELTS Reading mock test simulation, now with dynamic `?testId=` routing
+- Back button (←) returns to reading-library.html
 - Left-right split pane with independent scrolling
-- Text highlighting tool (select → highlight yellow), 60-min countdown timer with 10min/5min color warnings
-- Bottom question navigator with 1-40 numbered blocks, answered/current status indicators
-- 13 real Cambridge IELTS 9 Test 1 questions (TRUE/FALSE/NOT GIVEN + Short Answer)
+- Text highlighting tool (select → highlight yellow), countdown timer with 10min/5min color warnings
+- Bottom question navigator with dynamic question count, answered/current status indicators
+- Questions dynamically loaded from `data/reading_tests.json` based on `?testId=` param
 - Submit & review flow with score calculation and correct/incorrect answer display
 - Keyboard navigation (Tab, Ctrl+←/→)
 - Font size toggle (3 levels), help overlay
-- See §4 for full module documentation
+- See §5 for full module documentation
 
 ### writing.html
 - 3 tabs: 评分标准, Simon 写作法, 高分范文拆解
@@ -577,12 +686,12 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
   - Delete button + save timestamp on each card
   - Responsive grid: 1→2→3 columns
 - **My Sentences tab**: Flat cards with sentence text, Chinese translation, matched high-frequency word tags
-- See §6.5 for data flow details
+- See §10.5 for data flow details
 - Desktop + mobile navigation
 
 ---
 
-## 11. External API Reference
+## 12. External API Reference
 
 ### MyMemory Translation API
 - **URL**: `https://api.mymemory.translated.net/get?q=<text>&langpair=en|zh`
@@ -607,9 +716,10 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 
 ---
 
-## 12. Git History
+## 13. Git History
 
 ```
+<TBD> Feat: Add Reading Library list view and dynamic routing to mock test interface
 7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
 fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
 bb597e1 Enhance: Upgrade translation engine for full sentences and add loading UI
@@ -622,7 +732,7 @@ All commits on `main` branch. Branch is protected only by being private.
 
 ---
 
-## 13. Known Limitations & Future TODOs
+## 14. Known Limitations & Future TODOs
 
 ### Architectural Limitations
 
@@ -644,7 +754,7 @@ A full-text search for `TODO`, `FIXME`, `HACK`, `XXX` returned zero results. All
 
 ---
 
-## 14. Development Workflow
+## 15. Development Workflow
 
 ### Local Development
 ```bash
@@ -679,7 +789,7 @@ git push
 
 ---
 
-## 15. Key Configuration Values
+## 16. Key Configuration Values
 
 | Config | Value | Location |
 |--------|-------|----------|
@@ -694,7 +804,8 @@ git push
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 | Mock test timer | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
-| Mock test questions | `13` (MVP) | `data/mock-test-1.json` |
+| Mock test questions (total) | `29` across 3 tests | `data/reading_tests.json` |
+| Reading tests | `3` (Science, Environment, History) | `data/reading_tests.json` |
 | Timer warning thresholds | `600s` / `300s` | `mock-test.html` (`updateTimer`) |
 
 ---

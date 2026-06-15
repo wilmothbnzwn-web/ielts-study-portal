@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阅读题库 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' }
+          },
+          fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #fafbfc; }
+    .test-card {
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      cursor: pointer;
+    }
+    .test-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(16,42,67,0.10);
+    }
+    .test-card:hover .card-arrow {
+      transform: translateX(4px);
+    }
+    .card-arrow {
+      transition: transform 0.25s ease;
+    }
+    .topic-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .topic-science { background: #dbeafe; color: #1e40af; }
+    .topic-environment { background: #d1fae5; color: #065f46; }
+    .topic-history { background: #fef3c7; color: #92400e; }
+    .topic-economics { background: #fce7f3; color: #9d174d; }
+    .topic-sociology { background: #ede9fe; color: #5b21b6; }
+    .difficulty-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .difficulty-dot.filled { background: #334e68; }
+    .difficulty-dot.empty { background: #d9e2ec; }
+    .skeleton { background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <div class="w-9 h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
+        <div>
+          <h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
+          <p class="text-xs text-brand-400">Academic Reading & Writing</p>
+        </div>
+      </a>
+      <nav class="hidden sm:flex gap-1 text-sm">
+        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
+        <a href="/reading-library.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">题库大厅</a>
+        <a href="/mock-test.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">机考模拟</a>
+        <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
+        <a href="/reading.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">阅读</a>
+        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
+        <a href="/collection.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">收集</a>
+      </nav>
+      <!-- Mobile nav -->
+      <div class="sm:hidden flex gap-2">
+        <a href="/reading-library.html" class="text-xs px-3 py-1.5 bg-brand-800 text-white rounded-md font-medium">题库</a>
+        <a href="/mock-test.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">机考</a>
+        <a href="/writing.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">写作</a>
+        <a href="/reading.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">阅读</a>
+        <a href="/vocabulary.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">词汇</a>
+        <a href="/collection.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">收集</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10 flex-grow w-full">
+    <!-- Page Header -->
+    <div class="mb-10">
+      <h1 class="text-3xl font-serif font-bold text-brand-900 mb-2">📚 阅读题库大厅</h1>
+      <p class="text-brand-500 text-lg">选择一篇雅思阅读真题，进入机考模拟界面进行限时训练</p>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="flex flex-wrap gap-4 mb-8" id="stats-bar">
+      <div class="skeleton" style="width:140px;height:20px;"></div>
+      <div class="skeleton" style="width:100px;height:20px;"></div>
+    </div>
+
+    <!-- Test Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-grid">
+      <!-- Skeleton loading cards -->
+      <div class="bg-white rounded-2xl border border-brand-100 p-6">
+        <div class="skeleton" style="width:80px;height:22px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:100%;height:28px;margin-bottom:8px;"></div>
+        <div class="skeleton" style="width:60%;height:28px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:100%;height:14px;margin-bottom:6px;"></div>
+        <div class="skeleton" style="width:70%;height:14px;margin-bottom:16px;"></div>
+        <div class="flex gap-3">
+          <div class="skeleton" style="width:60px;height:14px;"></div>
+          <div class="skeleton" style="width:80px;height:14px;"></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-brand-100 p-6 hidden md:block">
+        <div class="skeleton" style="width:80px;height:22px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:100%;height:28px;margin-bottom:8px;"></div>
+        <div class="skeleton" style="width:40%;height:28px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:90%;height:14px;margin-bottom:6px;"></div>
+        <div class="skeleton" style="width:60%;height:14px;margin-bottom:16px;"></div>
+        <div class="flex gap-3">
+          <div class="skeleton" style="width:60px;height:14px;"></div>
+          <div class="skeleton" style="width:80px;height:14px;"></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl border border-brand-100 p-6 hidden lg:block">
+        <div class="skeleton" style="width:80px;height:22px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:100%;height:28px;margin-bottom:8px;"></div>
+        <div class="skeleton" style="width:50%;height:28px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="width:80%;height:14px;margin-bottom:6px;"></div>
+        <div class="skeleton" style="width:70%;height:14px;margin-bottom:16px;"></div>
+        <div class="flex gap-3">
+          <div class="skeleton" style="width:60px;height:14px;"></div>
+          <div class="skeleton" style="width:80px;height:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state (hidden by default) -->
+    <div id="empty-state" style="display:none;" class="text-center py-20">
+      <div class="text-5xl mb-5">📭</div>
+      <h2 class="text-xl font-bold text-brand-700 mb-2">暂无可用试卷</h2>
+      <p class="text-brand-400">题库数据正在准备中，请稍后再来查看。</p>
+    </div>
+
+    <!-- Error state (hidden by default) -->
+    <div id="error-state" style="display:none;" class="text-center py-20">
+      <div class="text-5xl mb-5">⚠️</div>
+      <h2 class="text-xl font-bold text-brand-700 mb-2">试卷加载失败</h2>
+      <p class="text-brand-400 mb-4" id="error-msg">无法连接到服务器，请检查网络连接。</p>
+      <button onclick="location.reload()" class="px-5 py-2 bg-brand-800 text-white rounded-lg font-medium text-sm hover:bg-brand-700 transition-colors">重新加载</button>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50">
+    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · Data sourced from Cambridge IELTS past papers</p>
+      <p class="mt-1">Built for academic IELTS (A类) candidates · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+  // ==================== TOPIC CONFIG ====================
+  const TOPIC_CONFIG = {
+    'Science':       { cls: 'topic-science',      icon: '🔬' },
+    'Environment':   { cls: 'topic-environment',  icon: '🌍' },
+    'History':       { cls: 'topic-history',      icon: '📜' },
+    'Economics':     { cls: 'topic-economics',    icon: '💼' },
+    'Sociology':     { cls: 'topic-sociology',    icon: '👥' },
+  };
+
+  function getTopicTag(topic) {
+    const cfg = TOPIC_CONFIG[topic] || { cls: 'topic-science', icon: '📖' };
+    return `<span class="topic-tag ${cfg.cls}">${cfg.icon} ${topic}</span>`;
+  }
+
+  // ==================== DIFFICULTY STARS ====================
+  function renderDifficulty(level) {
+    let html = '<span class="flex items-center gap-1.5">';
+    for (let i = 1; i <= 5; i++) {
+      html += `<span class="difficulty-dot ${i <= level ? 'filled' : 'empty'}"></span>`;
+    }
+    html += `<span class="text-xs text-brand-400 ml-1">${['','入门','基础','中等','较难','挑战'][level]}</span>`;
+    html += '</span>';
+    return html;
+  }
+
+  // ==================== FORMAT TIME ====================
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return mins + ' 分钟';
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return h + ' 小时' + (m > 0 ? ' ' + m + ' 分' : '');
+  }
+
+  // ==================== RENDER TEST CARD ====================
+  function renderTestCard(test) {
+    const topicCfg = TOPIC_CONFIG[test.topic] || { cls: 'topic-science', icon: '📖' };
+    const excerpt = test.passageText
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 120) + '...';
+
+    return `
+      <div class="test-card bg-white rounded-2xl border border-brand-100 p-7 group" onclick="openMockTest('${test.id}')" title="点击进入机考模拟">
+        <!-- Topic Tag -->
+        <div class="mb-4">
+          ${getTopicTag(test.topic)}
+        </div>
+
+        <!-- Title -->
+        <h3 class="text-lg font-serif font-bold text-brand-900 leading-snug mb-3 group-hover:text-brand-700 transition-colors">
+          ${escapeHtml(test.title)}
+        </h3>
+
+        <!-- Excerpt -->
+        <p class="text-sm text-brand-400 leading-relaxed mb-5 line-clamp-3">
+          ${escapeHtml(excerpt)}
+        </p>
+
+        <!-- Meta Row 1: Source + Difficulty -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs text-brand-400 flex items-center gap-1">
+            <span>📄</span> ${escapeHtml(test.source)}
+          </span>
+          ${renderDifficulty(test.difficulty)}
+        </div>
+
+        <!-- Meta Row 2: Questions + Time -->
+        <div class="flex items-center justify-between pt-3 border-t border-brand-50">
+          <span class="text-xs text-brand-500 font-medium flex items-center gap-1">
+            <span>❓</span> ${test.questionCount} 题
+          </span>
+          <span class="text-xs text-brand-500 font-medium flex items-center gap-1">
+            <span>⏱</span> ${formatTime(test.totalTime)}
+          </span>
+        </div>
+
+        <!-- CTA Arrow -->
+        <div class="mt-4 flex items-center gap-2 text-sm font-semibold text-brand-600">
+          <span>进入模考</span>
+          <span class="card-arrow text-lg">→</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ==================== LOAD & RENDER ====================
+  async function loadTests() {
+    const cardsGrid = document.getElementById('cards-grid');
+    const statsBar = document.getElementById('stats-bar');
+    const emptyState = document.getElementById('empty-state');
+    const errorState = document.getElementById('error-state');
+
+    try {
+      const res = await fetch('/api/reading-tests');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const tests = data.tests || [];
+
+      if (tests.length === 0) {
+        cardsGrid.style.display = 'none';
+        statsBar.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      // Stats
+      const totalQuestions = tests.reduce((s, t) => s + (t.questionCount || 0), 0);
+      const topics = [...new Set(tests.map(t => t.topic))];
+      statsBar.innerHTML = `
+        <div class="flex items-center gap-1.5 bg-white rounded-lg px-4 py-2 border border-brand-100 text-sm">
+          <span class="font-bold text-brand-800">${tests.length}</span>
+          <span class="text-brand-400">套试卷</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-white rounded-lg px-4 py-2 border border-brand-100 text-sm">
+          <span class="font-bold text-brand-800">${totalQuestions}</span>
+          <span class="text-brand-400">道题目</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-white rounded-lg px-4 py-2 border border-brand-100 text-sm">
+          <span class="font-bold text-brand-800">${topics.length}</span>
+          <span class="text-brand-400">个话题领域</span>
+        </div>
+      `;
+
+      // Cards
+      cardsGrid.innerHTML = tests.map(t => renderTestCard(t)).join('');
+
+    } catch (err) {
+      console.error('Failed to load reading tests:', err);
+      cardsGrid.style.display = 'none';
+      statsBar.style.display = 'none';
+      errorState.style.display = 'block';
+      document.getElementById('error-msg').textContent = '无法加载题库数据：' + err.message;
+    }
+  }
+
+  // ==================== NAVIGATE TO MOCK TEST ====================
+  function openMockTest(testId) {
+    window.location.href = '/mock-test.html?testId=' + encodeURIComponent(testId);
+  }
+
+  // ==================== UTILS ====================
+  function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ==================== INIT ====================
+  loadTests();
+  console.log('📚 Reading Test Library loaded.');
+  </script>
+
+</body>
+</html>
