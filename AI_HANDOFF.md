@@ -719,7 +719,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 ## 13. Git History
 
 ```
-<TBD> Feat: Add Reading Library list view and dynamic routing to mock test interface
+c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
 7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
 fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
 bb597e1 Enhance: Upgrade translation engine for full sentences and add loading UI
