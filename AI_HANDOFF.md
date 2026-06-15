@@ -610,7 +610,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 ## 12. Git History
 
 ```
-<TBD> Feat: Add official computer-delivered IELTS reading mock interface
+7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
 fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
 bb597e1 Enhance: Upgrade translation engine for full sentences and add loading UI
 3bb0546 Fix: 实现划词翻译功能 + 修复词汇页移动端适配
