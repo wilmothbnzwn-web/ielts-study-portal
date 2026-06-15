@@ -27,6 +27,7 @@ const API_ROUTES = {
   '/api/essays': 'essays.json',
   '/api/methodology': 'methodology.json',
   '/api/dictionary': 'dictionary.json',
+  '/api/mock-test-1': 'mock-test-1.json',
 };
 
 const server = http.createServer((req, res) => {
@@ -196,9 +197,11 @@ server.listen(PORT, () => {
   console.log('');
   console.log('  Pages:');
   console.log(`    Home:        http://localhost:${PORT}/`);
+  console.log(`    Mock Test:   http://localhost:${PORT}/mock-test.html`);
   console.log(`    Writing:     http://localhost:${PORT}/writing.html`);
   console.log(`    Reading:     http://localhost:${PORT}/reading.html`);
   console.log(`    Vocabulary:  http://localhost:${PORT}/vocabulary.html`);
+  console.log(`    Collection:  http://localhost:${PORT}/collection.html`);
   console.log('');
   console.log('  API Endpoints:');
   Object.keys(API_ROUTES).forEach(route => {

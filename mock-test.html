@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>机考模拟 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' }
+          },
+          fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --panel-gutter: 0px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'system-ui', sans-serif;
+      background: #e8ecf1;
+      overflow: hidden;
+      height: 100vh;
+      user-select: none;
+    }
+
+    /* ===== TOP EXAM BAR ===== */
+    #exam-topbar {
+      height: 52px;
+      background: #1a1a2e;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 100;
+      position: relative;
+    }
+    #exam-topbar .test-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #aab;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    #exam-topbar .section-indicator {
+      font-size: 12px;
+      font-weight: 500;
+      color: #889;
+      background: rgba(255,255,255,0.06);
+      padding: 4px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* Timer */
+    #timer-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+      letter-spacing: 1px;
+      transition: color 0.5s ease;
+      white-space: nowrap;
+    }
+    #timer-display.warning { color: #f59e0b; animation: timerPulse 1s infinite; }
+    #timer-display.danger { color: #ef4444; animation: timerPulse 0.5s infinite; }
+    @keyframes timerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .timer-icon { font-size: 18px; }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-btn {
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: #ccd;
+      width: 34px; height: 34px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .topbar-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+    /* ===== MAIN SPLIT PANE ===== */
+    #main-pane {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 52px - 56px); /* topbar + bottom nav */
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pane {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px 28px;
+      height: 100%;
+    }
+    .pane::-webkit-scrollbar { width: 6px; }
+    .pane::-webkit-scrollbar-track { background: transparent; }
+    .pane::-webkit-scrollbar-thumb { background: #c4cdd5; border-radius: 3px; }
+    .pane::-webkit-scrollbar-thumb:hover { background: #a0aab5; }
+
+    #passage-pane {
+      flex: 1;
+      background: #fff;
+      border-right: 2px solid #dde2e8;
+      cursor: text;
+      user-select: text;
+    }
+    #passage-pane h2 {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #102a43;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    #passage-pane p {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 16px;
+      line-height: 1.85;
+      color: #334e68;
+      margin-bottom: 16px;
+      text-align: justify;
+      cursor: text;
+      user-select: text;
+    }
+
+    /* Highlighted text */
+    .highlighted {
+      background-color: #fef08a;
+      border-radius: 2px;
+      padding: 1px 0;
+      transition: background-color 0.15s;
+    }
+    .highlighted:hover {
+      background-color: #fde047;
+    }
+
+    /* Highlight tooltip */
+    #highlight-tooltip {
+      position: fixed;
+      z-index: 9999;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+      padding: 8px 12px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: tooltipIn 0.15s ease;
+    }
+    @keyframes tooltipIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    #highlight-tooltip button {
+      border: none;
+      background: #fef08a;
+      color: #854d0e;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    #highlight-tooltip button:hover { background: #fde047; }
+    #highlight-tooltip .hl-clear-btn {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    #highlight-tooltip .hl-clear-btn:hover { background: #fecaca; }
+
+    /* ===== QUESTIONS PANE ===== */
+    #questions-pane {
+      flex: 1;
+      background: #f8f9fb;
+      padding: 24px 28px;
+    }
+    #questions-pane .section-header {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #102a43;
+      margin-bottom: 6px;
+    }
+    #questions-pane .section-instruction {
+      font-size: 13px;
+      color: #627d98;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .question-block {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+      scroll-margin-top: 16px;
+    }
+    .question-block.current {
+      border-color: #486581;
+      box-shadow: 0 0 0 3px rgba(72,101,129,0.08);
+    }
+    .question-block.answered {
+      border-left: 4px solid #22c55e;
+    }
+    .question-block .q-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .question-block .q-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #334e68;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .question-block.answered .q-num { background: #22c55e; }
+    .question-block .q-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #243b53;
+      line-height: 1.5;
+    }
+
+    /* TRUE/FALSE/NOT GIVEN options */
+    .tfn-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .tfn-option {
+      flex: 1;
+      min-width: 90px;
+      padding: 10px 12px;
+      border: 2px solid #d9e2ec;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #fff;
+      color: #627d98;
+      user-select: none;
+    }
+    .tfn-option:hover { border-color: #9fb3c8; color: #334e68; }
+    .tfn-option.selected { border-color: #334e68; background: #f0f4f8; color: #102a43; }
+    .tfn-option.correct-show { border-color: #22c55e !important; background: #f0fdf4 !important; color: #166534 !important; }
+    .tfn-option.incorrect-show { border-color: #ef4444 !important; background: #fef2f2 !important; color: #991b1b !important; }
+
+    /* Short answer input */
+    .short-answer-input {
+      width: 100%;
+      max-width: 360px;
+      padding: 10px 14px;
+      border: 2px solid #d9e2ec;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', 'system-ui', sans-serif;
+      color: #102a43;
+      background: #fff;
+      transition: all 0.15s;
+      outline: none;
+    }
+    .short-answer-input:focus { border-color: #486581; box-shadow: 0 0 0 3px rgba(72,101,129,0.06); }
+    .short-answer-input.correct-show { border-color: #22c55e !important; background: #f0fdf4 !important; }
+    .short-answer-input.incorrect-show { border-color: #ef4444 !important; background: #fef2f2 !important; }
+
+    /* ===== BOTTOM NAVIGATOR ===== */
+    #bottom-nav {
+      height: 56px;
+      background: #fff;
+      border-top: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 16px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    #bottom-nav::-webkit-scrollbar { height: 3px; }
+    #bottom-nav::-webkit-scrollbar-thumb { background: #d9e2ec; border-radius: 2px; }
+    .nav-q-block {
+      min-width: 36px; height: 36px;
+      border-radius: 6px;
+      border: 1.5px solid #d9e2ec;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #627d98;
+      cursor: pointer;
+      transition: all 0.12s;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .nav-q-block:hover { border-color: #9fb3c8; background: #fff; color: #334e68; }
+    .nav-q-block.current-nav { border-color: #334e68; background: #334e68; color: #fff; box-shadow: 0 2px 8px rgba(51,78,104,0.2); }
+    .nav-q-block.answered-nav { border-bottom: 3px solid #22c55e; background: #f0fdf4; color: #166534; }
+    .nav-q-block.current-nav.answered-nav { border-bottom: 3px solid #22c55e; background: #334e68; color: #fff; }
+    .nav-section-divider {
+      width: 2px; height: 24px;
+      background: #e2e8f0;
+      border-radius: 1px;
+      margin: 0 6px;
+      flex-shrink: 0;
+    }
+    .nav-arrow {
+      min-width: 28px; height: 36px;
+      border: none;
+      background: transparent;
+      color: #627d98;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .nav-arrow:hover { background: #f0f4f8; color: #102a43; }
+
+    /* ===== SUBMIT / REVIEW OVERLAY ===== */
+    #review-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center; justify-content: center;
+    }
+    #review-overlay.show { display: flex; }
+    #review-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 36px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    #review-modal h3 { font-size: 20px; font-weight: 700; color: #102a43; margin-bottom: 12px; }
+    #review-modal .score { font-size: 48px; font-weight: 800; color: #334e68; margin: 16px 0; }
+    #review-modal .detail { font-size: 14px; color: #627d98; line-height: 1.6; margin-bottom: 20px; }
+    #review-modal button {
+      padding: 10px 28px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    #review-modal .btn-primary { background: #334e68; color: #fff; }
+    #review-modal .btn-primary:hover { background: #243b53; }
+    #review-modal .btn-secondary { background: #f0f4f8; color: #334e68; margin-right: 10px; }
+    #review-modal .btn-secondary:hover { background: #d9e2ec; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      #main-pane { flex-direction: column; }
+      #passage-pane { flex: none; height: 45%; border-right: none; border-bottom: 2px solid #dde2e8; }
+      #questions-pane { flex: none; height: 55%; }
+      .pane { padding: 16px; }
+      #exam-topbar { padding: 0 12px; }
+      #exam-topbar .test-label { font-size: 11px; }
+      #timer-display { font-size: 18px; }
+      #bottom-nav { gap: 2px; padding: 0 8px; }
+      .nav-q-block { min-width: 30px; height: 30px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body class="flex flex-col">
+
+  <!-- ==================== TOP EXAM BAR ==================== -->
+  <div id="exam-topbar">
+    <div class="flex items-center gap-4">
+      <span class="test-label">IELTS Academic · Reading</span>
+      <span class="section-indicator" id="section-indicator">Section 1 of 3</span>
+    </div>
+
+    <div id="timer-display">
+      <span class="timer-icon">⏱</span>
+      <span id="timer-text">60:00</span>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="topbar-btn" title="字体大小" onclick="changeFontSize()" style="font-size:13px;font-weight:700;">Aa</button>
+      <button class="topbar-btn" title="帮助" onclick="toggleHelp()">?</button>
+      <button class="topbar-btn" title="提交试卷" onclick="submitTest()" style="font-size:13px;">✓</button>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN SPLIT PANE ==================== -->
+  <div id="main-pane">
+    <!-- LEFT: Passage -->
+    <div id="passage-pane" class="pane" onmouseup="handleTextSelection()">
+      <div id="passage-content"></div>
+    </div>
+
+    <!-- RIGHT: Questions -->
+    <div id="questions-pane" class="pane">
+      <div id="questions-content"></div>
+    </div>
+  </div>
+
+  <!-- Highlight tooltip (floating) -->
+  <div id="highlight-tooltip">
+    <button onclick="applyHighlight()">🖊 高亮</button>
+    <button class="hl-clear-btn" onclick="clearSelectionHighlight()">✕ 清除</button>
+  </div>
+
+  <!-- ==================== BOTTOM NAVIGATOR ==================== -->
+  <div id="bottom-nav"></div>
+
+  <!-- ==================== REVIEW OVERLAY ==================== -->
+  <div id="review-overlay">
+    <div id="review-modal">
+      <h3>📝 模拟考试结束</h3>
+      <div class="score" id="review-score">--</div>
+      <div class="detail" id="review-detail"></div>
+      <div>
+        <button class="btn-secondary" onclick="reviewAnswers()">查看答案</button>
+        <button class="btn-primary" onclick="resetTest()">重新开始</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help overlay -->
+  <div id="help-overlay" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:28px 32px; max-width:500px; width:90%;">
+      <h3 style="font-size:18px; font-weight:700; color:#102a43; margin-bottom:12px;">📖 机考操作说明</h3>
+      <div style="font-size:13px; color:#627d98; line-height:1.8; margin-bottom:16px;">
+        <p><b>高亮标记</b>：在左侧文章中用鼠标选中文字，点击"🖊 高亮"按钮即可黄色标记。</p>
+        <p><b>导航跳转</b>：点击底部题号方块可直接跳转到对应题目。</p>
+        <p><b>作答状态</b>：已作答的题目在底部导航栏会显示绿色下划线。</p>
+        <p><b>时间提醒</b>：倒计时剩10分钟变黄，剩5分钟变红闪烁。</p>
+        <p><b>提交</b>：点击右上角 ✓ 按钮提交试卷查看分数。</p>
+      </div>
+      <button onclick="toggleHelp()" style="width:100%; padding:10px; border:none; background:#334e68; color:#fff; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">知道了</button>
+    </div>
+  </div>
+
+<script>
+// ==================== GLOBAL STATE ====================
+const TEST_TIME = 3600; // 60 minutes in seconds
+let timeRemaining = TEST_TIME;
+let timerInterval = null;
+let testStarted = false;
+let testSubmitted = false;
+
+// User answers: { questionId: userAnswerValue }
+let userAnswers = {};
+
+// Highlighted ranges stored as { text, range serialized }
+let highlightedRanges = [];
+
+// Current selected range (for tooltip)
+let currentSelection = null;
+let currentSelectionRect = null;
+
+// Current focused question index (for nav jump)
+let currentQuestionIndex = 0;
+
+// Font size level
+let fontSizeLevel = 0; // 0=normal, 1=large, 2=xlarge
+
+// ==================== LOAD TEST DATA ====================
+let testData = null;
+
+async function loadTestData() {
+  try {
+    const res = await fetch('/api/mock-test-1');
+    testData = await res.json();
+    renderPassage();
+    renderQuestions();
+    renderBottomNav();
+    updateSectionIndicator();
+  } catch (err) {
+    console.error('Failed to load test data:', err);
+    document.getElementById('passage-content').innerHTML = '<p style="color:red;">加载试卷失败，请刷新重试。</p>';
+  }
+}
+
+// ==================== RENDER PASSAGE ====================
+function renderPassage() {
+  if (!testData) return;
+  const passage = testData.passages[0];
+  const container = document.getElementById('passage-content');
+  container.innerHTML = `<h2>${escapeHtml(passage.title)}</h2>${passage.passageText}`;
+
+  // Restore highlights from state
+  restoreHighlights();
+}
+
+// ==================== RENDER QUESTIONS ====================
+function renderQuestions() {
+  if (!testData) return;
+  const passage = testData.passages[0];
+  const container = document.getElementById('questions-content');
+
+  let html = '';
+
+  // Questions 1-7: TRUE/FALSE/NOT GIVEN
+  const tfnQuestions = passage.questions.filter(q => q.type === 'true_false_not_given');
+  if (tfnQuestions.length > 0) {
+    html += `<div class="section-header">Questions 1–${tfnQuestions.length}</div>`;
+    html += `<div class="section-instruction">Do the following statements agree with the information given in Reading Passage 1?<br>In boxes <b>1–${tfnQuestions.length}</b> on your answer sheet, write:<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this</div>`;
+
+    tfnQuestions.forEach((q, idx) => {
+      const userAns = userAnswers[q.id];
+      const isAnswered = userAns !== undefined;
+      const isCurrent = (q.id - 1) === currentQuestionIndex;
+      html += `<div class="question-block${isCurrent ? ' current' : ''}${isAnswered ? ' answered' : ''}" id="q-block-${q.id}" data-qid="${q.id}">`;
+      html += `<div class="q-header"><span class="q-num">${q.id}</span><span class="q-text">${escapeHtml(q.questionText)}</span></div>`;
+      html += `<div class="tfn-options">`;
+      q.options.forEach((opt, oi) => {
+        const selected = userAns === oi;
+        html += `<div class="tfn-option${selected ? ' selected' : ''}" data-qid="${q.id}" data-value="${oi}" onclick="selectTFN(${q.id}, ${oi}, this)">${escapeHtml(opt)}</div>`;
+      });
+      html += `</div></div>`;
+    });
+  }
+
+  // Questions 8-13: Short Answer
+  const saQuestions = passage.questions.filter(q => q.type === 'short_answer');
+  if (saQuestions.length > 0) {
+    const startNum = saQuestions[0].id;
+    const endNum = saQuestions[saQuestions.length - 1].id;
+    html += `<div class="section-header" style="margin-top:24px;">Questions ${startNum}–${endNum}</div>`;
+    html += `<div class="section-instruction">Answer the questions below.<br>Choose <b>NO MORE THAN ${saQuestions[0].wordLimit || 3} WORDS</b> from the passage for each answer.<br>Write your answers in boxes <b>${startNum}–${endNum}</b> on your answer sheet.</div>`;
+
+    saQuestions.forEach(q => {
+      const userAns = userAnswers[q.id] || '';
+      const isAnswered = userAns.trim() !== '';
+      const isCurrent = (q.id - 1) === currentQuestionIndex;
+      html += `<div class="question-block${isCurrent ? ' current' : ''}${isAnswered ? ' answered' : ''}" id="q-block-${q.id}" data-qid="${q.id}">`;
+      html += `<div class="q-header"><span class="q-num">${q.id}</span><span class="q-text">${escapeHtml(q.questionText)}</span></div>`;
+      html += `<input type="text" class="short-answer-input" data-qid="${q.id}" placeholder="输入你的答案（不超过${q.wordLimit || 3}个词）" value="${escapeHtml(userAns)}" oninput="saveShortAnswer(${q.id}, this.value)" onfocus="setCurrentQuestion(${q.id - 1})">`;
+      html += `</div>`;
+    });
+  }
+
+  // Placeholder for questions 14-40 (Passages 2 & 3)
+  html += `<div style="margin-top:32px; padding:20px; background:#fff; border:1px dashed #d9e2ec; border-radius:12px; text-align:center;">`;
+  html += `<div style="font-size:15px; font-weight:600; color:#627d98; margin-bottom:8px;">📋 Section 2 & 3 — 即将上线</div>`;
+  html += `<div style="font-size:13px; color:#9fb3c8;">Passage 2 和 Passage 3 的题目正在建设中。<br>当前 MVP 版本仅展示 Passage 1（Questions 1-13）的完整作答体验。</div>`;
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+// ==================== QUESTION INTERACTION ====================
+function selectTFN(qid, value, el) {
+  if (testSubmitted) return;
+  startTest();
+
+  userAnswers[qid] = value;
+
+  // Update visual state
+  const block = document.getElementById('q-block-' + qid);
+  if (block) block.classList.add('answered');
+
+  const options = block.querySelectorAll('.tfn-option');
+  options.forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  setCurrentQuestion(qid - 1);
+  renderBottomNav();
+}
+
+function saveShortAnswer(qid, value) {
+  if (testSubmitted) return;
+  startTest();
+
+  userAnswers[qid] = value.trim();
+
+  const block = document.getElementById('q-block-' + qid);
+  if (block) {
+    if (value.trim() !== '') {
+      block.classList.add('answered');
+    } else {
+      block.classList.remove('answered');
+    }
+  }
+
+  renderBottomNav();
+}
+
+function setCurrentQuestion(index) {
+  currentQuestionIndex = index;
+  // Update visual
+  document.querySelectorAll('.question-block.current').forEach(b => b.classList.remove('current'));
+  const block = document.getElementById('q-block-' + (index + 1));
+  if (block) {
+    block.classList.add('current');
+    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  renderBottomNav();
+}
+
+// ==================== TEXT SELECTION & HIGHLIGHTING ====================
+function handleTextSelection() {
+  if (testSubmitted) return;
+
+  setTimeout(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+      hideHighlightTooltip();
+      return;
+    }
+
+    // Only handle selections within passage pane
+    const passagePane = document.getElementById('passage-pane');
+    if (!passagePane.contains(sel.anchorNode)) {
+      hideHighlightTooltip();
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    currentSelection = { range: range.cloneRange(), text: sel.toString().trim() };
+    currentSelectionRect = rect;
+
+    showHighlightTooltip(rect);
+  }, 10);
+}
+
+function showHighlightTooltip(rect) {
+  const tooltip = document.getElementById('highlight-tooltip');
+  const top = rect.bottom + 8;
+  const left = Math.min(rect.left + (rect.width / 2) - 70, window.innerWidth - 180);
+
+  tooltip.style.top = top + 'px';
+  tooltip.style.left = Math.max(10, left) + 'px';
+  tooltip.style.display = 'flex';
+}
+
+function hideHighlightTooltip() {
+  document.getElementById('highlight-tooltip').style.display = 'none';
+  currentSelection = null;
+  currentSelectionRect = null;
+}
+
+function applyHighlight() {
+  if (!currentSelection || !currentSelection.range) return;
+
+  const range = currentSelection.range;
+  const text = currentSelection.text;
+
+  // Wrap selected text in highlight span
+  try {
+    const span = document.createElement('span');
+    span.className = 'highlighted';
+    span.dataset.highlightId = 'hl-' + Date.now();
+    range.surroundContents(span);
+
+    // Save to state
+    highlightedRanges.push({
+      id: span.dataset.highlightId,
+      text: text
+    });
+
+    startTest();
+  } catch (e) {
+    // If surroundContents fails (cross-element selection), use alternative
+    const contents = range.extractContents();
+    const span = document.createElement('span');
+    span.className = 'highlighted';
+    span.dataset.highlightId = 'hl-' + Date.now();
+    span.appendChild(contents);
+    range.insertNode(span);
+
+    highlightedRanges.push({
+      id: span.dataset.highlightId,
+      text: text
+    });
+
+    startTest();
+  }
+
+  window.getSelection().removeAllRanges();
+  hideHighlightTooltip();
+}
+
+function clearSelectionHighlight() {
+  if (!currentSelection || !currentSelection.range) return;
+
+  // Check if the selection contains a highlighted span
+  const container = currentSelection.range.commonAncestorContainer;
+  const hlSpan = container.nodeType === 1
+    ? container.closest('.highlighted')
+    : (container.parentElement ? container.parentElement.closest('.highlighted') : null);
+
+  if (hlSpan) {
+    const parent = hlSpan.parentNode;
+    while (hlSpan.firstChild) {
+      parent.insertBefore(hlSpan.firstChild, hlSpan);
+    }
+    parent.removeChild(hlSpan);
+    highlightedRanges = highlightedRanges.filter(h => h.id !== hlSpan.dataset.highlightId);
+  }
+
+  window.getSelection().removeAllRanges();
+  hideHighlightTooltip();
+}
+
+function restoreHighlights() {
+  // Highlights are DOM-based now, no restore needed on re-render
+  // If passage is re-rendered, highlights are lost (accepted limitation for MVP)
+}
+
+// Clicks outside passage pane hide tooltip
+document.addEventListener('click', function(e) {
+  const tooltip = document.getElementById('highlight-tooltip');
+  if (tooltip.style.display === 'flex' && !tooltip.contains(e.target)) {
+    const passagePane = document.getElementById('passage-pane');
+    if (!passagePane.contains(e.target)) {
+      hideHighlightTooltip();
+    }
+  }
+});
+
+// Scroll in passage hides tooltip
+document.getElementById('passage-pane').addEventListener('scroll', hideHighlightTooltip);
+
+// ==================== TIMER ====================
+function startTest() {
+  if (testStarted || testSubmitted) return;
+  testStarted = true;
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  if (timeRemaining <= 0) {
+    clearInterval(timerInterval);
+    submitTest();
+    return;
+  }
+
+  timeRemaining--;
+
+  const mins = Math.floor(timeRemaining / 60);
+  const secs = timeRemaining % 60;
+  const display = document.getElementById('timer-text');
+  display.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+  const timerDisplay = document.getElementById('timer-display');
+  timerDisplay.classList.remove('warning', 'danger');
+
+  if (timeRemaining <= 300 && timeRemaining > 180) { // 5 min
+    timerDisplay.classList.add('danger');
+  } else if (timeRemaining <= 600 && timeRemaining > 300) { // 10 min
+    timerDisplay.classList.add('warning');
+  }
+}
+
+// ==================== BOTTOM NAVIGATOR ====================
+function renderBottomNav() {
+  const nav = document.getElementById('bottom-nav');
+  let html = '';
+
+  // Previous arrow
+  html += `<button class="nav-arrow" onclick="navPrev()" title="上一题">◀</button>`;
+
+  // Passage 1: Questions 1-13
+  for (let i = 1; i <= 13; i++) {
+    const isAnswered = userAnswers[i] !== undefined && userAnswers[i] !== '';
+    const isCurrent = (i - 1) === currentQuestionIndex;
+    html += `<div class="nav-q-block${isCurrent ? ' current-nav' : ''}${isAnswered ? ' answered-nav' : ''}" onclick="jumpToQuestion(${i - 1})" title="第${i}题">${i}</div>`;
+  }
+
+  html += `<div class="nav-section-divider"></div>`;
+
+  // Passage 2 placeholder: Questions 14-26
+  for (let i = 14; i <= 26; i++) {
+    html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 2 — 即将上线">${i}</div>`;
+  }
+
+  html += `<div class="nav-section-divider"></div>`;
+
+  // Passage 3 placeholder: Questions 27-40
+  for (let i = 27; i <= 40; i++) {
+    html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 3 — 即将上线">${i}</div>`;
+  }
+
+  // Next arrow
+  html += `<button class="nav-arrow" onclick="navNext()" title="下一题">▶</button>`;
+
+  nav.innerHTML = html;
+}
+
+function jumpToQuestion(index) {
+  if (testSubmitted) return;
+  // Only allow jumping to questions 1-13 in MVP
+  if (index >= 13) return;
+
+  currentQuestionIndex = index;
+  const qid = index + 1;
+
+  // Scroll questions pane to the question
+  const block = document.getElementById('q-block-' + qid);
+  if (block) {
+    document.querySelectorAll('.question-block.current').forEach(b => b.classList.remove('current'));
+    block.classList.add('current');
+    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  renderBottomNav();
+}
+
+function navPrev() {
+  if (currentQuestionIndex > 0) {
+    jumpToQuestion(currentQuestionIndex - 1);
+  }
+}
+
+function navNext() {
+  if (currentQuestionIndex < 12) { // MVP: only up to q13
+    jumpToQuestion(currentQuestionIndex + 1);
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft' && e.ctrlKey) {
+    e.preventDefault();
+    navPrev();
+  } else if (e.key === 'ArrowRight' && e.ctrlKey) {
+    e.preventDefault();
+    navNext();
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    navNext();
+  }
+});
+
+// ==================== SUBMIT & REVIEW ====================
+function submitTest() {
+  if (testSubmitted) return;
+
+  clearInterval(timerInterval);
+  testSubmitted = true;
+
+  // Calculate score (only for questions 1-13)
+  const passage = testData.passages[0];
+  let correct = 0;
+  let total = 0;
+
+  passage.questions.forEach(q => {
+    total++;
+    const userAns = userAnswers[q.id];
+
+    if (q.type === 'true_false_not_given') {
+      if (userAns === q.correctAnswer) correct++;
+    } else if (q.type === 'short_answer') {
+      if (userAns && userAns.toString().toLowerCase().trim() === q.correctAnswer.toLowerCase().trim()) {
+        correct++;
+      }
+    }
+  });
+
+  // Show result overlay
+  const overlay = document.getElementById('review-overlay');
+  document.getElementById('review-score').textContent = correct + ' / ' + total;
+  document.getElementById('review-detail').innerHTML =
+    `共 <b>${total}</b> 题，答对 <b style="color:#22c55e;">${correct}</b> 题<br>` +
+    `正确率 <b>${Math.round(correct / total * 100)}%</b> — ` +
+    (correct >= 10 ? '🎉 表现不错！' : correct >= 7 ? '📚 继续加油！' : '💪 需要更多练习！');
+
+  overlay.classList.add('show');
+
+  // Show correct/incorrect on questions
+  showAnswerResults();
+}
+
+function showAnswerResults() {
+  const passage = testData.passages[0];
+  passage.questions.forEach(q => {
+    const userAns = userAnswers[q.id];
+    const block = document.getElementById('q-block-' + q.id);
+    if (!block) return;
+
+    if (q.type === 'true_false_not_given') {
+      const options = block.querySelectorAll('.tfn-option');
+      options.forEach((opt, oi) => {
+        if (oi === q.correctAnswer) opt.classList.add('correct-show');
+        else if (oi === userAns && userAns !== q.correctAnswer) opt.classList.add('incorrect-show');
+      });
+    } else if (q.type === 'short_answer') {
+      const input = block.querySelector('.short-answer-input');
+      if (input) {
+        input.readOnly = true;
+        if (userAns && userAns.toString().toLowerCase().trim() === q.correctAnswer.toLowerCase().trim()) {
+          input.classList.add('correct-show');
+        } else {
+          input.classList.add('incorrect-show');
+          // Show correct answer
+          const hint = document.createElement('div');
+          hint.style.cssText = 'font-size:12px; color:#22c55e; margin-top:4px;';
+          hint.textContent = '✓ 正确答案: ' + q.correctAnswer;
+          block.appendChild(hint);
+        }
+      }
+    }
+  });
+}
+
+function reviewAnswers() {
+  document.getElementById('review-overlay').classList.remove('show');
+  // Scroll to first question
+  jumpToQuestion(0);
+}
+
+function resetTest() {
+  document.getElementById('review-overlay').classList.remove('show');
+  timeRemaining = TEST_TIME;
+  testStarted = false;
+  testSubmitted = false;
+  userAnswers = {};
+  highlightedRanges = [];
+  currentSelection = null;
+  currentQuestionIndex = 0;
+
+  document.getElementById('timer-text').textContent = '60:00';
+  document.getElementById('timer-display').classList.remove('warning', 'danger');
+
+  renderPassage();
+  renderQuestions();
+  renderBottomNav();
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function updateSectionIndicator() {
+  document.getElementById('section-indicator').textContent = 'Section 1 of 3 · Passage 1';
+}
+
+function changeFontSize() {
+  fontSizeLevel = (fontSizeLevel + 1) % 3;
+  const sizes = ['16px', '18px', '20px'];
+  const lineHeights = ['1.85', '1.75', '1.65'];
+  document.querySelectorAll('#passage-pane p').forEach(p => {
+    p.style.fontSize = sizes[fontSizeLevel];
+    p.style.lineHeight = lineHeights[fontSizeLevel];
+  });
+
+  const labels = ['标准', '较大', '最大'];
+  const btn = document.querySelector('.topbar-btn');
+  // Brief visual feedback
+  const origHtml = btn.innerHTML;
+  btn.textContent = 'Aa ' + labels[fontSizeLevel];
+  setTimeout(() => { btn.innerHTML = origHtml; }, 1000);
+}
+
+function toggleHelp() {
+  const overlay = document.getElementById('help-overlay');
+  overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Close help on overlay click
+document.getElementById('help-overlay').addEventListener('click', function(e) {
+  if (e.target === this) toggleHelp();
+});
+
+// ==================== INIT ====================
+loadTestData();
+
+console.log('🖥  IELTS Mock Test Interface loaded.');
+console.log('   Features: Split-pane | Highlighting | Countdown Timer | Bottom Navigator | Auto-save');
+console.log('   Press Ctrl+←/→ to navigate questions. Tab to go to next question.');
+</script>
+
+</body>
+</html>
