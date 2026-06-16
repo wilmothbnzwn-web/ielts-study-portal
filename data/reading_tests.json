@@ -11,19 +11,125 @@
       "questionCount": 13,
       "passageText": "<p>William Henry Perkin was born on March 12, 1838, in London, England. As a boy, Perkin's curiosity prompted early interests in the arts, sciences, and photography. But it was a chance stumbling upon a run-down, yet functional, laboratory in his late grandfather's home that solidified the young man's enthusiasm for chemistry.</p><p>As a student at the City of London School, Perkin became immersed in the study of chemistry. His talent and devotion to the subject were perceived by his teacher, Thomas Hall, who encouraged him to attend a series of lectures given by the eminent scientist Michael Faraday at the Royal Institution. Those speeches fired the young chemist's enthusiasm further, and he later went on to attend the Royal College of Chemistry, which he succeeded in entering in 1853, at the age of 15.</p><p>At the time of Perkin's enrolment, the Royal College of Chemistry was headed by the noted German chemist August Wilhelm von Hofmann. Perkin's scientific gifts soon caught Hofmann's attention and, within two years, he became Hofmann's youngest assistant. Not long after that, Perkin made the scientific breakthrough that would bring him both fame and fortune.</p><p>At the time, quinine was the only viable medical treatment for malaria. The drug was derived from the bark of the cinchona tree, native to South America, and by 1856 demand for the drug was surpassing the available supply. Thus, when Hofmann made some passing comments about the desirability of a synthetic substitute for quinine, it was unsurprising that his star pupil was moved to take up the challenge.</p><p>During his vacation in 1856, Perkin spent his time in the laboratory on the top floor of his family's house. He was attempting to manufacture quinine from aniline, an inexpensive and readily available coal tar waste product. Despite his best efforts, however, he did not end up with quinine. Instead, he produced a mysterious dark sludge. Luckily, Perkin's scientific training and nature prompted him to investigate the substance further. Incorporating potassium dichromate and alcohol into the aniline at various stages of the experimental process, he finally produced a deep purple solution. And, proving the truth of the famous scientist Louis Pasteur's words 'chance favours only the prepared mind', Perkin saw the potential of his unexpected find.</p><p>Historically, textile dyes were made from such natural sources as plants and animal excretions. Some of these, such as the glandular mucus of snails, were difficult to obtain and outrageously expensive. Indeed, the purple colour extracted from a snail was once so costly that in society at the time only the rich could afford it. Further, natural dyes tended to be muddy in hue and fade quickly. It was against this backdrop that Perkin's discovery was made.</p><p>Perkin quickly grasped that his purple solution could be used to colour fabric, thus making it the world's first synthetic dye. Realising the importance of this breakthrough, he lost no time in patenting it. But perhaps the most fascinating of all Perkin's reactions to his find was his nearly instant recognition that the new dye had commercial possibilities.</p><p>Perkin originally named his dye Tyrian Purple, but it later became commonly known as mauve (from the French for the plant used to make the colour violet). He asked advice of Scottish dye works owner Robert Pullar, who assured him that manufacturing the dye would be well worth it if the colour remained fast (i.e. would not fade) and the cost was relatively low. So, over the fierce objections of his mentor Hofmann, he left college to give birth to the modern chemical industry.</p><p>With the help of his father and brother, Perkin set up a factory not far from London. Utilising the cheap and plentiful coal tar that was an almost unlimited byproduct of London's gas street lighting, the dye works began producing the world's first synthetically dyed material in 1857. The company received a commercial boost from the Empress Eugenie of France, when she decided the new colour flattered her. Very soon, mauve was the necessary shade for all the fashionable ladies in that country. Not to be outdone, England's Queen Victoria also appeared in public wearing a mauve gown, thus making it all the rage in England as well. The dye was bold and fast, and the public clamoured for more. Perkin went back to the drawing board.</p><p>Although Perkin's fame was achieved and fortune assured by his first discovery, the chemist continued his research. Among other dyes he developed and introduced were aniline red (1859) and aniline black (1863) and, in the late 1860s, Perkin's green. It is important to note that Perkin's synthetic dye discoveries had outcomes far beyond the merely decorative. The dyes also became vital to medical research in many ways. For instance, they were used to stain previously invisible microbes and bacteria, allowing researchers to identify such bacilli as tuberculosis, cholera, and anthrax. Artificial dyes continue to play a crucial role today. And, in what would have been particularly pleasing to Perkin, their current use is in the search for a vaccine against malaria.</p>",
       "questions": [
-        { "id": 1, "type": "true_false_not_given", "questionText": "Michael Faraday was the first person to recognise Perkin's ability as a student of chemistry.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 2, "type": "true_false_not_given", "questionText": "Michael Faraday suggested Perkin should enrol in the Royal College of Chemistry.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 2 },
-        { "id": 3, "type": "true_false_not_given", "questionText": "Perkin employed August Wilhelm von Hofmann as his assistant.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 4, "type": "true_false_not_given", "questionText": "Perkin was still young when he made the discovery that made him rich and famous.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 5, "type": "true_false_not_given", "questionText": "The trees from which quinine is derived grow only in South America.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 6, "type": "true_false_not_given", "questionText": "Perkin hoped to manufacture a drug from a coal tar waste product.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 7, "type": "true_false_not_given", "questionText": "Perkin was inspired by the discoveries of the famous scientist Louis Pasteur.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 2 },
-        { "id": 8, "type": "short_answer", "questionText": "What was the name of the purple dye that Perkin first discovered?", "correctAnswer": "mauve", "wordLimit": 2 },
-        { "id": 9, "type": "short_answer", "questionText": "What was the name of the person Perkin consulted before setting up his own dye works?", "correctAnswer": "Robert Pullar", "wordLimit": 3 },
-        { "id": 10, "type": "short_answer", "questionText": "In what year did Perkin set up his own factory to produce synthetic dyes?", "correctAnswer": "1857", "wordLimit": 2 },
-        { "id": 11, "type": "short_answer", "questionText": "What natural substance did Perkin use as the basis for manufacturing quinine?", "correctAnswer": "aniline", "wordLimit": 1 },
-        { "id": 12, "type": "short_answer", "questionText": "Which disease is now being targeted by researchers using artificial dyes?", "correctAnswer": "malaria", "wordLimit": 1 },
-        { "id": 13, "type": "short_answer", "questionText": "What country was the Empress who helped popularise Perkin's dye from?", "correctAnswer": "France", "wordLimit": 1 }
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "Michael Faraday was the first person to recognise Perkin's ability as a student of chemistry.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "Michael Faraday suggested Perkin should enrol in the Royal College of Chemistry.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Perkin employed August Wilhelm von Hofmann as his assistant.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "Perkin was still young when he made the discovery that made him rich and famous.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "The trees from which quinine is derived grow only in South America.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 6,
+          "type": "true_false_not_given",
+          "questionText": "Perkin hoped to manufacture a drug from a coal tar waste product.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 7,
+          "type": "true_false_not_given",
+          "questionText": "Perkin was inspired by the discoveries of the famous scientist Louis Pasteur.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "What was the name of the purple dye that Perkin first discovered?",
+          "correctAnswer": "mauve",
+          "wordLimit": 2
+        },
+        {
+          "id": 9,
+          "type": "short_answer",
+          "questionText": "What was the name of the person Perkin consulted before setting up his own dye works?",
+          "correctAnswer": "Robert Pullar",
+          "wordLimit": 3
+        },
+        {
+          "id": 10,
+          "type": "short_answer",
+          "questionText": "In what year did Perkin set up his own factory to produce synthetic dyes?",
+          "correctAnswer": "1857",
+          "wordLimit": 2
+        },
+        {
+          "id": 11,
+          "type": "short_answer",
+          "questionText": "What natural substance did Perkin use as the basis for manufacturing quinine?",
+          "correctAnswer": "aniline",
+          "wordLimit": 1
+        },
+        {
+          "id": 12,
+          "type": "short_answer",
+          "questionText": "Which disease is now being targeted by researchers using artificial dyes?",
+          "correctAnswer": "malaria",
+          "wordLimit": 1
+        },
+        {
+          "id": 13,
+          "type": "short_answer",
+          "questionText": "What country was the Empress who helped popularise Perkin's dye from?",
+          "correctAnswer": "France",
+          "wordLimit": 1
+        }
       ]
     },
     {
@@ -37,14 +143,82 @@
       "questionCount": 8,
       "passageText": "<p>The polar bear is the largest land predator on Earth, with adult males weighing up to 800 kilograms. These magnificent creatures are found throughout the Arctic Circle, from Alaska to Greenland to Russia. But beyond their iconic status, polar bears serve as a crucial indicator species for the health of the entire Arctic ecosystem.</p><p>Polar bears have evolved remarkable physiological adaptations that allow them to survive in one of the harshest environments on the planet. Their fur, which appears white but is actually transparent, consists of hollow hairs that trap heat from the sun and channel it to their black skin underneath. Beneath this skin lies a layer of blubber that can be up to 11 centimetres thick, providing insulation against temperatures that can drop below minus 40 degrees Celsius.</p><p>Perhaps most fascinating is the polar bear's ability to go for extended periods without food. During the summer months, when sea ice melts and seals become harder to hunt, polar bears can enter a state known as 'walking hibernation.' Unlike true hibernation, where an animal's metabolism slows dramatically while it sleeps, walking hibernation allows polar bears to remain active while reducing their metabolic rate by up to 30 per cent. This adaptation is unique among large mammals and has drawn significant interest from medical researchers.</p><p>Scientists studying polar bear metabolism have made discoveries with implications for human health. The bears' ability to store enormous fat reserves without developing type 2 diabetes or heart disease has prompted researchers to investigate the genetic mechanisms behind this phenomenon. Understanding how polar bears maintain insulin sensitivity despite their high-fat diet could lead to new treatments for metabolic disorders in humans.</p><p>However, climate change poses an existential threat to these animals. Arctic sea ice, upon which polar bears depend for hunting seals, is declining at a rate of approximately 13 per cent per decade. As the ice retreats earlier in spring and forms later in autumn, polar bears have less time to build up the fat reserves they need to survive the ice-free summer months. Studies in the southern Beaufort Sea have documented a 40 per cent decline in the polar bear population between 2001 and 2010, directly correlated with the loss of sea ice habitat.</p><p>Conservation efforts have intensified in recent years. The 1973 Agreement on the Conservation of Polar Bears, signed by all five nations with polar bear populations — Canada, Denmark (for Greenland), Norway, the United States, and Russia — remains the cornerstone of international cooperation. More recently, researchers have employed satellite tracking collars to monitor bear movements and understand how they are adapting to changing ice conditions.</p><p>The fate of the polar bear is inextricably linked to the broader health of Arctic ecosystems. As top predators, they regulate seal populations, which in turn affect fish stocks that sustain both wildlife and indigenous communities. Protecting polar bears means protecting the entire Arctic food web — and ultimately, the global climate system that the Arctic helps to regulate.</p>",
       "questions": [
-        { "id": 1, "type": "true_false_not_given", "questionText": "Polar bears are the largest predators on Earth.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 2, "type": "true_false_not_given", "questionText": "Polar bear fur is white in colour, matching its appearance.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 3, "type": "true_false_not_given", "questionText": "During walking hibernation, polar bears reduce their metabolic rate by exactly 30 per cent.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 4, "type": "true_false_not_given", "questionText": "The polar bear population in the southern Beaufort Sea fell by over a third between 2001 and 2010.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 5, "type": "true_false_not_given", "questionText": "The 1973 Agreement on the Conservation of Polar Bears was signed by six nations.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 6, "type": "short_answer", "questionText": "What colour is the polar bear's skin beneath its transparent fur?", "correctAnswer": "black", "wordLimit": 1 },
-        { "id": 7, "type": "short_answer", "questionText": "Which disease, commonly linked to a high-fat diet, do polar bears not develop?", "correctAnswer": "type 2 diabetes", "wordLimit": 3 },
-        { "id": 8, "type": "short_answer", "questionText": "What technology do researchers use to monitor polar bear movements across the Arctic?", "correctAnswer": "satellite tracking collars", "wordLimit": 3 }
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "Polar bears are the largest predators on Earth.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "Polar bear fur is white in colour, matching its appearance.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "During walking hibernation, polar bears reduce their metabolic rate by exactly 30 per cent.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "The polar bear population in the southern Beaufort Sea fell by over a third between 2001 and 2010.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "The 1973 Agreement on the Conservation of Polar Bears was signed by six nations.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "What colour is the polar bear's skin beneath its transparent fur?",
+          "correctAnswer": "black",
+          "wordLimit": 1
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "Which disease, commonly linked to a high-fat diet, do polar bears not develop?",
+          "correctAnswer": "type 2 diabetes",
+          "wordLimit": 3
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "What technology do researchers use to monitor polar bear movements across the Arctic?",
+          "correctAnswer": "satellite tracking collars",
+          "wordLimit": 3
+        }
       ]
     },
     {
@@ -58,14 +232,527 @@
       "questionCount": 8,
       "passageText": "<p>The suggestion that tea might have played a role in Britain's Industrial Revolution may seem improbable at first glance. Yet a growing body of historical and epidemiological research suggests that the widespread consumption of tea in eighteenth-century Britain made a significant contribution to the economic transformation that would reshape the world.</p><p>The timing is certainly suggestive. Tea imports into Britain rose from approximately 100,000 kilograms annually in 1700 to over 11 million kilograms by 1800 — precisely the period during which the Industrial Revolution was gathering momentum. By the 1760s, tea had become the national beverage, consumed by all social classes. Contemporaries noted that even the poorest households would allocate a portion of their meagre income to purchasing tea leaves.</p><p>Two key mechanisms have been proposed to explain tea's contribution to industrialisation. The first relates to public health. In the eighteenth century, urban populations were growing rapidly as people migrated to cities in search of factory work. These cities were notoriously unsanitary, with contaminated water supplies that spread diseases such as dysentery and cholera. Boiling water for tea effectively sterilised it, killing harmful bacteria. Moreover, tea contains polyphenols — natural compounds with antimicrobial properties — that provided an additional layer of protection. Populations that consumed tea regularly therefore experienced lower mortality rates from waterborne diseases, sustaining the workforce that factories required.</p><p>The second mechanism concerns productivity. Tea contains caffeine, which improves alertness, concentration, and reaction time. Unlike beer, which had previously been the standard beverage for many workers and tended to impair performance, tea enhanced it. Factory owners reported that workers who drank tea were more attentive and made fewer mistakes, particularly during the long shifts that characterised early industrial production. Some historians have argued that tea effectively 'sobered up' the British workforce, contributing to the punctuality and discipline that factory production demanded.</p><p>The contrast with China, where tea originated, is instructive. Despite having consumed tea for millennia, China did not undergo an industrial revolution until the twentieth century. This paradox can be explained by the different contexts in which tea was consumed. In China, tea drinking was typically accompanied by the use of boiled water, but the country lacked the combination of factors — coal deposits, colonial trade networks, institutional innovations — that made Britain uniquely positioned to industrialise. Tea was a necessary but not sufficient condition for the Industrial Revolution.</p><p>Recent quantitative historical research has lent support to the tea-industrialisation hypothesis. A 2022 study by economic historians at the University of Cambridge examined parish records from 150 English towns and found a statistically significant negative correlation between tea consumption and mortality from dysentery. Towns with higher tea imports per capita, the researchers found, experienced more rapid population growth and earlier adoption of factory-based production methods. While the debate continues, it is increasingly clear that the humble cup of tea deserves its place alongside steam engines and cotton mills in the story of British industrialisation.</p>",
       "questions": [
-        { "id": 1, "type": "true_false_not_given", "questionText": "Tea imports into Britain increased more than a hundredfold during the eighteenth century.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 2, "type": "true_false_not_given", "questionText": "By the 1760s, only the wealthy classes in Britain regularly consumed tea.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 3, "type": "true_false_not_given", "questionText": "Polyphenols, which are present in tea, have antimicrobial properties.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 0 },
-        { "id": 4, "type": "true_false_not_given", "questionText": "China underwent its own Industrial Revolution at approximately the same time as Britain.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 5, "type": "true_false_not_given", "questionText": "The 2022 Cambridge study found a positive correlation between tea consumption and dysentery mortality.", "options": ["TRUE", "FALSE", "NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 6, "type": "short_answer", "questionText": "What process, required to prepare tea, helped to eliminate harmful bacteria from drinking water?", "correctAnswer": "boiling", "wordLimit": 1 },
-        { "id": 7, "type": "short_answer", "questionText": "Before tea became widely popular, which beverage did many British workers commonly drink during the workday?", "correctAnswer": "beer", "wordLimit": 1 },
-        { "id": 8, "type": "short_answer", "questionText": "In what year was the University of Cambridge study on tea consumption and dysentery published?", "correctAnswer": "2022", "wordLimit": 1 }
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "Tea imports into Britain increased more than a hundredfold during the eighteenth century.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "By the 1760s, only the wealthy classes in Britain regularly consumed tea.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Polyphenols, which are present in tea, have antimicrobial properties.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "China underwent its own Industrial Revolution at approximately the same time as Britain.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "The 2022 Cambridge study found a positive correlation between tea consumption and dysentery mortality.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "What process, required to prepare tea, helped to eliminate harmful bacteria from drinking water?",
+          "correctAnswer": "boiling",
+          "wordLimit": 1
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "Before tea became widely popular, which beverage did many British workers commonly drink during the workday?",
+          "correctAnswer": "beer",
+          "wordLimit": 1
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "In what year was the University of Cambridge study on tea consumption and dysentery published?",
+          "correctAnswer": "2022",
+          "wordLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "cam7-test1",
+      "title": "Let's Go Bats — How Echolocation Works",
+      "topic": "Science",
+      "source": "Cambridge IELTS 7 Test 1 Passage 1",
+      "difficulty": 3,
+      "totalTime": 1200,
+      "wordCount": 680,
+      "questionCount": 8,
+      "passageText": "<p>Bats have a problem: how to find their way around in the dark. They hunt at night, and cannot use light to help them find prey and avoid obstacles. You might say that this is a problem of their own making, one that they could avoid simply by changing their habits and hunting by day. But the daytime economy is already heavily exploited by other creatures such as birds. Given that there is a living to be made at night, and given that alternative daytime trades are thoroughly occupied, natural selection has favoured bats that make a go of the night-hunting trade. It is probable that the nocturnal trades go way back in the ancestry of all mammals.</p><p>In the time when the dinosaurs dominated the daytime economy, our mammalian ancestors probably only managed to survive at all because they found ways of scraping a living at night. Only after the mysterious mass extinction of the dinosaurs about 65 million years ago were our ancestors able to emerge into the daylight in any substantial numbers.</p><p>Bats have an engineering problem: how to find their way and find their prey in the absence of light. Bats are not the only creatures to face this difficulty today. Obviously the night-flying insects that they prey on must find their way about somehow. Deep-sea fish and whales have little or no light by day or by night. Fish and dolphins that live in extremely muddy water cannot see because, although there is light, it is obstructed and scattered by the dirt in the water. Plenty of other modern animals make their living in conditions where seeing is difficult or impossible.</p><p>Given these questions, and the fact that bats were known to have quite good eyesight, the Italian naturalist Lazzaro Spallanzani conducted a series of experiments in the late eighteenth century. He released bats into a room with a maze of silk threads strung from ceiling to floor, and found that the bats could navigate through the threads even when blinded. But when he covered their heads, the bats collided with the threads. Spallanzani concluded that bats had a 'sixth sense' for navigation.</p><p>It was not until the 1930s that the secret was cracked. Researchers discovered that bats emit high-frequency sounds — beyond the range of human hearing — and then listen for the echoes that bounce back from objects in their environment. This process, known as echolocation, allows bats to build a detailed sonic map of their surroundings. The returning echoes tell the bat not only that there is an object ahead, but also how far away it is, how large it is, and even whether it is moving.</p><p>Today, the technology of sonar — Sound Navigation and Ranging — is widely used in both military and civilian applications, from submarine detection to fish-finding. Yet the sophistication of bat echolocation, refined over millions of years of evolution, still surpasses anything human engineers have managed to produce. A single bat can track multiple moving targets simultaneously, adjusting its calls in real time based on the echoes received — a feat that continues to inspire researchers in robotics and autonomous navigation.</p>",
+      "questions": [
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "Bats hunt exclusively during the day to avoid competition from birds.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "Our mammalian ancestors were active mainly at night during the time of the dinosaurs.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Deep-sea fish rely primarily on echolocation to navigate in dark waters.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "Spallanzani's experiments demonstrated that bats could navigate using their ears rather than their eyes.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "Bat echolocation technology has been fully replicated by modern sonar engineers.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "In what decade was the secret of bat navigation finally understood by scientists?",
+          "correctAnswer": "1930s",
+          "wordLimit": 2
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "What term describes the process by which bats emit sounds and interpret their returning echoes?",
+          "correctAnswer": "echolocation",
+          "wordLimit": 1
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "What does the acronym SONAR stand for?",
+          "correctAnswer": "Sound Navigation and Ranging",
+          "wordLimit": 4
+        }
+      ]
+    },
+    {
+      "id": "cam11-test3",
+      "title": "The Story of Silk — From Ancient China to Global Trade",
+      "topic": "History",
+      "source": "Cambridge IELTS 11 Test 3 Passage 1",
+      "difficulty": 3,
+      "totalTime": 1200,
+      "wordCount": 640,
+      "questionCount": 8,
+      "passageText": "<p>Silk is a fine, smooth material produced from the cocoons — soft protective shells — made by the silkworm, which is the caterpillar of the silk moth. The history of the world's most luxurious fabric stretches back over 4,500 years to ancient China, where legend credits the Empress Lei Zu with its discovery. According to tradition, a silkworm cocoon fell from a mulberry tree into her cup of tea, and as she retrieved it, the heat had loosened the filament, allowing her to unwind a continuous thread.</p><p>For thousands of years, the Chinese closely guarded the secret of silk production, or sericulture. The penalty for revealing the secret or smuggling silkworm eggs out of China was death. This monopoly allowed China to develop a thriving trade network that would eventually become known as the Silk Road — a vast network of caravan routes stretching over 6,400 kilometres from eastern China to the Mediterranean Sea. Along these routes travelled not just silk, but also spices, glassware, ideas, and religions, making the Silk Road one of history's first and most important channels of globalisation.</p><p>By the first century CE, silk had become so popular among the Roman elite that the Senate repeatedly tried — and failed — to ban its use, claiming that the enormous sums spent on Chinese silk were depleting Rome's gold reserves. The Roman historian Pliny the Elder complained that Roman women were spending the equivalent of millions of sesterces annually on the 'wretched stuff.'</p><p>The secret of sericulture finally spread beyond China around 300 CE, when, according to one account, a Chinese princess smuggled silkworm eggs in her elaborate headdress when she was sent to marry the king of Khotan (in modern-day Xinjiang). From there, knowledge of silk production travelled westward along the Silk Road, reaching India by the fifth century and the Byzantine Empire by the sixth century, when two Nestorian monks reportedly hid silkworm eggs inside hollow bamboo canes to smuggle them to Constantinople.</p><p>By the medieval period, Italy and France had become the dominant centres of European silk production. The city of Lyon in particular became famous for its silk weavers, who produced fabrics of extraordinary complexity using Jacquard looms — early programmable machines that used punched cards to control the weaving pattern. This technology, developed by Joseph Marie Jacquard in 1804, would later inspire Charles Babbage in his design for the Analytical Engine, making silk weaving an unlikely ancestor of the modern computer.</p><p>Today, China has reclaimed its position as the world's largest silk producer, accounting for approximately 75 per cent of global raw silk output. While synthetic fibres have largely replaced silk for everyday clothing, genuine silk remains prized for its lustre, strength, and comfort, and continues to be used in high-end fashion, surgical sutures, and even in some specialised engineering applications.</p>",
+      "questions": [
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "The Chinese had a legal monopoly on silk production for over 3,000 years.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 2
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "The Silk Road connected eastern China to the Mediterranean Sea.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Roman senators successfully passed laws banning the wearing of silk by Roman women.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "A Chinese princess is believed to have introduced silkworm eggs to the region of Khotan.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "The Jacquard loom used punched cards to control weaving patterns, influencing early computer design.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "Which legendary Chinese empress is credited with discovering silk?",
+          "correctAnswer": "Lei Zu",
+          "wordLimit": 2
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "What term describes the practice of raising silkworms for silk production?",
+          "correctAnswer": "sericulture",
+          "wordLimit": 1
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "Which French city became famous as a European centre for silk weaving?",
+          "correctAnswer": "Lyon",
+          "wordLimit": 1
+        }
+      ]
+    },
+    {
+      "id": "cam8-test1",
+      "title": "Air Traffic Control in the USA — From Flags to Automation",
+      "topic": "Technology",
+      "source": "Cambridge IELTS 8 Test 1 Passage 2",
+      "difficulty": 4,
+      "totalTime": 1200,
+      "wordCount": 700,
+      "questionCount": 8,
+      "passageText": "<p>An accident that occurred in the skies over the Grand Canyon in 1956 resulted in the establishment of the Federal Aviation Administration (FAA) to regulate and oversee the operation of aircraft in the skies over the United States, which were becoming quite congested. The resulting structure of air traffic control has greatly increased the safety of flight in the United States, and similar air traffic control procedures are also in place over much of the rest of the world.</p><p>Rudimentary air traffic control (ATC) existed well before the Grand Canyon disaster. As early as the 1920s, the earliest air traffic controllers manually guided aircraft in the vicinity of airports, using lights and flags, while beacons and flashing lights were placed along cross-country routes to establish the earliest airways. However, this purely visual system was useless in poor weather, and, by the 1930s, radio communication was coming into use for ATC. The first region to have something approximating today's ATC was New York City, with other major metropolitan areas following soon after.</p><p>In the 1940s, ATC centres could and did take advantage of the newly developed radar and improved radio communication brought about by the Second World War, but the system remained rudimentary. It was only after the creation of the FAA that full-scale regulation of America's airspace took place, and this was fortuitous, for the advent of the jet engine suddenly resulted in a large number of very fast planes, reducing pilots' margin of error and practically demanding some set of rules to keep everyone well separated and operating safely in the air.</p><p>Many people think that ATC consists of a row of controllers sitting in front of their radar screens at the nation's airports, telling arriving and departing traffic what to do. This is a very incomplete picture. The FAA realised that the airspace over the United States would at any time have many different kinds of planes, flying for many different purposes, in a variety of weather conditions, and the same kind of structure was needed to accommodate all of them. Consequently, a system was devised that divided the airspace into seven classes, lettered A through G.</p><p>Class A airspace extends from 18,000 feet above mean sea level up to 60,000 feet, and all aircraft operating within it must be equipped with instruments and operate under Instrument Flight Rules (IFR). Class E airspace, by contrast, covers the airspace from 1,200 feet above the ground up to 18,000 feet where controlled airspace has not been otherwise designated. In Class G airspace — the uncontrolled airspace closest to the ground — pilots are not required to be in contact with ATC at all, though they may request services.</p><p>The element that makes the whole system work is the air traffic controller. Highly trained specialists, controllers manage the flow of aircraft, issuing clearances, providing weather and traffic information, and — in emergencies — guiding distressed aircraft to safe landings. Modern ATC is increasingly automated, with computers handling routine spacing and sequencing tasks, but the human controller remains indispensable, particularly when the unexpected occurs. As one veteran controller put it: 'The computer handles 95 per cent of the traffic, and I handle the other 5 per cent — but it is always a different 5 per cent.'</p>",
+      "questions": [
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "The FAA was created in direct response to the 1956 Grand Canyon air disaster.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "In the 1920s, early air traffic controllers used radio communication to guide aircraft.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "New York City was the first location to develop a modern-style ATC system in the United States.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "The introduction of jet engines made air traffic control regulations less necessary.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "In Class G airspace, pilots are legally required to maintain constant radio contact with ATC.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "How many different classes was the US airspace divided into by the FAA?",
+          "correctAnswer": "seven",
+          "wordLimit": 1
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "What does the acronym IFR, used in Class A airspace, stand for?",
+          "correctAnswer": "Instrument Flight Rules",
+          "wordLimit": 3
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "At what altitude does Class A airspace begin above mean sea level?",
+          "correctAnswer": "18000 feet",
+          "wordLimit": 3
+        }
+      ]
+    },
+    {
+      "id": "cam10-test1",
+      "title": "The Psychology of Innovation — Why Some Organisations Thrive",
+      "topic": "Sociology",
+      "source": "Cambridge IELTS 10 Test 1 Passage 3",
+      "difficulty": 4,
+      "totalTime": 1200,
+      "wordCount": 720,
+      "questionCount": 8,
+      "passageText": "<p>Innovation is a term that is widely used today, but what does it actually mean? At its core, innovation is the successful exploitation of new ideas. It is distinct from invention, which is the creation of something entirely new. Many inventions never become innovations because they fail to find a market or practical application. The history of technology is littered with brilliant inventions that never became innovations: the Sinclair C5 electric vehicle, the Apple Newton PDA, and countless others demonstrate that technical brilliance alone is not enough.</p><p>Psychological research has identified several factors that distinguish innovative organisations from their less successful competitors. One of the most important is what Harvard Business School professor Teresa Amabile calls 'creative climate' — the organisational culture that either encourages or stifles new thinking. In a series of studies spanning three decades, Amabile and her colleagues found that the single most powerful predictor of innovation was not budget, team size, or even individual talent, but rather the degree to which the work environment supported autonomy, provided challenging work, and tolerated failure as a learning opportunity.</p><p>Interestingly, the relationship between reward and innovation is complex and often counter-intuitive. While extrinsic rewards such as bonuses and promotions can motivate routine performance, they can actually undermine the intrinsic motivation that drives creative work. The most innovative individuals report being driven primarily by curiosity, intellectual challenge, and the satisfaction of solving difficult problems — what psychologists call intrinsic motivation. Organisations that rely too heavily on financial incentives to spur innovation may therefore be inadvertently suppressing the very creativity they seek to promote.</p><p>Another critical factor is the composition of teams. Research by Northwestern University sociologist Brian Uzzi found that the most innovative teams are neither completely homogeneous (where everyone thinks alike) nor completely heterogeneous (where no one shares a common language). Instead, the highest-performing teams occupy a 'sweet spot' where team members share enough common ground to communicate effectively, but bring sufficiently diverse perspectives to generate genuine novelty. Uzzi's analysis of Broadway musical productions over several decades revealed that productions with a mix of seasoned collaborators and fresh talent were significantly more likely to be both critical and commercial successes.</p><p>The physical environment also plays a surprising role. A landmark study by researchers at the University of Michigan found that open-plan offices, widely adopted to promote 'serendipitous encounters' and collaboration, actually reduced face-to-face interaction by approximately 70 per cent while increasing electronic communication. Employees in open-plan environments reported higher stress levels, lower job satisfaction, and — crucially — lower creative output compared to those in more private workspace configurations.</p><p>Perhaps most importantly, innovative organisations institutionalise what Stanford psychologist Carol Dweck calls a 'growth mindset' — the belief that abilities can be developed rather than being fixed. In such environments, failure is not seen as evidence of incompetence but as a necessary step in the learning process. As one Silicon Valley executive noted: 'If you are not failing regularly, you are not trying hard enough.' This tolerance for failure creates the psychological safety that allows individuals to take the risks that innovation inevitably requires.</p>",
+      "questions": [
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "Innovation and invention are essentially the same concept and can be used interchangeably.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "Teresa Amabile's research found that budget size was the strongest predictor of organisational innovation.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Extrinsic financial rewards always increase creative output in the workplace.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "Brian Uzzi's research suggested that the most innovative teams blend shared knowledge with diverse perspectives.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "Open-plan offices successfully increased face-to-face interaction between employees by roughly 70 per cent.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "What term does Carol Dweck use to describe the belief that abilities can be developed rather than being fixed?",
+          "correctAnswer": "growth mindset",
+          "wordLimit": 2
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "What type of motivation do the most innovative individuals report as their primary drive?",
+          "correctAnswer": "intrinsic motivation",
+          "wordLimit": 2
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "Which university is Brian Uzzi, the researcher who analysed Broadway musical productions, affiliated with?",
+          "correctAnswer": "Northwestern University",
+          "wordLimit": 2
+        }
+      ]
+    },
+    {
+      "id": "cam15-test1",
+      "title": "Driverless Cars — The Road to Autonomous Vehicles",
+      "topic": "Technology",
+      "source": "Cambridge IELTS 15 Test 1 Passage 2",
+      "difficulty": 4,
+      "totalTime": 1200,
+      "wordCount": 670,
+      "questionCount": 8,
+      "passageText": "<p>The idea of cars that can drive themselves has captured the human imagination for nearly a century. At the 1939 New York World's Fair, General Motors unveiled its 'Futurama' exhibit, which depicted automated highways where cars would be guided by radio control. What seemed like pure science fiction then is now approaching reality, with autonomous vehicles being tested on public roads in cities from San Francisco to Singapore.</p><p>The technological backbone of autonomous vehicles rests on three pillars: perception, planning, and control. Perception involves using sensors — cameras, radar, and lidar (light detection and ranging) — to build a detailed three-dimensional picture of the vehicle's surroundings. Planning involves deciding what path to take and what actions to perform, such as when to change lanes or overtake. Control is the execution of those plans, translating decisions into steering, acceleration, and braking commands.</p><p>The Society of Automotive Engineers (SAE) has defined six levels of driving automation, from Level 0 (no automation) to Level 5 (full automation under all conditions). Most new cars today fall somewhere around Level 2, offering features such as adaptive cruise control and lane-keeping assistance. Level 3, where the car handles most driving tasks but the human must be ready to take over, has been achieved by a handful of manufacturers but remains controversial due to the 'handover problem' — the difficulty of ensuring that a distracted human driver can safely resume control at a moment's notice.</p><p>The potential benefits of autonomous vehicles are enormous. The World Health Organization estimates that approximately 1.35 million people die each year in road traffic accidents globally, with human error a contributing factor in over 90 per cent of cases. Autonomous vehicles, which never get tired, distracted, or intoxicated, could dramatically reduce this toll. Moreover, they could provide mobility for elderly and disabled people who are currently unable to drive, and could reduce congestion through more efficient use of road space and coordination with other vehicles and traffic infrastructure.</p><p>However, significant challenges remain before widespread adoption can occur. The 'trolley problem' — the ethical dilemma of how an autonomous vehicle should prioritise different lives in an unavoidable crash scenario — has generated enormous debate among philosophers, engineers, and the public. A 2018 global survey published in Nature found that while people overwhelmingly expressed a preference for autonomous vehicles that would sacrifice their passengers to save a larger number of pedestrians, they also reported that they personally would refuse to buy such a vehicle.</p><p>Regulatory frameworks are struggling to keep pace with technological development. Different jurisdictions have taken markedly different approaches: some US states have actively encouraged testing with minimal regulation, while the European Union has adopted a more cautious approach, requiring extensive safety certifications before any autonomous vehicle can operate on public roads. Industry observers expect that a patchwork of inconsistent regulations will pose one of the most significant barriers to the global deployment of autonomous vehicles in the coming decade.</p>",
+      "questions": [
+        {
+          "id": 1,
+          "type": "true_false_not_given",
+          "questionText": "General Motors demonstrated a fully functional autonomous vehicle at the 1939 New York World's Fair.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 2,
+          "type": "true_false_not_given",
+          "questionText": "Lidar is a sensor technology that stands for 'light detection and ranging'.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 3,
+          "type": "true_false_not_given",
+          "questionText": "Most cars sold today already achieve SAE Level 4 automation or higher.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 4,
+          "type": "true_false_not_given",
+          "questionText": "Human error is a factor in over 90 per cent of road traffic accidents worldwide.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 0
+        },
+        {
+          "id": 5,
+          "type": "true_false_not_given",
+          "questionText": "The 2018 Nature survey found that people were willing to buy autonomous vehicles programmed to sacrifice their passengers for the greater good.",
+          "options": [
+            "TRUE",
+            "FALSE",
+            "NOT GIVEN"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "id": 6,
+          "type": "short_answer",
+          "questionText": "What ethical dilemma, involving choices about who to harm in unavoidable crashes, has generated debate about autonomous vehicles?",
+          "correctAnswer": "trolley problem",
+          "wordLimit": 2
+        },
+        {
+          "id": 7,
+          "type": "short_answer",
+          "questionText": "Which organisation defines the six levels of driving automation from Level 0 to Level 5?",
+          "correctAnswer": "SAE",
+          "wordLimit": 3
+        },
+        {
+          "id": 8,
+          "type": "short_answer",
+          "questionText": "What term describes the difficulty of ensuring drivers can safely take back control from an autonomous system at short notice?",
+          "correctAnswer": "handover problem",
+          "wordLimit": 2
+        }
       ]
     }
   ]

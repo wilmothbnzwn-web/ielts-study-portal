@@ -15,8 +15,8 @@
 | **GitHub Repo** | `https://github.com/wilmothbnzwn-web/ielts-study-portal` (Private) |
 | **Deploy Platform** | Netlify (auto-deploy on `git push` to `main`) |
 | **Local Dev Port** | `3456` (start with `node server.js` or `npm start`) |
-| **Last Updated** | 2026-06-15 |
-| **Total Commits** | 7 (see §13 Git History) |
+| **Last Updated** | 2026-06-16 |
+| **Total Commits** | 8 (see §13 Git History) |
 
 ---
 
@@ -147,13 +147,20 @@ All 3 mock tests are stored in a single JSON file with structure:
 }
 ```
 
-**Available tests** (3 as of 2026-06-15):
+**Available tests** (8 as of 2026-06-16):
 
 | ID | Title | Topic | Difficulty | Questions | Time |
 |----|-------|-------|------------|-----------|------|
 | `cam9-test1` | William Henry Perkin — Synthetic Dyes | Science | ★★★ | 13 (7 TFN + 6 SA) | 60 min |
 | `cam16-test1` | Why We Need to Protect Polar Bears | Environment | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
 | `cam10-test2` | Tea and the Industrial Revolution | History | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam7-test1` | Let's Go Bats — Echolocation | Science | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam11-test3` | The Story of Silk | History | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam8-test1` | Air Traffic Control in the USA | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam10-test1` | The Psychology of Innovation | Sociology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `cam15-test1` | Driverless Cars | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+
+**Topics covered**: Science, Environment, History, Technology, Sociology (5 topics)
 
 ### 4.5 Compatibility Layer
 
@@ -719,6 +726,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 ## 13. Git History
 
 ```
+<next-commit> Data: Auto-parse and inject 5 IELTS reading mocks into dynamic library
 c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
 7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
 fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
@@ -804,8 +812,8 @@ git push
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 | Mock test timer | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
-| Mock test questions (total) | `29` across 3 tests | `data/reading_tests.json` |
-| Reading tests | `3` (Science, Environment, History) | `data/reading_tests.json` |
+| Mock test questions (total) | `69` across 8 tests | `data/reading_tests.json` |
+| Reading tests | `8` (Science×2, History×2, Technology×2, Environment×1, Sociology×1) | `data/reading_tests.json` |
 | Timer warning thresholds | `600s` / `300s` | `mock-test.html` (`updateTimer`) |
 
 ---
