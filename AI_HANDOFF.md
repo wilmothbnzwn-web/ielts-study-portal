@@ -731,7 +731,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 ## 13. Git History
 
 ```
-<next-commit> Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
+ea2e106 Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
 77bff44 Data: Auto-parse and inject 5 IELTS reading mocks into dynamic library
 c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
 7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
