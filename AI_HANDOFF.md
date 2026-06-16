@@ -16,7 +16,7 @@
 | **Deploy Platform** | Netlify (auto-deploy on `git push` to `main`) |
 | **Local Dev Port** | `3456` (start with `node server.js` or `npm start`) |
 | **Last Updated** | 2026-06-16 |
-| **Total Commits** | 8 (see §13 Git History) |
+| **Total Commits** | 10 (see §13 Git History) |
 
 ---
 
@@ -159,8 +159,13 @@ All 3 mock tests are stored in a single JSON file with structure:
 | `cam8-test1` | Air Traffic Control in the USA | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
 | `cam10-test1` | The Psychology of Innovation | Sociology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
 | `cam15-test1` | Driverless Cars | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `predict17-p1` | Rural Transport Plan of Practical Action | Sociology | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `predict17-p2` | Neuromarketing — Brain Scanning | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `predict17-p3` | Thomas Harriot — Refraction | Science | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+| `predict17-p4` | Children's Math & Science Principles | Sociology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
 
 **Topics covered**: Science, Environment, History, Technology, Sociology (5 topics)
+**Data source**: 4 tests (`predict17-p1` through `predict17-p4`) extracted via Tesseract OCR from 我预测阅读机经 阅读17.pdf (scanned PDF, ~80% English recognition accuracy).
 
 ### 4.5 Compatibility Layer
 
@@ -726,6 +731,7 @@ User clicks "📌 加入收藏" on tooltip (for text with >3 words)
 ## 13. Git History
 
 ```
+<next-commit> Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
 77bff44 Data: Auto-parse and inject 5 IELTS reading mocks into dynamic library
 c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
 7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
@@ -812,8 +818,8 @@ git push
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 | Mock test timer | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
-| Mock test questions (total) | `69` across 8 tests | `data/reading_tests.json` |
-| Reading tests | `8` (Science×2, History×2, Technology×2, Environment×1, Sociology×1) | `data/reading_tests.json` |
+| Mock test questions (total) | `101` across 12 tests | `data/reading_tests.json` |
+| Reading tests | `12` (Science×3, Sociology×3, Technology×3, History×2, Environment×1) | `data/reading_tests.json` |
 | Timer warning thresholds | `600s` / `300s` | `mock-test.html` (`updateTimer`) |
 
 ---
