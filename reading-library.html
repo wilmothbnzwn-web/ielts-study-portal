@@ -158,6 +158,13 @@
             <span class="count-badge text-xs bg-brand-100 text-brand-600 px-2 py-0.5 rounded-full" id="count-all">115</span>
           </div>
 
+          <!-- Official Cambridge Mocks — promoted to top-level -->
+          <div class="sidebar-item px-4 py-2.5 rounded-r-lg mb-0.5 flex items-center justify-between text-sm"
+               data-category="__official_cambridge__" onclick="selectCategory('__official_cambridge__')" style="border-left-color: #dc2626;">
+            <span>🏛️ 官方真题</span>
+            <span class="count-badge text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full" id="count-official-cambridge">-</span>
+          </div>
+
           <!-- Divider -->
           <p class="text-xs font-semibold text-brand-400 uppercase tracking-wider mt-6 mb-3 px-3">按话题分类</p>
 
@@ -168,11 +175,6 @@
           <p class="text-xs font-semibold text-brand-400 uppercase tracking-wider mt-6 mb-3 px-3">按来源分类</p>
 
           <!-- Source categories -->
-          <div class="sidebar-item px-4 py-2.5 rounded-r-lg mb-0.5 flex items-center justify-between text-sm"
-               data-category="__cambridge__" onclick="selectCategory('__cambridge__')">
-            <span>📋 剑桥真题</span>
-            <span class="count-badge text-xs bg-brand-100 text-brand-600 px-2 py-0.5 rounded-full" id="count-cambridge">-</span>
-          </div>
           <div class="sidebar-item px-4 py-2.5 rounded-r-lg mb-0.5 flex items-center justify-between text-sm"
                data-category="__prediction__" onclick="selectCategory('__prediction__')">
             <span>🔮 预测机经</span>
@@ -256,7 +258,7 @@
   <script>
   // ==================== CONSTANTS ====================
   const CATEGORY_ALL = '__all__';
-  const CATEGORY_CAMBRIDGE = '__cambridge__';
+  const CATEGORY_OFFICIAL_CAMBRIDGE = '__official_cambridge__';
   const CATEGORY_PREDICTION = '__prediction__';
 
   const TOPIC_CONFIG = {
@@ -400,9 +402,9 @@
     if (category === CATEGORY_ALL) {
       title = '📚 全部题目';
       subtitle = `共 ${tests.length} 套试卷，按话题领域分组展示`;
-    } else if (category === CATEGORY_CAMBRIDGE) {
-      title = '📋 剑桥真题';
-      subtitle = `${tests.length} 套 Cambridge IELTS 官方真题`;
+    } else if (category === CATEGORY_OFFICIAL_CAMBRIDGE) {
+      title = '🏛️ Official Cambridge Mocks (官方真题)';
+      subtitle = `${tests.length} 套 Cambridge IELTS 官方真题 · 含详细解析与答案`;
     } else if (category === CATEGORY_PREDICTION) {
       title = '🔮 预测机经';
       subtitle = `${tests.length} 套 IELTS 阅读预测机经`;
@@ -437,7 +439,12 @@
       groups = groupBy(tests, t => t.topic);
       // Sort by count descending
       groups = sortGroupsByCount(groups);
-    } else if (category === CATEGORY_CAMBRIDGE || category === CATEGORY_PREDICTION) {
+    } else if (category === CATEGORY_OFFICIAL_CAMBRIDGE) {
+      // Group by Cambridge book number
+      groups = groupBy(tests, t => getSourceGroup(t.source));
+      // Sort by book number
+      groups = sortGroupsByKey(groups);
+    } else if (category === CATEGORY_PREDICTION) {
       // Group by source (book/PDF)
       groups = groupBy(tests, t => getSourceGroup(t.source));
       // Sort alphabetically
@@ -469,8 +476,8 @@
         sectionIcon = cfg.icon;
         sectionLabel = cfg.label;
       }
-    } else if (category === CATEGORY_CAMBRIDGE) {
-      sectionIcon = '📋';
+    } else if (category === CATEGORY_OFFICIAL_CAMBRIDGE) {
+      sectionIcon = '🏛️';
     } else if (category === CATEGORY_PREDICTION) {
       sectionIcon = '🔮';
     }
@@ -516,15 +523,23 @@
   }
 
   function updateSidebarCounts() {
-    const cambridgeCount = allTests.filter(t => t.source && t.source.includes('Cambridge')).length;
-    const predictionCount = allTests.filter(t => t.source && (t.source.includes('Prediction') || t.source.includes('阅读'))).length;
+    const officialCamCount = allTests.filter(t => {
+      const mc = t.main_class || '';
+      const src = t.source || '';
+      return mc.includes('Official Cambridge') || mc.includes('官方真题') || src.includes('Cambridge IELTS');
+    }).length;
+    const predictionCount = allTests.filter(t => {
+      const mc = t.main_class || '';
+      const src = t.source || '';
+      return !(mc.includes('Official Cambridge') || mc.includes('官方真题') || src.includes('Cambridge IELTS'));
+    }).length;
     const allCount = allTests.length;
 
     const elAll = document.getElementById('count-all');
-    const elCam = document.getElementById('count-cambridge');
+    const elOfficialCam = document.getElementById('count-official-cambridge');
     const elPred = document.getElementById('count-prediction');
     if (elAll) elAll.textContent = allCount;
-    if (elCam) elCam.textContent = cambridgeCount;
+    if (elOfficialCam) elOfficialCam.textContent = officialCamCount;
     if (elPred) elPred.textContent = predictionCount;
   }
 
@@ -560,6 +575,10 @@
     html += `<button class="mobile-tab active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-brand-800 text-white border-none cursor-pointer transition-all"
               data-category="${CATEGORY_ALL}" onclick="selectCategory('${CATEGORY_ALL}')">📚 全部</button>`;
 
+    // Official Cambridge
+    html += `<button class="mobile-tab flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200 cursor-pointer transition-all hover:bg-red-100"
+              data-category="${CATEGORY_OFFICIAL_CAMBRIDGE}" onclick="selectCategory('${CATEGORY_OFFICIAL_CAMBRIDGE}')">🏛️ 官方</button>`;
+
     // Topic tabs
     const topicOrder = ['Science', 'Environment', 'Economics', 'History', 'Sociology', 'Technology'];
     for (const topic of topicOrder) {
@@ -569,8 +588,6 @@
     }
 
     // Source tabs
-    html += `<button class="mobile-tab flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-all hover:bg-brand-50"
-              data-category="${CATEGORY_CAMBRIDGE}" onclick="selectCategory('${CATEGORY_CAMBRIDGE}')">📋 真题</button>`;
     html += `<button class="mobile-tab flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-all hover:bg-brand-50"
               data-category="${CATEGORY_PREDICTION}" onclick="selectCategory('${CATEGORY_PREDICTION}')">🔮 机经</button>`;
 
@@ -605,11 +622,19 @@
 
   function getTestsForCategory(category) {
     if (category === CATEGORY_ALL) return allTests;
-    if (category === CATEGORY_CAMBRIDGE) {
-      return allTests.filter(t => t.source && t.source.includes('Cambridge'));
+    if (category === CATEGORY_OFFICIAL_CAMBRIDGE) {
+      return allTests.filter(t => {
+        const mc = t.main_class || '';
+        const src = t.source || '';
+        return mc.includes('Official Cambridge') || mc.includes('官方真题') || src.includes('Cambridge IELTS');
+      });
     }
     if (category === CATEGORY_PREDICTION) {
-      return allTests.filter(t => t.source && (t.source.includes('Prediction') || t.source.includes('阅读')));
+      return allTests.filter(t => {
+        const mc = t.main_class || '';
+        const src = t.source || '';
+        return !(mc.includes('Official Cambridge') || mc.includes('官方真题') || src.includes('Cambridge IELTS'));
+      });
     }
     return allTests.filter(t => t.topic === category);
   }
