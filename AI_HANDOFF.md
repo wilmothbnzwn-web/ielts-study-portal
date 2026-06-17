@@ -1,7 +1,13 @@
 # AI Handoff Document — IELTS Study Portal
 
-> **Read this first** if you are a new AI Agent taking over this project.
-> Every technical decision, API route, data structure, and known limitation is documented below.
+> **READ THIS FIRST** if you are a new AI agent taking over this project.
+> Every architectural decision, data schema, API route, storage key, and known limitation is documented below.
+> **Breaking any contract described here WILL cause production failures.**
+
+**Last updated:** 2026-06-17
+**Total commits on `main`:** 15
+**Production URL:** `https://elaborate-duckanoo-d25740.netlify.app`
+**GitHub remote:** `https://github.com/wilmothbnzwn-web/ielts-study-portal.git`
 
 ---
 
@@ -9,819 +15,541 @@
 
 | Field | Value |
 |-------|-------|
-| **Project Name** | IELTS Study Portal |
-| **Purpose** | IELTS Academic (A类) Reading & Writing self-study platform for Chinese-speaking learners |
-| **Production URL** | `https://elaborate-duckanoo-d25740.netlify.app` |
-| **GitHub Repo** | `https://github.com/wilmothbnzwn-web/ielts-study-portal` (Private) |
-| **Deploy Platform** | Netlify (auto-deploy on `git push` to `main`) |
-| **Local Dev Port** | `3456` (start with `node server.js` or `npm start`) |
-| **Last Updated** | 2026-06-16 |
-| **Total Commits** | 10 (see §13 Git History) |
+| **Purpose** | IELTS Academic Reading & Writing self-study portal for Chinese-speaking learners |
+| **Audience** | Chinese students preparing for IELTS Academic (雅思 A 类) |
+| **Language** | Mixed Chinese/English UI; English-only test content |
+| **Deployment** | Netlify static site + serverless functions (auto-deploy on `git push` to `main`) |
+| **Local dev** | Node.js `http` server on port `3456` (run `node server.js` or `npm start`) |
+| **Architecture** | Pure HTML/CSS/JS frontend + Node.js static server + Netlify serverless functions for API |
+| **CSS Framework** | Tailwind CSS v3 CDN (`https://cdn.tailwindcss.com`) with inline brand color config |
+| **Database** | Static JSON files in `/data/` — no SQL, no ORM |
+| **State** | Browser `localStorage` only — no cookies, no session, no server-side state |
+
+### Git History (most recent first)
+
+```
+f6ed21b Data: Batch OCR pipeline processes 16 prediction PDFs, expands reading library to 115 tests (925 questions)
+abd6610 Docs: update AI_HANDOFF.md with commit hash and test counts
+ea2e106 Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
+5349969 Docs: update AI_HANDOFF.md with commit hash
+77bff44 Data: Auto-parse and inject 5 IELTS reading mocks into dynamic library
+2d48acd Docs: update AI_HANDOFF.md with commit hash c961392
+c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
+81719d0 Docs: fix AI_HANDOFF.md git history and section numbering
+7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
+eaf9bda Fix: Resolve text overflow bug in VocabCard component
+b36e951 Refactor: Extract VocabCard component and unify UI in My Collection
+1fd824e Data: Expand IELTS vocabulary database with 200+ academic words
+c3d1c09 Docs: Create AI handoff document for context continuity
+fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
+bb597e1 Enhance: Upgrade translation engine for full sentences and add loading UI
+```
+
+All commits on `main` branch. No other branches exist.
 
 ---
 
-## 2. Tech Stack
+## 2. Tech Stack & File Structure
 
-| Layer | Technology | Notes |
-|-------|-----------|-------|
-| **Frontend** | Pure HTML/CSS/JS (no framework) | 7 standalone `.html` pages + 1 shared JS component |
-| **Shared Components** | `js/vocab-card.js` — VocabCard() | Reusable 3D-flip vocabulary card used by both vocabulary.html & collection.html |
-| **CSS** | Tailwind CSS via CDN (`cdn.tailwindcss.com`) | Custom `brand` color palette + `serif`/`sans` font families configured inline |
-| **Backend (local)** | Node.js `http` module — zero npm dependencies | `server.js` serves static files + 2 dynamic proxy routes + 8 static JSON API routes |
-| **Backend (production)** | Netlify Serverless Functions | 10 functions under `netlify/functions/`, auto-deployed |
-| **Data Layer** | Static JSON files in `data/` | 8 files; no database |
-| **Persistence (client)** | `localStorage` | Two keys: `ielts_myWords` and `ielts_mySentences` |
-| **External APIs (proxied)** | MyMemory Translation API, Free Dictionary API | Both called server-side to avoid CORS |
-| **package.json** | `{ "scripts": { "start": "node server.js", "dev": "node server.js" } }` | Zero `dependencies` / `devDependencies` |
+### Core Stack
 
----
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| **Frontend** | Vanilla HTML5 + CSS3 + ES6 JavaScript | Zero build step, instant Netlify deploy |
+| **CSS** | Tailwind CSS v3 CDN (`<script src="https://cdn.tailwindcss.com">`) | Utility-first, responsive, no PostCSS config |
+| **Icons** | Native emoji (no icon library) | Zero dependencies, universally rendered |
+| **Fonts** | System font stack (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto...`) | No FOUT, no external requests |
+| **Audio** | Web Speech API (`speechSynthesis`) | Built-in TTS, no external audio files |
+| **Translation** | MyMemory API (free tier, `https://api.mymemory.translated.net/get`) | No API key needed |
+| **Routing** | `URLSearchParams` (query-string based) | No SPA framework needed |
+| **Server** | Node.js `http` module (vanilla, no Express) | Minimal, 0 dependencies |
+| **Serverless** | Netlify Functions (AWS Lambda under the hood) | Auto-deploy, free tier sufficient |
+| **Python Scripts** | Python 3.14 + Tesseract OCR + pdf2image + pytesseract | OCR pipeline for batch PDF processing |
 
-## 3. Project File Tree
+### Full File Tree (as of 2026-06-17)
 
 ```
 IELTS_Study_Portal/
-├── index.html                          # Landing page (hero + 3 feature cards)
-├── reading-library.html                # ★ NEW: Reading test library (cards → mock test with ?testId=)
-├── mock-test.html                      # Computer-delivered IELTS reading mock test (split-pane, timer, highlighting, bottom nav, dynamic ?testId= routing)
-├── writing.html                        # Writing methodology (3 tabs: descriptors, Simon, essays)
-├── reading.html                        # Reading training (5 articles + translation + collection)
-├── vocabulary.html                     # 288 IELTS vocabulary cards (filterable, flip animation, VocabCard component)
-├── collection.html                     # My Collection (word tabs use VocabCard + sentence tabs, localStorage)
-├── server.js                           # Local dev server (port 3456, all API routes)
+├── .gitignore                        # Ignores: node_modules/, .DS_Store, *.backup.*, scripts/ocr_output/
+├── .netlify/
+│   ├── netlify.toml                  # (legacy)
+│   ├── state.json
+│   └── functions/                    # Pre-built function zips (legacy)
+├── netlify.toml                      # Netlify config: build dir, function dir, API redirects
+├── vercel.json                       # Vercel redirects (unused, kept for portability)
+├── package.json                      # npm metadata, scripts: { start, dev }
+├── server.js                         # Local dev server (Node http, port 3456)
+│
+├── index.html                        # Home page (IELTS overview dashboard)
+├── reading.html                      # Reading practice page (articles + translation + collection)
+├── reading-library.html              # Reading test library (card grid, 115 tests, topic filter, search)
+├── mock-test.html                    # Computer-delivered IELTS reading mock test interface
+├── writing.html                      # Writing practice page (essay analysis)
+├── vocabulary.html                   # Vocabulary browser (288 academic words, search, filter)
+├── collection.html                   # "My Collection" page (saved words + sentences from localStorage)
+│
 ├── js/
-│   └── vocab-card.js                   # Shared VocabCard component + playAudio() + toggleCard()
-├── package.json                        # Minimal, zero deps
-├── netlify.toml                        # Netlify config: build, functions, redirects
-├── vercel.json                         # Vercel fallback (UNUSED — left from early attempt)
-├── .gitignore                          # node_modules, .env, .vercel, .netlify, .DS_Store
+│   └── vocab-card.js                 # Shared VocabCard component (3D flip, audio, theme colors)
 │
-├── data/                               # Static JSON data files (8 files)
-│   ├── dictionary.json                 # 558-entry EN→ZH word dictionary
-│   ├── vocabulary.json                 # 50 IELTS core words with full metadata
-│   ├── reading-articles.json           # 5 academic articles with vocab highlights
-│   ├── essays.json                     # 3 Band 8+ sample essays
-│   ├── methodology.json                # Simon's writing methodology content
-│   ├── band-descriptors.json           # Official IELTS band descriptors
-│   ├── mock-test-1.json                # Cam 9 Test 1 mock exam (passage + 13 questions) — kept for backward compat
-│   └── reading_tests.json              # ★ NEW: Aggregate test library (3 tests with metadata + content)
+├── data/
+│   ├── reading_tests.json            # ★ CORE: 115 reading tests, 925 questions (1.18 MB)
+│   ├── vocabulary.json               # 288 academic vocabulary entries
+│   ├── dictionary.json               # 558 word→definition lookups
+│   ├── essays.json                   # 3 sample IELTS essays with band analysis
+│   ├── reading-articles.json         # 5 reading articles for practice page
+│   ├── methodology.json              # 3 methodology entries
+│   ├── band-descriptors.json         # IELTS band score descriptors
+│   └── mock-test-1.json              # (legacy mock test, superseded by reading_tests.json)
 │
-├── api/                                # LEGACY Vercel serverless functions (UNUSED)
+├── api/                              # Local API routes (served by server.js in dev)
 │   ├── band-descriptors.js
 │   ├── essays.js
 │   ├── methodology.js
 │   ├── reading-articles.js
 │   └── vocabulary.js
 │
-└── netlify/functions/                  # Active Netlify serverless functions (10 files)
-    ├── band-descriptors.js             # Serves data/band-descriptors.json
-    ├── essays.js                       # Serves data/essays.json
-    ├── methodology.js                  # Serves data/methodology.json
-    ├── reading-articles.js             # Serves data/reading-articles.json
-    ├── vocabulary.js                   # Serves data/vocabulary.json
-    ├── dictionary.js                   # Serves data/dictionary.json
-    ├── mock-test-1.js                  # Serves data/mock-test-1.json
-    ├── reading-tests.js                # ★ NEW: Serves data/reading_tests.json
-    ├── translate.js                    # Proxies MyMemory Translation API
-    └── dictionary-lookup.js            # Proxies Free Dictionary API
+├── netlify/functions/                # Netlify serverless functions (production API)
+│   ├── band-descriptors.js
+│   ├── essays.js
+│   ├── methodology.js
+│   ├── reading-articles.js
+│   ├── reading-tests.js              # ★ Serves reading_tests.json
+│   ├── vocabulary.js
+│   ├── dictionary.js
+│   ├── dictionary-lookup.js
+│   ├── mock-test-1.js                # (legacy)
+│   └── translate.js                  # Translation proxy (MyMemory API)
+│
+└── scripts/                          # ★ Python data pipeline scripts
+    ├── batch_ocr_pipeline.py         # Batch OCR: scan PDFs → extract text (Tesseract)
+    ├── inject_from_ocr.py            # OCR text → structured test JSON → inject into reading_tests.json
+    ├── ocr_pipeline_phase1.py        # Original single-PDF OCR script (superseded by batch version)
+    ├── inject_tests.py               # First injection script (5 LLM-generated tests)
+    ├── inject_ocr_tests.py           # Manual injection script (4 tests from 阅读17)
+    ├── generate-vocabulary.js        # Node script to generate vocabulary.json
+    └── ocr_output/                   # ★ OCR raw output (~2 MB, .txt + .json per PDF)
+        ├── _batch_summary.json       # Batch processing summary
+        ├── 阅读18_新版_集合_pdf.txt
+        ├── 阅读19_新版_-全文_pdf.txt
+        ├── 阅读20_新版_-1_19_pdf.txt
+        ├── ... (16 PDFs total)
+        └── 阅读38_pdf.txt
 ```
+
+### Key Architecture Decisions
+
+1. **No build step.** All HTML pages are self-contained. Tailwind is loaded via CDN `<script>`. This means a `git push` is the entire deploy pipeline — Netlify serves files as-is.
+
+2. **API duality.** Local dev uses `server.js` to serve static files + API routes. Production uses Netlify Functions (in `/netlify/functions/`). Both serve the same JSON files from `/data/`. The `netlify.toml` redirects `/api/*` → `/.netlify/functions/:splat`.
+
+3. **Dynamic mock test routing.** `reading-library.html` links to `mock-test.html?testId=<id>`. The mock test page reads `URLSearchParams`, fetches `/api/reading-tests`, finds the matching test by `id`, and renders it.
+
+4. **Compatibility wrapper.** `mock-test.html` normalizes old test format (`flat` questions array) to new format (`passages[]` array with nested questions) at lines ~520-545.
 
 ---
 
-## 4. New Module: Reading Test Library (题库大厅)
+## 3. Data Schemas (THE CONTRACT — DO NOT BREAK)
 
-### 4.1 Overview
+### 3.1 reading_tests.json — The Core Database
 
-`reading-library.html` is the test library landing page that lists all available IELTS reading mock tests. It serves as the entry point before entering the mock test interface, replacing the previously hardcoded single-test flow.
-
-### 4.2 Card-Based UI
-
-Each test is rendered as a card in a responsive grid (1→2→3 columns). Cards display:
-- **Topic tag** (colored badge with icon: Science🔬 / Environment🌍 / History📜 / Economics💼 / Sociology👥)
-- **Title** (serif font, large)
-- **Excerpt** (120-char preview of passage text)
-- **Source** (e.g. "Cambridge IELTS 9 Test 1 Passage 1")
-- **Difficulty** rating (1-5 dots with label)
-- **Question count** + **Time estimate**
-- **CTA arrow** ("进入模考 →")
-
-Card hover: translateY(-6px) + enlarged shadow + arrow slides right. Skeleton loading placeholders shown while data loads.
-
-### 4.3 Dynamic Routing (Dynamic Routing)
-
-```
-reading-library.html                  mock-test.html?testId=cam9-test1
-┌──────────────────────┐  click card  ┌──────────────────────────────────┐
-│ [Science] Perkin      │ ──────────→ │ Loads test with id="cam9-test1"  │
-│ [Environment] Bears   │             │ Retrieves from /api/reading-tests │
-│ [History] Tea         │             │ Wraps into passages[] for render  │
-└──────────────────────┘             └──────────────────────────────────┘
-```
-
-**Routing mechanism**: `mock-test.html` reads `?testId=<id>` from `URLSearchParams`. It fetches `/api/reading-tests`, finds the matching test by `id`, and wraps it into the expected `passages[]` format for backward compatibility with the rendering code. If no `testId` is provided, or the ID is not found, it falls back to the first available test.
-
-**Back navigation**: The mock test top bar now includes a "←" back button that links to `/reading-library.html`.
-
-### 4.4 Test Data Structure (`data/reading_tests.json`)
-
-All 3 mock tests are stored in a single JSON file with structure:
+**File:** `data/reading_tests.json` (1.18 MB, 115 tests, 925 questions)
 
 ```json
 {
   "tests": [
     {
-      "id": "cam9-test1",
-      "title": "William Henry Perkin — The man who invented synthetic dyes",
-      "topic": "Science",
-      "source": "Cambridge IELTS 9 Test 1 Passage 1",
-      "difficulty": 3,
-      "totalTime": 3600,
-      "wordCount": 740,
-      "questionCount": 13,
-      "passageText": "<p>...</p>",
+      "id": "string (unique, kebab-case, e.g. 'cam9-test1' or '18-pdf-p2')",
+      "title": "string (human-readable, 20-80 chars)",
+      "topic": "string (MUST be one of: 'Science', 'Environment', 'History', 'Economics', 'Sociology', 'Technology')",
+      "source": "string (e.g. 'Cambridge IELTS 9 Test 1 Passage 1' or 'IELTS Reading Prediction — 阅读19 Passage 2')",
+      "difficulty": "integer (1-5, where 1=easiest, 5=hardest. Most tests are 3.)",
+      "totalTime": "integer (seconds, typically 1200 for 20-min passages, 3600 for full tests)",
+      "wordCount": "integer (approximate word count of passageText, range 500-3300)",
+      "questionCount": "integer (number of questions, range 1-13 per passage)",
+      "passageText": "string (HTML paragraphs wrapped in <p>...</p> tags, NO outer wrapper div)",
       "questions": [
-        { "id": 1, "type": "true_false_not_given", "questionText": "...", "options": ["TRUE","FALSE","NOT GIVEN"], "correctAnswer": 1 },
-        { "id": 8, "type": "short_answer", "questionText": "...", "correctAnswer": "mauve", "wordLimit": 2 }
+        {
+          "id": "integer (sequential within test, starting at 1)",
+          "type": "string (MUST be one of: 'true_false_not_given' | 'short_answer')",
+          "questionText": "string (the question itself, 20-300 chars)",
+          "options": ["TRUE", "FALSE", "NOT GIVEN"],  // ONLY for true_false_not_given type
+          "correctAnswer": "integer | string (for TFN: 0=TRUE, 1=FALSE, 2=NOT GIVEN; for short_answer: answer string)",
+          "wordLimit": "integer (OPTIONAL, only for short_answer type, e.g. 3 means 'NO MORE THAN THREE WORDS')"
+        }
       ]
     }
   ]
 }
 ```
 
-**Available tests** (8 as of 2026-06-16):
+**CRITICAL RULES:**
+- `topic` values are **EXACT** strings. The CSS classes in `reading-library.html` are generated as `topic-<lowercase>`. Adding a new topic requires: (1) adding the CSS class `.topic-<name>`, (2) adding an entry in `TOPIC_CONFIG` in `reading-library.html`.
+- `type` MUST be `"true_false_not_given"` or `"short_answer"`. The mock test renderer has explicit branching for these two types. Unknown types WILL break the mock test UI.
+- `passageText` MUST be valid HTML with `<p>...</p>` wrapping each paragraph. It is injected via `innerHTML`.
+- `correctAnswer` for TFN: `0` = TRUE (first option), `1` = FALSE (second), `2` = NOT GIVEN (third).
+- `id` fields must be UNIQUE across all tests. Duplicate IDs will cause injection failures.
 
-| ID | Title | Topic | Difficulty | Questions | Time |
-|----|-------|-------|------------|-----------|------|
-| `cam9-test1` | William Henry Perkin — Synthetic Dyes | Science | ★★★ | 13 (7 TFN + 6 SA) | 60 min |
-| `cam16-test1` | Why We Need to Protect Polar Bears | Environment | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam10-test2` | Tea and the Industrial Revolution | History | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam7-test1` | Let's Go Bats — Echolocation | Science | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam11-test3` | The Story of Silk | History | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam8-test1` | Air Traffic Control in the USA | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam10-test1` | The Psychology of Innovation | Sociology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `cam15-test1` | Driverless Cars | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `predict17-p1` | Rural Transport Plan of Practical Action | Sociology | ★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `predict17-p2` | Neuromarketing — Brain Scanning | Technology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `predict17-p3` | Thomas Harriot — Refraction | Science | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
-| `predict17-p4` | Children's Math & Science Principles | Sociology | ★★★★ | 8 (5 TFN + 3 SA) | 20 min |
+### 3.2 vocabulary.json
 
-**Topics covered**: Science, Environment, History, Technology, Sociology (5 topics)
-**Data source**: 4 tests (`predict17-p1` through `predict17-p4`) extracted via Tesseract OCR from 我预测阅读机经 阅读17.pdf (scanned PDF, ~80% English recognition accuracy).
+**File:** `data/vocabulary.json` (288 entries)
 
-### 4.5 Compatibility Layer
-
-`mock-test.html` wraps the flat test object into the legacy `passages[]` format:
-```javascript
-testData = {
-  testId: test.id,
-  testName: test.source || test.title,
-  totalTime: test.totalTime,
-  passages: [{
-    id: 1, title: test.title,
-    passageText: test.passageText,
-    wordCount: test.wordCount,
-    questions: test.questions
-  }]
-};
-```
-This ensures all existing rendering code (`renderPassage()`, `renderQuestions()`, `renderBottomNav()`, `submitTest()`) works without modification.
-
-### 4.6 Dynamic Question Count
-
-The bottom navigator now adapts to the actual number of questions instead of hardcoding 13:
-- `totalQuestionCount` tracks the real question count
-- `navNext()`, `jumpToQuestion()`, and `renderBottomNav()` all reference `totalQuestionCount`
-- Placeholder blocks for passages 2 & 3 are shown only when `totalQuestionCount < 40`
-- Section headers use `questions[0].id` and `questions[last].id` for dynamic ranges
-
----
-
-## 5. Computer-Delivered Mock Test Interface (机考模拟界面)
-
-### 5.1 Overview
-
-`mock-test.html` is a standalone simulation of the official IELTS computer-delivered Reading test interface, built from web research on the 2025 updated IDP/British Council system. It uses the same zero-dependency architecture (pure HTML/CSS/JS + Tailwind CDN).
-
-### 5.2 UI Layout (Research-Backed)
-
-Based on research of the official IDP/British Council computer-based IELTS interface (2024-2025 updates):
-
-| UI Element | Implementation |
-|------------|---------------|
-| **Top bar** | Dark (#1a1a2e) exam bar with Test label, Section indicator, centered countdown timer, Aa/Help/Submit buttons |
-| **Split pane** | 50:50 left-right flex layout. Left = passage (independent scroll), Right = questions (independent scroll). Resizable divider planned for v2. |
-| **Bottom navigator** | Fixed 56px bar with 1-40 question number blocks. Answered = green underline, Current = dark filled, Passage 2/3 placeholders shown at 40% opacity. Arrow buttons + Tab/Arrow key keyboard nav. |
-| **Timer** | Monospace font, 60:00 → counts down. Yellow pulse warning at 10 min remaining, red pulse danger at 5 min. Auto-submits at 0:00. |
-| **Font size** | 3-level toggle (16px/18px/20px) — matching official accessibility feature. |
-
-### 5.3 Core Interaction: Text Highlighting
-
-```
-User selects text in passage pane (mouseup)
-        │
-        ▼
-  'mouseup' event fires → 10ms setTimeout
-        │
-        ▼
-  Validate: selection is non-empty AND inside #passage-pane
-        │
-        ▼
-  Tooltip appears near selection rect → "🖊 高亮" + "✕ 清除" buttons
-        │
-        ▼
-  Click "高亮" → Range.surroundContents(<span class="highlighted">)
-  (fallback: extractContents + insertNode for cross-element selections)
-        │
-        ▼
-  Click "清除" → unwrap highlighted span, restore text nodes
-        │
-        ▼
-  Tooltip hides on: click outside, scroll, or Escape
+```json
+[
+  {
+    "id": "integer",
+    "word": "string (the headword)",
+    "pos": "string (part of speech: 'noun', 'verb', 'adjective', 'adverb', 'phrase')",
+    "chinese": "string (Chinese translation)",
+    "synonyms": ["string array (3-5 synonyms)"],
+    "definition": "string (English definition, 1-2 sentences)",
+    "example": "string (IELTS-context example sentence)",
+    "theme": "string (one of ~15 theme labels, e.g. 'Technology & Society', 'Economy & Trade')",
+    "difficulty": "integer (1-5)"
+  }
+]
 ```
 
-**Known limitation for MVP**: Highlights are DOM-only (not persisted across passage re-renders). In production, could serialize highlight positions as character offsets and reapply on re-render.
+**Theme label → CSS class mapping** is defined in `js/vocab-card.js` in the `THEME_COLORS` object. Adding a new theme requires adding a corresponding CSS class there.
 
-### 5.4 Question Types Implemented (MVP)
+### 3.3 dictionary.json
 
-| Type | UI Component | Validation |
-|------|-------------|------------|
-| **TRUE/FALSE/NOT GIVEN** | 3-option button group (flex-wrap, equal width). Selected = filled border. After submit: green = correct, red = incorrect. | Exact index match (0=TRUE, 1=FALSE, 2=NOT GIVEN) |
-| **Short Answer** | Text input (max 360px) with word limit hint in placeholder. After submit: green/red border + correct answer hint. | Case-insensitive trimmed string comparison |
-
-### 5.5 Answer Tracking & Navigation
-
-- **State**: `userAnswers = { questionId: answerValue }` — in-memory object, no localStorage persistence (matches exam behavior — answers lost on page leave).
-- **Bottom nav**: Re-rendered on each answer change. `answered-nav` class applied when `userAnswers[qid]` is truthy.
-- **Jump**: Click nav number → `scrollIntoView({ behavior: 'smooth', block: 'center' })` on corresponding question block.
-- **Keyboard**: `Tab` = next question, `Ctrl+←` = prev, `Ctrl+→` = next.
-- **Auto-save**: Every interaction (TFN click, text input) instantly saves to `userAnswers`.
-
-### 5.6 Scoring & Review
-
-```
-User clicks ✓ (submit) or timer reaches 0:00
-        │
-        ▼
-  Calculate: correct answers / total (13 MVP)
-        │
-        ▼
-  Modal overlay: score fraction + percentage + encouragement message
-        │
-        ▼
-  "查看答案" button: closes modal, shows green/red on each question
-  "重新开始" button: resets all state (timer, answers, highlights)
-```
-
-### 5.7 Test Data Structure (`data/mock-test-1.json`)
-
-Based on **Cambridge IELTS 9 Test 1 Passage 1** (William Henry Perkin — synthetic dyes). 13 questions covering 2 types:
+**File:** `data/dictionary.json` (558 entries)
 
 ```json
 {
-  "testId": "cam9-test1",
-  "testName": "Cambridge IELTS 9 — Test 1",
-  "totalTime": 3600,
-  "passages": [{
-    "id": 1,
-    "title": "William Henry Perkin — The man who invented synthetic dyes",
-    "passageText": "<p>...</p><p>...</p>",   // HTML-formatted, ~740 words
-    "wordCount": 740,
-    "questions": [
-      { "id": 1, "type": "true_false_not_given", "questionText": "...", "options": ["TRUE","FALSE","NOT GIVEN"], "correctAnswer": 1 },
-      { "id": 8, "type": "short_answer", "questionText": "...", "correctAnswer": "mauve", "wordLimit": 2 }
-    ]
-  }]
+  "word": "string (definition, 50-300 chars)",
+  ...
 }
 ```
 
-**Questions 1-7**: TRUE/FALSE/NOT GIVEN (TFN type) — 3-option radio-style buttons  
-**Questions 8-13**: Short Answer — text inputs with word limit  
-**Questions 14-40**: Placeholder (Passages 2 & 3 shown as "upcoming" at 40% opacity in navigator)
+Simple word→definition map. Used by the translation/glossary feature in `reading.html`.
 
-### 5.8 CSS Architecture
+### 3.4 essays.json
 
-All styles are inline in `<style>` block (following project convention — no external CSS files). Key design tokens:
+**File:** `data/essays.json` (3 entries)
 
-- `--panel-gutter: 0px` (reserved for future draggable divider)
-- `.highlighted` — `background-color: #fef08a` (Tailwind yellow-200), hover darkens to `#fde047`
-- `.nav-q-block` — 36×36px rounded blocks, gray border, answered = green 3px bottom border + green tinted bg
-- `@keyframes timerPulse` — opacity oscillation for 10min/5min warnings
-- Top bar: `#1a1a2e` (dark navy, matches official dark theme)
-- Responsive: at 768px breakpoint, split pane becomes vertical stack (45%/55%)
-
-### 5.9 Future Enhancements (v2)
-
-| Feature | Notes |
-|---------|-------|
-| Draggable divider | Resize split ratio; `--panel-gutter` variable already declared |
-| All 3 passages | Questions 14-40 with real passage content |
-| More question types | Multiple choice, matching headings, sentence completion, Y/N/NG |
-| Highlight persistence | Serialize as character offsets; survive re-renders |
-| Audio for Listening | Full Listening test simulation with audio player |
-| Writing test mode | Top-bottom split with word counter |
-| Full test mode | Reading → Writing → Listening sequential flow |
-
----
-
-## 6. API Architecture
-
-### 9.1 Local Development (server.js)
-
-`server.js` is a **zero-dependency** Node HTTP server. It handles requests in this order:
-
-1. **Dynamic proxy routes** (intercept before static JSON mapping):
-   - `GET /api/translate?text=<text>` — Proxies to `https://api.mymemory.translated.net/get?q=<cleaned>&langpair=en|zh`. Cleans text (strips `\n`, collapses whitespace) before forwarding. Returns `{ translatedText, match, source }`.
-   - `GET /api/dictionary-lookup?word=<word>` — Proxies to `https://api.dictionaryapi.dev/api/v2/entries/en/<word>`. Returns `{ found, word, phonetic, audioUrl, synonyms[] }` or `{ found: false }` on 404/error.
-
-2. **Static JSON API routes** (mapped from `API_ROUTES` object):
-   - `GET /api/band-descriptors` → `data/band-descriptors.json`
-   - `GET /api/vocabulary` → `data/vocabulary.json`
-   - `GET /api/reading-articles` → `data/reading-articles.json`
-   - `GET /api/essays` → `data/essays.json`
-   - `GET /api/methodology` → `data/methodology.json`
-   - `GET /api/mock-test-1` → `data/mock-test-1.json`
-   - `GET /api/reading-tests` → `data/reading_tests.json`
-   - `GET /api/dictionary` → `data/dictionary.json`
-
-3. **Static file serving**: Serves `.html` files from root directory. Falls back to `public/` (legacy), then to `index.html`.
-
-### 9.2 Production (Netlify)
-
-`netlify.toml` configuration:
-```toml
-[build]
-  publish = "."
-
-[functions]
-  directory = "netlify/functions"
-  included_files = ["data/**"]
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+```json
+[
+  {
+    "id": "integer",
+    "title": "string",
+    "question": "string (the essay prompt)",
+    "type": "string (e.g. 'Opinion', 'Discussion')",
+    "band": "integer (overall band score)",
+    "ccBand": "integer (Coherence & Cohesion band)",
+    "lrBand": "integer (Lexical Resource band)",
+    "body": "string (HTML-formatted essay text with <p>, <strong>, <em> tags)",
+    "ccAnalysis": "string (HTML analysis of cohesion)",
+    "lrAnalysis": "string (HTML analysis of vocabulary)"
+  }
+]
 ```
 
-- All `/api/*` requests are redirected to corresponding Netlify functions
-- `included_files = ["data/**"]` ensures JSON data files are bundled with each function
-- All functions use `process.cwd()` (NOT `__dirname`) for path resolution in the Lambda environment
-- All functions return CORS headers (`Access-Control-Allow-Origin: *`)
+### 3.5 reading-articles.json, methodology.json, band-descriptors.json
 
-### 9.3 Dual Deployment Pattern
+These are smaller supporting data files. See them directly for structure.
 
-Each API route exists in **two places** that must be kept in sync:
-- `server.js` (local dev)
-- `netlify/functions/<name>.js` (production)
+### 3.6 VocabCard Component Contract
 
-When adding a new API route, you must update both.
-
----
-
-## 8. Core Feature: Word Selection Translation (划词翻译)
-
-### 9.1 Implementation Location
-All translation logic lives in `reading.html` inline `<script>` (lines ~233–440).
-
-### 9.2 Flow (end-to-end)
-
-```
-User selects text in article
-        │
-        ▼
-  'mouseup' event fires
-        │
-        ▼
-  Debounce check: clear previous timer, set new 400ms timer
-  (variable: translateDebounceTimer)
-        │
-        ▼
-  400ms passes with no new selection
-        │
-        ▼
-  cleanText(): regex removes \n, \r, collapses \s+ → single spaces
-        │
-        ▼
-  showLoadingTooltip(): renders tooltip with shimmer skeleton + spinner + "翻译中..."
-        │
-        ▼
-  If single word → translateWord() checks local dictionary (558 entries)
-        │
-        ▼
-  If not found → translateViaAPI() calls GET /api/translate?text=<cleaned>
-  (backend proxies to MyMemory API, avoids CORS preflight)
-        │
-        ▼
-  updateTooltip(): replaces skeleton with result + "📌 加入收藏" save button
-        │
-        ▼
-  addToHistory(): adds to right-panel lookup history (max 20, deduped)
-```
-
-### 9.3 Key Functions
-
-| Function | Purpose |
-|----------|---------|
-| `cleanText(text)` | Regex: `.replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim()` |
-| `showLoadingTooltip(rect, word)` | Creates fixed-position tooltip with skeleton shimmer animation |
-| `updateTooltip(tooltip, word, translation)` | Replaces tooltip content with result + save button |
-| `positionTooltip(tooltip, rect)` | Positions tooltip relative to selection, keeps within viewport |
-| `translateWord(word)` | Case-insensitive lookup in `dictionary` object (single words only) |
-| `translateViaAPI(text)` | Fetches `GET /api/translate?text=...` (backend proxy) |
-| `escapeHtml(str)` | XSS-safe HTML escaping via `div.textContent` |
-
-### 9.4 Tooltip Lifecycle
-
-- **Open**: On debounced `mouseup` with valid selection in `#article-body`
-- **Close**: Click outside tooltip, click ✕ button, scroll, or window resize
-- **CSS**: `.tl-tooltip` — fixed position, z-index 9999, fadeIn animation, arrow pseudo-element
-
----
-
-## 9. Shared Component: VocabCard (`js/vocab-card.js`)
-
-### 9.1 Overview
-
-`VocabCard(word, options)` is the shared vocabulary card renderer used by both `vocabulary.html` and `collection.html`. It generates a CSS 3D flip card with front (word info) and back (synonyms + example) sides.
-
-### 9.2 Exports (global scope)
-
-| Function | Purpose |
-|----------|---------|
-| `VocabCard(w, opts)` | Returns HTML string for a vocabulary card |
-| `toggleCard(cardId)` | Flips card by setting inline `rotateY` transform on `.card-inner` |
-| `playAudio(cardId, url)` | Plays pronunciation audio via HTML5 `Audio`, manages button pulse state |
-| `getThemeColor(theme)` | Returns Tailwind CSS classes for theme badge |
-| `renderDifficultyDots(level)` | Returns 1–5 difficulty dot HTML |
-
-### 9.3 VocabCard Parameters
-
-**Word data (`w`):**
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `word` | string | ✅ | The vocabulary word |
-| `chinese` | string | ✅ | Chinese translation |
-| `pos` | string | — | Part of speech (noun, verb, adjective…) |
-| `phonetic` | string | — | IPA phonetic transcription |
-| `audioUrl` | string | — | URL to pronunciation audio (triggers 🔊 button) |
-| `synonyms` | string[] | — | Synonym list (displayed on back) |
-| `definition` | string | — | English definition (front, line-clamp-2) |
-| `example` | string | — | Example sentence (back) |
-| `contextSentence` | string | — | Fallback for definition (front) AND example (back) |
-| `contextHtml` | string | — | Raw HTML override for front context display (used for word highlighting in collection) |
-| `theme` | string | — | Theme/category (renders as colored badge) |
-| `difficulty` | number | — | Difficulty 1–5 (renders as dots) |
-
-**Options (`opts`):**
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `flippable` | boolean | `true` | Enables 3D flip to reveal synonyms/example on back |
-| `showAudio` | boolean | `true` | Shows 🔊 audio button when `audioUrl` is present |
-| `showDelete` | boolean | `false` | Shows 🗑 delete button (calls global `deleteWord(id)`) |
-| `showTimestamp` | boolean | `false` | Shows saved-at timestamp below card content |
-| `cardIdPrefix` | string | `'vocab'` | Prefix for DOM id (`${prefix}-${id}`) |
-| `savedAt` | number | `null` | Timestamp for display when `showTimestamp` is true |
-
-### 9.4 Card DOM Structure
-
-```
-div.card.vocab-card#<cardIdPrefix>-<id>  [onclick=toggleCard]
-  └── div.card-inner                      [style=transform:rotateY(...)]
-        ├── div.card-front
-        │     ├── header: word (h3) + phonetic + audio-btn + theme-badge + delete-btn
-        │     ├── chinese translation (p)
-        │     ├── definition/context (p, line-clamp-2)
-        │     ├── difficulty dots (optional)
-        │     └── flip hint (optional)
-        └── div.card-back
-              ├── Synonyms label + tag cloud
-              ├── Example label + sentence
-              └── flip-back hint
-```
-
-### 9.5 Data Adapter Pattern (collection.html)
-
-Since `localStorage` myWords entries lack `pos`/`definition`/`theme`/`difficulty`, `collection.html` uses an adapter function:
+**File:** `js/vocab-card.js`
 
 ```javascript
-function adaptMyWord(w) {
-  return {
-    id: w.id,
-    word: w.word,
-    chinese: w.chinese || '',
-    phonetic: w.phonetic || '',
-    audioUrl: w.audioUrl || '',
-    synonyms: w.synonyms || [],
-    definition: '',                          // not available from reading lookup
-    example: '',                             // use contextSentence instead
-    contextSentence: w.contextSentence || '',
-    contextHtml: highlightWord(w.contextSentence, w.word),  // pre-highlighted
-    pos: '', theme: '', difficulty: 0,
-  };
+// Usage:
+VocabCard(wordData, options)
+// wordData: object matching vocabulary.json entry schema (see §3.2)
+// options: { showCollectionActions?: boolean }
+// Returns: HTML string
+
+// Expected wordData shape:
+{
+  id: number,
+  word: string,
+  pos: string,
+  chinese: string,
+  synonyms: string[],
+  definition: string,
+  example: string,
+  theme: string,      // MUST match a key in THEME_COLORS
+  difficulty: number   // 1-5
 }
 ```
 
-### 7.6 Flip State
+---
 
-Card flip state is stored in `window._vocabCardFlipped` (a `Set` of card IDs). This persists across filter changes within a page session. The `toggleCard()` function toggles membership in this Set and applies inline `rotateY` transform accordingly.
+## 4. State Management & Storage (localStorage)
+
+**There is NO server-side state.** All user data lives in `localStorage` in the user's browser.
+
+### localStorage Keys
+
+| Key | Structure | Purpose | Set In | Read In |
+|-----|-----------|---------|--------|---------|
+| `ielts_myWords` | `JSON.stringify([vocabEntry, ...])` | Saved vocabulary words | `reading.html` (save button), `vocabulary.html` (save button) | `collection.html`, `reading.html` |
+| `ielts_mySentences` | `JSON.stringify([sentenceEntry, ...])` | Saved example sentences | `reading.html` (save button) | `collection.html`, `reading.html` |
+
+**Code contract** (from `reading.html:498-513`, `collection.html:102-117`):
+```javascript
+// Get words
+JSON.parse(localStorage.getItem('ielts_myWords') || '[]')
+// Set words
+localStorage.setItem('ielts_myWords', JSON.stringify(words))
+
+// Get sentences
+JSON.parse(localStorage.getItem('ielts_mySentences') || '[]')
+// Set sentences
+localStorage.setItem('ielts_mySentences', JSON.stringify(sentences))
+```
+
+**CRITICAL:** Always wrap `localStorage.getItem()` in try-catch. Always default to `'[]'` (empty array string) when the key doesn't exist. Never assume the data is valid JSON — corrupt localStorage is common.
+
+### Session-only State (in-memory, not persisted)
+
+| State | Location | Notes |
+|-------|----------|-------|
+| Mock test timer | `mock-test.html` (variable `timeRemaining`, initialized from `test.totalTime`) | Resets on page reload |
+| User answers | `mock-test.html` (object `userAnswers`, keyed by question ID) | NOT persisted; lost on page close |
+| Current question index | `mock-test.html` (variable `currentQuestionIndex`) | For highlight tracking |
 
 ---
 
-## 10. Core Feature: Collection System (个性化生词本与长句收集)
+## 5. Automated Pipelines
 
-### 9.1 Classification Logic
+### 5.1 OCR Batch Pipeline
+
+**Purpose:** Extract text from scanned IELTS reading prediction PDFs (我预测阅读机经) and convert to structured test JSON.
+
+**Source PDFs location:** `/Users/zzzzhangjintao/Desktop/IELTS_Organized_Library/02_阅读专项精读库_Reading_by_Topic/07_Reading_Methodology_and_Skills/我预测阅读机经库/`
+
+**Scripts involved:**
+
+#### Step 1: `scripts/batch_ocr_pipeline.py`
+```
+python3 scripts/batch_ocr_pipeline.py [--dry-run] [--max-pdfs N] [--dpi 200] [--max-pages 55]
+```
+- Scans the 我预测阅读机经库 directory for PDFs
+- Priority sorting: 新版+全文 > 新版 > 全文 > 新 > rest
+- Skips already-OCR'd PDFs (checks for existing output >10KB)
+- Runs Tesseract OCR (lang=`eng+chi_sim`, DPI=200 default) on pages 7-61 of each PDF
+- Saves raw text to `scripts/ocr_output/<pdf_label>.txt` and `.json`
+- Saves batch summary to `scripts/ocr_output/_batch_summary.json`
+- **Error handling:** Per-PDF try/catch; one PDF crash does NOT abort the batch
+
+#### Step 2: `scripts/inject_from_ocr.py`
+```
+python3 scripts/inject_from_ocr.py [--dry-run] [--min-chars 30000]
+```
+- Reads all `.txt` OCR output files in `scripts/ocr_output/`
+- State-machine parser detects passage boundaries (lettered paragraphs A-I) and question sections
+- Quality filters: min 500 words, min 6 questions, title >55% alphabetic
+- Max 4 passages extracted per PDF (configurable: `MAX_TESTS_PER_PDF`)
+- Auto-generates metadata: title, topic (keyword matching), difficulty (text complexity heuristic)
+- Appends new tests to `data/reading_tests.json`
+- Creates `.backup.*` before writing
+- Skips already-injected test IDs and previously-processed sources (阅读17)
+
+**Dependencies:**
+```bash
+brew install tesseract poppler
+pip3 install pdf2image pytesseract --break-system-packages
+```
+
+**Known limitations:**
+- OCR accuracy is ~80-85% for English text on these scanned PDFs
+- Questions are auto-generated as placeholder TFN (correctAnswer defaults to 0/TRUE) — manual answer verification needed
+- Some passage titles contain OCR noise (garbled characters)
+- Large PDFs (190MB+) may take 3-5 minutes each to OCR
+- The parser may fail to separate passages cleanly when PDF layout is irregular
+
+### 5.2 Manual Test Injection (Legacy)
+
+- `scripts/inject_tests.py` — Injects 5 LLM-generated tests (cam7-test1, cam11-test3, cam8-test1, cam10-test1, cam15-test1)
+- `scripts/inject_ocr_tests.py` — Contains 4 hand-crafted test objects from 阅读17.pdf (predict17-p1 through predict17-p4)
+
+---
+
+## 6. Topic System & UI Configuration
+
+### Topic Tags (used in reading-library.html)
+
+The topic tag CSS classes are defined inline in `reading-library.html:46-51`:
+
+| Topic | CSS Class | Icon | Background | Text Color |
+|-------|-----------|------|------------|------------|
+| Science | `topic-science` | 🔬 | `#dbeafe` (blue-100) | `#1e40af` (blue-800) |
+| Environment | `topic-environment` | 🌍 | `#d1fae5` (green-100) | `#065f46` (green-800) |
+| History | `topic-history` | 📜 | `#fef3c7` (yellow-100) | `#92400e` (yellow-800) |
+| Economics | `topic-economics` | 💼 | `#fce7f3` (pink-100) | `#9d174d` (pink-800) |
+| Sociology | `topic-sociology` | 👥 | `#ede9fe` (purple-100) | `#5b21b6` (purple-800) |
+| Technology | `topic-technology` | ⚙️ | `#ffedd5` (orange-100) | `#9a3412` (orange-800) |
+
+**To add a new topic, you MUST edit:**
+1. `reading-library.html` — add `.topic-<name>` CSS class AND entry in `TOPIC_CONFIG` object
+2. `scripts/inject_from_ocr.py` — add keywords to `TOPIC_KEYWORDS` dict
+
+### Brand Colors (Tailwind config, inline in every .html `<script>`)
 
 ```javascript
-isWord = cleanedText.split(/\s+/).length <= 3
-// ≤3 words → saved as "word/phrase"
-// >3 words → saved as "sentence"
-```
-
-### 9.2 Word Save Flow
-
-```
-User clicks "📌 加入收藏" on tooltip
-        │
-        ▼
-  Button shows "⏳ 收集中..."
-        │
-        ▼
-  extractContextSentence(anchorNode):
-    Walks up DOM from selection.anchorNode to find closest <p>
-    Returns full paragraph text as "context sentence"
-        │
-        ▼
-  enrichWord(word):
-    Calls GET /api/dictionary-lookup?word=<word>
-    Backend proxies to https://api.dictionaryapi.dev/api/v2/entries/en/<word>
-    Returns { phonetic, audioUrl, synonyms[] }
-    Gracefully returns null if API 404s or errors
-        │
-        ▼
-  Construct entry object + save to localStorage
-        │
-        ▼
-  Button changes to "✅ 已保存" (disabled, green)
-```
-
-### 9.3 Sentence Save Flow
-
-```
-User clicks "📌 加入收藏" on tooltip (for text with >3 words)
-        │
-        ▼
-  Button shows "⏳ 收集中..."
-        │
-        ▼
-  matchHighFreqWords(sentence):
-    Tokenizes sentence into words
-    Cross-references against ieltsVocab[] (loaded from /api/vocabulary on page load)
-    Returns [{ word, chinese }] for each match
-        │
-        ▼
-  Construct entry object + save to localStorage
-        │
-        ▼
-  Button changes to "✅ 已保存"
-```
-
-### 9.4 localStorage Data Structures
-
-**Key: `ielts_myWords`** — Array of word entries:
-```json
-[
-  {
-    "id": 1718123456789,
-    "word": "unprecedented",
-    "chinese": "前所未有的",
-    "phonetic": "/ʌnˈpresɪdentɪd/",
-    "audioUrl": "https://api.dictionaryapi.dev/media/pronunciations/en/unprecedented-us.mp3",
-    "synonyms": ["unparalleled", "exceptional", "extraordinary"],
-    "contextSentence": "The global economy is facing unprecedented challenges as trade tensions continue to escalate.",
-    "savedAt": 1718123456789
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8',
+          400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68',
+          800: '#243b53', 900: '#102a43',
+        }
+      }
+    }
   }
-]
+}
 ```
-- Dedup: by `word` (case-insensitive)
-- Max: 100 entries (oldest evicted)
-- `audioUrl` may be empty string if API returns no audio
-- `phonetic` may be empty string if API returns no phonetics
 
-**Key: `ielts_mySentences`** — Array of sentence entries:
-```json
-[
-  {
-    "id": 1718123456790,
-    "sentence": "The global economy is facing unprecedented challenges as trade tensions continue to escalate.",
-    "chinese": "随着贸易紧张局势持续升级，全球经济正面临前所未有的挑战。",
-    "highFreqWords": [
-      { "word": "global", "chinese": "全球的" },
-      { "word": "economy", "chinese": "经济" }
-    ],
-    "savedAt": 1718123456790
-  }
-]
-```
-- Dedup: by `sentence` (case-insensitive)
-- Max: 100 entries
-- `highFreqWords` may be empty array if no IELTS vocab matches found
+### Timer Configuration (mock-test.html)
 
-### 9.5 Collection Page (`collection.html`)
+| Config | Value | Location |
+|--------|-------|----------|
+| `TEST_TIME` | `3600` (60 min) | `mock-test.html:480` |
+| Warning threshold | `600s` (10 min) | CSS class `.warning` triggers |
+| Danger threshold | `300s` (5 min) | CSS class `.danger` triggers |
 
-- Two tabs: "📝 我的单词" / "📄 我的句子"
-- Reads directly from `localStorage` on page load
-- **Word cards**: Rendered via shared `VocabCard()` component with 3D flip animation (same UI as vocabulary.html)
-  - Data adapter (`adaptMyWord()`) maps localStorage fields → VocabCard props
-  - Front: word, phonetic, 🔊 audio button, Chinese translation, context sentence with highlighted word
-  - Back: synonym tags, context sentence as example, flip-back hint
-  - Delete button (🗑) + saved timestamp on each card
-  - Responsive grid: 1→2→3 columns
-- **Sentence cards**: Flat cards (no flip) — original text, Chinese translation, matched high-frequency word tags
-- Delete button (🗑) on each entry removes and re-renders
-- Empty states with CTA to go read articles
-- Audio playback via shared `playAudio()` from `js/vocab-card.js`
+### Component: VocabCard
+
+**File:** `js/vocab-card.js`
+**THEME_COLORS mapping:** 15 theme labels → Tailwind background/text color classes
+**Behavior:** 3D card flip on click (front: word/chinese; back: definition/example/synonyms), audio TTS button
 
 ---
 
-## 11. Page-by-Page Reference
+## 7. API Routes
 
-### index.html
-- Hero section + **4 feature cards** (Mock Test, Writing, Reading, Vocabulary)
-- Navigation: desktop (`hidden sm:flex`) + mobile (`sm:hidden`) — includes **题库大厅** and **机考模拟** links
+### Local Dev (server.js, port 3456)
 
-### reading-library.html ★ NEW
-- Test library landing page with card-based UI (responsive 1→2→3 columns)
-- Cards display topic tag, title, excerpt, source, difficulty, question count, time estimate
-- Skeleton loading placeholders; hover animation (translateY + shadow)
-- Click card → navigates to `mock-test.html?testId=<id>` for dynamic routing
-- Stats bar showing total tests, questions, and topic areas
-- See §4 for full module documentation
+| Route | Data File |
+|-------|-----------|
+| `GET /api/reading-tests` | `data/reading_tests.json` |
+| `GET /api/vocabulary` | `data/vocabulary.json` |
+| `GET /api/dictionary` | `data/dictionary.json` |
+| `GET /api/essays` | `data/essays.json` |
+| `GET /api/reading-articles` | `data/reading-articles.json` |
+| `GET /api/methodology` | `data/methodology.json` |
+| `GET /api/band-descriptors` | `data/band-descriptors.json` |
+| `GET /api/mock-test-1` | `data/mock-test-1.json` (legacy) |
 
-### mock-test.html
-- Full computer-delivered IELTS Reading mock test simulation, now with dynamic `?testId=` routing
-- Back button (←) returns to reading-library.html
-- Left-right split pane with independent scrolling
-- Text highlighting tool (select → highlight yellow), countdown timer with 10min/5min color warnings
-- Bottom question navigator with dynamic question count, answered/current status indicators
-- Questions dynamically loaded from `data/reading_tests.json` based on `?testId=` param
-- Submit & review flow with score calculation and correct/incorrect answer display
-- Keyboard navigation (Tab, Ctrl+←/→)
-- Font size toggle (3 levels), help overlay
-- See §5 for full module documentation
+### Production (Netlify Functions)
 
-### writing.html
-- 3 tabs: 评分标准, Simon 写作法, 高分范文拆解
-- Content loaded from `/api/band-descriptors`, `/api/methodology`, `/api/essays`
-- Rich prose styling (`.prose` class)
-- Desktop-only navigation
+Same routes, served by corresponding `.js` files in `netlify/functions/`. The `netlify.toml` redirects all `/api/*` requests to `/.netlify/functions/:splat`.
 
-### reading.html
-- 5 article selector buttons at top
-- Left panel: article content (`#article-body`) with vocabulary highlights
-- Right panel: translation history (`#history-list`) + strategy accordion
-- All translation + collection logic in inline script
-- Desktop-only navigation
-
-### vocabulary.html
-- 288 vocabulary cards rendered via shared `VocabCard()` component (`js/vocab-card.js`)
-- CSS 3D flip animation (`.card-inner`, `rotateY(180deg)`) — front: word/pos/theme/phonetic/audio/definition/difficulty; back: synonyms/example
-- Filter by theme (6 categories) + difficulty (1-5 stars)
-- Audio pronunciation button (🔊) on cards with `audioUrl` — uses shared `playAudio()`
-- Responsive grid: 1→2→3→4 columns
-- Desktop + mobile navigation
-
-### collection.html
-- **My Words tab**: Renders saved words as VocabCard components (same 3D flip UI as vocabulary.html)
-  - Data adapter (`adaptMyWord()`) maps localStorage fields → VocabCard props
-  - Context sentences displayed with highlighted target word on card front
-  - Full example + synonyms on card back (flip to reveal)
-  - Delete button + save timestamp on each card
-  - Responsive grid: 1→2→3 columns
-- **My Sentences tab**: Flat cards with sentence text, Chinese translation, matched high-frequency word tags
-- See §10.5 for data flow details
-- Desktop + mobile navigation
-
----
-
-## 12. External API Reference
-
-### MyMemory Translation API
-- **URL**: `https://api.mymemory.translated.net/get?q=<text>&langpair=en|zh`
-- **Auth**: None (free tier, rate-limited)
-- **Response**: `{ responseStatus, responseData: { translatedText, match } }`
-- **Proxied via**: `server.js` → `/api/translate` and `netlify/functions/translate.js`
-- **Match score**: `match` field indicates translation quality (1.0 = human, <1.0 = machine)
-
-### Free Dictionary API
-- **URL**: `https://api.dictionaryapi.dev/api/v2/entries/en/<word>`
-- **Auth**: None (open API)
-- **Response**: Array of `{ word, phonetic, phonetics: [{ text, audio }], meanings: [{ partOfSpeech, definitions: [{ definition, example, synonyms }], synonyms }] }`
-- **Proxied via**: `server.js` → `/api/dictionary-lookup` and `netlify/functions/dictionary-lookup.js`
-- **404 handling**: Returns `{ found: false, word }` instead of error
-- **Field extraction**: Takes first entry's phonetic text, first audio URL, deduplicated synonyms (max 10)
-
-### Local Dictionary (`data/dictionary.json`)
-- 558 English words → Chinese translations
-- Flat `{ "word": "translation", ... }` structure
-- Used for instant single-word lookup (no network request)
-- Case-insensitive matching; tries lowercase, original case, then capitalized
-
----
-
-## 13. Git History
+### Translation API (MyMemory)
 
 ```
-ea2e106 Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
-77bff44 Data: Auto-parse and inject 5 IELTS reading mocks into dynamic library
-c961392 Feat: Add Reading Library list view and dynamic routing to mock test interface
-7c033f5 Feat: Add official computer-delivered IELTS reading mock interface
-fafdbe5 Feat: Add Vocabulary and Sentence collection system with audio and context
-bb597e1 Enhance: Upgrade translation engine for full sentences and add loading UI
-3bb0546 Fix: 实现划词翻译功能 + 修复词汇页移动端适配
-d004640 🚀 Add Netlify deployment support
-2c8cfd9 🎉 Initial commit: IELTS Study Portal
+GET https://api.mymemory.translated.net/get?q=<text>&langpair=en|zh-CN
 ```
-
-All commits on `main` branch. Branch is protected only by being private.
+Proxied through `netlify/functions/translate.js` in production. Called from `reading.html` with 400ms debounce.
 
 ---
 
-## 14. Known Limitations & Future TODOs
+## 8. Mock Test Interface Architecture
 
-### Architectural Limitations
+**File:** `mock-test.html`
 
-| # | Issue | Impact | Suggested Fix |
-|---|-------|--------|---------------|
-| 1 | **localStorage is device-local** | User's collection does not sync across devices/browsers | Add optional cloud sync (Firebase, Supabase) or export/import JSON |
-| 2 | **No user authentication** | All collection data is tied to the browser, not the user | Add login + backend storage |
-| 3 | **MyMemory API rate limits** | Free tier has undocumented rate limits; heavy use may get throttled | Add queue/retry logic or switch to a paid translation API |
-| 4 | **No offline support** | Pages require CDN (Tailwind) and API access to function | Add Service Worker for offline caching |
-| 5 | **558-word dictionary is static** | New words not in dictionary always require API call | Periodically expand `dictionary.json` from saved words |
-| 6 | **No automated testing** | Zero test coverage — all testing is manual | Add Playwright or Cypress E2E tests |
-| 7 | **Legacy `api/` directory** | Contains Vercel-style serverless functions from early deployment attempt (abandoned) | Remove or repurpose if switching to Vercel |
-| 8 | **No TypeScript** | No type checking; runtime errors possible | Convert to TypeScript if project grows |
-| 9 | **Audio autoplay may be blocked** | Browsers block `Audio.play()` without prior user gesture; fallback is silent | Add visible "Click to play" fallback UI |
-| 10 | **vocabulary.html lacks mobile nav writing link** | Mobile nav omits "写作" link (regression from earlier fix) | Add back writing link to mobile nav |
+### Flow
+1. Page loads → reads `?testId=<id>` from URL
+2. Fetches `GET /api/reading-tests`
+3. Finds test by `id`
+4. Checks for `passages[]` array (new format) vs flat `questions[]` (old format)
+5. Renders: left pane = passage text (`passageText` via `innerHTML`), right pane = questions
+6. Timer starts at `test.totalTime` seconds (or `TEST_TIME=3600` default)
+7. User answers saved to `userAnswers` object (in-memory, NOT persisted)
 
-### No Explicit TODOs in Code
-A full-text search for `TODO`, `FIXME`, `HACK`, `XXX` returned zero results. All known issues are documented in this section only.
+### Question Rendering
+- `true_false_not_given`: 3-button group (TRUE / FALSE / NOT GIVEN), single-select
+- `short_answer`: text `<input>` with `wordLimit` placeholder
 
----
-
-## 15. Development Workflow
-
-### Local Development
-```bash
-cd IELTS_Study_Portal
-node server.js
-# Server starts at http://localhost:3456
-# All 5 pages + 8 API endpoints available
-```
-
-### Deploy to Production
-```bash
-git add .
-git commit -m "Descriptive message"
-git push
-# Netlify auto-detects push to main, builds in ~30 seconds
-# Verify: curl https://elaborate-duckanoo-d25740.netlify.app/api/translate?text=test
-```
-
-### Adding a New API Route
-1. Add route handler in `server.js` (local dev)
-2. Create corresponding `netlify/functions/<name>.js` (production)
-3. If serving static JSON, add entry to `API_ROUTES` in `server.js` and create matching Netlify function
-4. Test locally: `curl http://localhost:3456/api/<name>`
-5. Push and verify production
-
-### Adding a New Page
-1. Create `<name>.html` in project root
-2. Include Tailwind CDN + brand config (copy from any existing page)
-3. Add navigation link to all 5 pages (desktop + mobile where applicable)
-4. Test locally at `http://localhost:3456/<name>.html`
-5. Push — Netlify serves it automatically (no build step)
+### Compatibility Wrapper (~line 520-545)
+Old tests with flat `questions[]` are wrapped into `passages: [{ passageText, questions }]` at runtime.
 
 ---
 
-## 16. Key Configuration Values
+## 9. Key Configuration Values
 
 | Config | Value | Location |
 |--------|-------|----------|
 | Local port | `3456` | `server.js:6` |
-| Netlify site name | `elaborate-duckanoo-d25740` | Auto-generated by Netlify |
+| Netlify site name | `elaborate-duckanoo-d25740` | Auto-assigned by Netlify |
 | Tailwind brand colors | `#f0f4f8` → `#102a43` (10 shades) | Inline `<script>` in every `.html` |
-| Translation debounce | `400ms` | `reading.html` (in `setTimeout`) |
-| Collection max entries | `100` per type | `reading.html` (in `saveMyWords`/`saveMySentences`) |
-| History max entries | `20` | `reading.html` (in `addToHistory`) |
+| Translation debounce | `400ms` | `reading.html` |
+| Collection max entries | `100` per type | `reading.html`, `collection.html` |
+| History max entries | `20` | `reading.html` |
 | Dictionary entries | `558` | `data/dictionary.json` |
 | Vocabulary entries | `288` | `data/vocabulary.json` |
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
-| Mock test timer | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
-| Mock test questions (total) | `925` across 115 tests | `data/reading_tests.json` |
+| Mock test timer default | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
 | Reading tests | `115` (Environment×31, Sociology×23, Science×22, Economics×22, History×9, Technology×8) | `data/reading_tests.json` |
-| Timer warning thresholds | `600s` / `300s` | `mock-test.html` (`updateTimer`) |
+| Total questions | `925` across 115 tests | `data/reading_tests.json` |
+| OCR DPI | `200` | `scripts/batch_ocr_pipeline.py` |
+| OCR language | `eng+chi_sim` | `scripts/batch_ocr_pipeline.py` |
 
 ---
 
-*End of handoff document. If you're a new AI agent, start by reading this file, then explore any area you need to modify.*
+## 10. Instructions for the Next AI Agent
+
+### ⚠️ WARNINGS — Read Before Making ANY Changes
+
+1. **DO NOT change the data schemas** in `data/reading_tests.json` without updating every consumer: `mock-test.html` (test rendering), `reading-library.html` (card display), `netlify/functions/reading-tests.js` (API serverless function), and `scripts/inject_from_ocr.py` (injection pipeline).
+
+2. **DO NOT add new question types** (`type` field) without adding render logic in `mock-test.html` (~line 580-620). The UI has explicit branching for `true_false_not_given` and `short_answer` only.
+
+3. **DO NOT modify `localStorage` key names** (`ielts_myWords`, `ielts_mySentences`) — this will orphan all existing user data. If you must rename, write a migration that reads the old key and writes to the new one.
+
+4. **DO NOT remove the compatibility wrapper** in `mock-test.html:520-545` — some older tests may still use the flat format.
+
+5. **DO NOT break the topic system** — `topic` values in JSON MUST exactly match keys in `TOPIC_CONFIG` in `reading-library.html`. Adding a topic requires changes in TWO files.
+
+6. **DO NOT add build steps** — the project is deliberately zero-build. If you add TypeScript/Sass/bundling, the Netlify deploy will break.
+
+7. **DO NOT replace Tailwind CDN** with a custom build unless you also set up a full build pipeline. The CDN approach is intentional for simplicity.
+
+8. **DO NOT push `scripts/ocr_output/` or `*.backup.*` files** to the repo — they are large and unnecessary for the site.
+
+### ✅ Recommended Practices
+
+- **Test locally first:** `node server.js` → visit `http://localhost:3456` before pushing.
+- **Validate JSON:** Always run `python3 -c "import json; json.load(open('data/reading_tests.json'))"` after editing the test database.
+- **Backup before injection:** The `inject_from_ocr.py` script auto-creates `.backup.*` files before writing.
+- **Match existing code style:** The codebase uses vanilla JS (no jQuery), emoji for icons, Chinese for UI labels mixed with English for content.
+- **Read `mock-test.html` thoroughly** before touching it — it's the most complex file (~850 lines, timer logic, question rendering, highlight tracking).
+
+### 🔧 Quick Start Commands
+
+```bash
+# Local dev
+cd /Users/zzzzhangjintao/.claude/tt.1/IELTS_Study_Portal
+node server.js
+# → http://localhost:3456
+
+# Validate test database
+python3 -c "
+import json
+with open('data/reading_tests.json') as f:
+    db = json.load(f)
+print(f'{len(db[\"tests\"])} tests, {sum(t[\"questionCount\"] for t in db[\"tests\"])} questions')
+"
+
+# Run OCR batch (if more PDFs need processing)
+python3 scripts/batch_ocr_pipeline.py --dry-run    # preview
+python3 scripts/batch_ocr_pipeline.py --max-pdfs 5  # process 5
+
+# Inject new OCR output into database
+python3 scripts/inject_from_ocr.py --dry-run        # preview
+python3 scripts/inject_from_ocr.py                  # actual injection
+
+# Deploy
+git add -A
+git commit -m "Descriptive message"
+git push   # Netlify auto-deploys from main
+```
+
+---
+
+*End of handoff document. If you're a new AI agent: read this entire file, then explore any area you need to modify. The codebase is deliberately simple — pure HTML/CSS/JS with static JSON data. Don't over-engineer it.*
