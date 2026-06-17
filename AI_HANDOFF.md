@@ -818,8 +818,8 @@ git push
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 | Mock test timer | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
-| Mock test questions (total) | `101` across 12 tests | `data/reading_tests.json` |
-| Reading tests | `12` (Science×3, Sociology×3, Technology×3, History×2, Environment×1) | `data/reading_tests.json` |
+| Mock test questions (total) | `925` across 115 tests | `data/reading_tests.json` |
+| Reading tests | `115` (Environment×31, Sociology×23, Science×22, Economics×22, History×9, Technology×8) | `data/reading_tests.json` |
 | Timer warning thresholds | `600s` / `300s` | `mock-test.html` (`updateTimer`) |
 
 ---
