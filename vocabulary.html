@@ -77,7 +77,7 @@
   <script>
     let allWords = [];
 
-    fetch('/api/vocabulary.json')
+    fetch('./api/vocabulary.json')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         allWords = data;
@@ -116,8 +116,8 @@
   </script>
 
   <!-- Supabase modules: auth store + navbar -->
-  <script type="module" src="/js/auth-store.js"></script>
-  <script type="module" src="/js/navbar.js"></script>
+  <script type="module" src="./js/auth-store.js"></script>
+  <script type="module" src="./js/navbar.js"></script>
   <script type="module">
     import { renderNavbar } from './js/navbar.js';
     import { initAuth } from './js/auth-store.js';

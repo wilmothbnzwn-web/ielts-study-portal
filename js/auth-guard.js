@@ -7,7 +7,7 @@
  * after logging in).
  *
  * Usage:
- *   <script type="module" src="/js/auth-guard.js"></script>
+ *   <script type="module" src="./js/auth-guard.js"></script>
  *
  * Pages that use this guard: collection.html, mock-test.html
  */
@@ -20,6 +20,6 @@ if (!authStore.isAuthenticated) {
   const currentPath = window.location.pathname + window.location.search;
   // Don't redirect if we're already on the login page
   if (!currentPath.includes('/login.html') && !currentPath.includes('/register.html')) {
-    window.location.href = `/login.html?redirect=${encodeURIComponent(currentPath)}`;
+    window.location.href = `./login.html?redirect=${encodeURIComponent(currentPath)}`;
   }
 }

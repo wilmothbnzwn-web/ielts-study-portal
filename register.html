@@ -20,7 +20,7 @@
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col items-center justify-center px-4">
 
   <!-- Logo -->
-  <a href="/" class="flex items-center gap-3 no-underline mb-8">
+  <a href="./" class="flex items-center gap-3 no-underline mb-8">
     <div class="w-10 h-10 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-base">I</div>
     <div>
       <h1 class="text-xl font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
@@ -67,13 +67,13 @@
     <div class="mt-6 text-center">
       <p class="text-sm text-brand-400">
         已有账户？
-        <a href="/login.html" class="text-brand-600 font-medium hover:text-brand-800 transition-colors">去登录 →</a>
+        <a href="./login.html" class="text-brand-600 font-medium hover:text-brand-800 transition-colors">去登录 →</a>
       </p>
     </div>
   </div>
 
   <p class="mt-8 text-xs text-brand-300">
-    <a href="/" class="hover:text-brand-500 transition-colors">← 返回首页</a>
+    <a href="./" class="hover:text-brand-500 transition-colors">← 返回首页</a>
   </p>
 
   <script type="module">
@@ -128,7 +128,7 @@
 
       // If email confirmation is enabled, user needs to check email
       if (data.user && data.user.identities && data.user.identities.length === 0) {
-        successDiv.innerHTML = '✓ 该邮箱已被注册。请 <a href="/login.html" class="underline font-medium">去登录</a>。';
+        successDiv.innerHTML = '✓ 该邮箱已被注册。请 <a href="./login.html" class="underline font-medium">去登录</a>。';
         successDiv.classList.remove('hidden');
         submitBtn.disabled = false;
         submitBtn.textContent = '注册';

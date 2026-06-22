@@ -188,13 +188,13 @@
 
   <footer class="border-t border-brand-100 py-6 px-6 bg-white/50 mt-8">
     <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
-      <p>IELTS Study Portal · <a href="/" class="text-brand-500 hover:text-brand-700">Home</a></p>
+      <p>IELTS Study Portal · <a href="./" class="text-brand-500 hover:text-brand-700">Home</a></p>
     </div>
   </footer>
 
   <!-- Supabase modules: auth store + navbar + db bridge -->
-  <script type="module" src="/js/auth-store.js"></script>
-  <script type="module" src="/js/navbar.js"></script>
+  <script type="module" src="./js/auth-store.js"></script>
+  <script type="module" src="./js/navbar.js"></script>
   <script type="module">
     import { renderNavbar } from './js/navbar.js';
     import { initAuth, authStore } from './js/auth-store.js';
@@ -243,7 +243,7 @@
     }
 
     // Load articles
-    fetch('/api/reading-articles.json').then(r=>r.json()).then(data => {
+    fetch('./api/reading-articles.json').then(r=>r.json()).then(data => {
       articles = data;
       renderArticle(0);
     }).catch(function (e) {
@@ -252,14 +252,14 @@
     });
 
     // Load dictionary
-    fetch('/api/dictionary.json').then(r=>r.json()).then(data => {
+    fetch('./api/dictionary.json').then(r=>r.json()).then(data => {
       dictionary = data;
     }).catch(() => {
       console.warn('Dictionary not loaded, using API fallback only');
     });
 
     // Load IELTS vocabulary for sentence enrichment
-    fetch('/api/vocabulary.json').then(r=>r.json()).then(data => {
+    fetch('./api/vocabulary.json').then(r=>r.json()).then(data => {
       ieltsVocab = data;
     }).catch(() => {
       console.warn('Vocabulary not loaded for sentence enrichment');

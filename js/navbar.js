@@ -29,13 +29,13 @@ function activeClass(path) {
 // ── Desktop nav links ────────────────────────────────────────────
 function desktopLinks() {
   const links = [
-    { href: '/', label: '首页' },
-    { href: '/reading-library.html', label: '题库大厅' },
-    { href: '/mock-test.html', label: '机考模拟' },
-    { href: '/writing.html', label: '写作' },
-    { href: '/reading.html', label: '阅读' },
-    { href: '/vocabulary.html', label: '词汇' },
-    { href: '/collection.html', label: '我的收集' },
+    { href: './', label: '首页' },
+    { href: './reading-library.html', label: '题库大厅' },
+    { href: './mock-test.html', label: '机考模拟' },
+    { href: './writing.html', label: '写作' },
+    { href: './reading.html', label: '阅读' },
+    { href: './vocabulary.html', label: '词汇' },
+    { href: './collection.html', label: '我的收集' },
   ];
   return links.map(l =>
     `<a href="${l.href}" class="px-3 py-2 text-sm ${activeClass(l.href)}">${l.label}</a>`
@@ -73,8 +73,8 @@ function renderUserMenu(user) {
   }
   return `
     <div class="flex items-center gap-2 flex-shrink-0">
-      <a href="/login.html" class="text-xs sm:text-sm px-3 py-1.5 border border-brand-200 rounded-lg text-brand-600 hover:bg-brand-50 hover:text-brand-900 transition-colors whitespace-nowrap">登录</a>
-      <a href="/register.html" class="text-xs sm:text-sm px-3 py-1.5 bg-brand-800 text-white rounded-lg hover:bg-brand-900 transition-colors whitespace-nowrap">注册</a>
+      <a href="./login.html" class="text-xs sm:text-sm px-3 py-1.5 border border-brand-200 rounded-lg text-brand-600 hover:bg-brand-50 hover:text-brand-900 transition-colors whitespace-nowrap">登录</a>
+      <a href="./register.html" class="text-xs sm:text-sm px-3 py-1.5 bg-brand-800 text-white rounded-lg hover:bg-brand-900 transition-colors whitespace-nowrap">注册</a>
     </div>`;
 }
 
@@ -98,7 +98,7 @@ export function renderNavbar() {
   container.innerHTML = `
     <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-2">
-        <a href="/" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
+        <a href="./" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
           <div class="w-8 h-8 sm:w-9 sm:h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
           <div class="hidden sm:block">
             <h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
@@ -133,7 +133,7 @@ export function renderNavbar() {
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async () => {
         await supabase.auth.signOut();
-        window.location.href = '/';
+        window.location.href = './';
       });
     }
   }

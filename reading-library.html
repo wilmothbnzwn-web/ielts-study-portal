@@ -613,7 +613,7 @@
     const errorState = document.getElementById('error-state');
 
     try {
-      const res = await fetch('/api/reading-tests.json');
+      const res = await fetch('./api/reading-tests.json');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       allTests = data.tests || [];
@@ -686,8 +686,8 @@
 
 
   <!-- Supabase modules: auth store + navbar -->
-  <script type="module" src="/js/auth-store.js"></script>
-  <script type="module" src="/js/navbar.js"></script>
+  <script type="module" src="./js/auth-store.js"></script>
+  <script type="module" src="./js/navbar.js"></script>
   <script type="module">
     import { renderNavbar } from './js/navbar.js';
     import { initAuth } from './js/auth-store.js';

@@ -402,7 +402,7 @@
   <!-- ==================== TOP EXAM BAR ==================== -->
   <div id="exam-topbar">
     <div class="flex items-center gap-4">
-      <a href="/reading-library.html" class="topbar-btn" title="返回题库大厅" style="text-decoration:none;">←</a>
+      <a href="./reading-library.html" class="topbar-btn" title="返回题库大厅" style="text-decoration:none;">←</a>
       <span class="test-label">IELTS Academic · Reading</span>
       <span class="section-indicator" id="section-indicator">Section 1 of 3</span>
     </div>
@@ -504,7 +504,7 @@ async function loadTestData() {
   const testId = urlParams.get('testId');
 
   try {
-    const res = await fetch('/api/reading-tests.json');
+    const res = await fetch('./api/reading-tests.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const tests = data.tests || [];
@@ -519,7 +519,7 @@ async function loadTestData() {
       test = tests[0];
     }
     if (!test) {
-      document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">题库暂无可用试卷，请先 <a href="/reading-library.html" style="color:#334e68;">返回题库大厅</a>。</p>';
+      document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">题库暂无可用试卷，请先 <a href="./reading-library.html" style="color:#334e68;">返回题库大厅</a>。</p>';
       return;
     }
 
@@ -547,7 +547,7 @@ async function loadTestData() {
     updateSectionIndicator();
   } catch (err) {
     console.error('Failed to load test data:', err);
-    document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">加载试卷失败，请 <a href="/reading-library.html" style="color:#334e68;">返回题库大厅</a> 重试。</p>';
+    document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">加载试卷失败，请 <a href="./reading-library.html" style="color:#334e68;">返回题库大厅</a> 重试。</p>';
   }
 }
 
@@ -1059,7 +1059,7 @@ console.log('   Press Ctrl+←/→ to navigate questions. Tab to go to next ques
 
 
   <!-- Supabase modules: auth guard (protected page) -->
-  <script type="module" src="/js/auth-store.js"></script>
-  <script type="module" src="/js/auth-guard.js"></script>
+  <script type="module" src="./js/auth-store.js"></script>
+  <script type="module" src="./js/auth-guard.js"></script>
 </body>
 </html>
