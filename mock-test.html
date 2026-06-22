@@ -504,7 +504,7 @@ async function loadTestData() {
   const testId = urlParams.get('testId');
 
   try {
-    const res = await fetch('/api/reading-tests');
+    const res = await fetch('/api/reading-tests.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const tests = data.tests || [];

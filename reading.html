@@ -243,7 +243,7 @@
     }
 
     // Load articles
-    fetch('/api/reading-articles').then(r=>r.json()).then(data => {
+    fetch('/api/reading-articles.json').then(r=>r.json()).then(data => {
       articles = data;
       renderArticle(0);
     }).catch(function (e) {
@@ -252,14 +252,14 @@
     });
 
     // Load dictionary
-    fetch('/api/dictionary').then(r=>r.json()).then(data => {
+    fetch('/api/dictionary.json').then(r=>r.json()).then(data => {
       dictionary = data;
     }).catch(() => {
       console.warn('Dictionary not loaded, using API fallback only');
     });
 
     // Load IELTS vocabulary for sentence enrichment
-    fetch('/api/vocabulary').then(r=>r.json()).then(data => {
+    fetch('/api/vocabulary.json').then(r=>r.json()).then(data => {
       ieltsVocab = data;
     }).catch(() => {
       console.warn('Vocabulary not loaded for sentence enrichment');
@@ -376,11 +376,12 @@
 
     async function translateViaAPI(text) {
       try {
-        const resp = await fetchWithRetry(`/api/translate?text=${encodeURIComponent(text)}`);
+        const cleaned = text.replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').trim();
+        const resp = await fetchWithRetry(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleaned)}&langpair=en|zh`);
         if (!resp || !resp.ok) return null;
         const data = await resp.json();
-        if (data.translatedText && data.translatedText.toLowerCase() !== text.toLowerCase()) {
-          return { text: data.translatedText, source: data.source || 'MyMemory API' };
+        if (data.responseData?.translatedText && data.responseData.translatedText.toLowerCase() !== text.toLowerCase()) {
+          return { text: data.responseData.translatedText, source: 'MyMemory API' };
         }
       } catch (e) {
         console.warn('translateViaAPI failed after retries', e);
@@ -520,16 +521,21 @@
 
     async function enrichWord(word) {
       try {
-        const resp = await fetchWithRetry(`/api/dictionary-lookup?word=${encodeURIComponent(word)}`);
+        const cleaned = word.trim().toLowerCase().replace(/[^a-z-]/g, '');
+        const resp = await fetchWithRetry(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleaned)}`);
         if (!resp || !resp.ok) return null;
         const data = await resp.json();
-        if (data.found) {
-          return {
-            phonetic: data.phonetic || '',
-            audioUrl: data.audioUrl || '',
-            synonyms: data.synonyms || [],
-          };
+        const entry = Array.isArray(data) ? data[0] : data;
+        const phonetic = entry.phonetic || entry.phonetics?.find(p => p.text)?.text || '';
+        const audioUrl = entry.phonetics?.find(p => p.audio)?.audio || '';
+        const synonyms = [];
+        if (entry.meanings) {
+          entry.meanings.forEach(m => {
+            if (m.definitions) { m.definitions.forEach(d => { if (d.synonyms) synonyms.push(...d.synonyms); }); }
+            if (m.synonyms) synonyms.push(...m.synonyms);
+          });
         }
+        return { phonetic, audioUrl, synonyms: [...new Set(synonyms)].slice(0, 10) };
       } catch (e) {
         console.warn('enrichWord failed after retries for "' + word + '"', e);
       }

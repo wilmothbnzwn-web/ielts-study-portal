@@ -613,7 +613,7 @@
     const errorState = document.getElementById('error-state');
 
     try {
-      const res = await fetch('/api/reading-tests');
+      const res = await fetch('/api/reading-tests.json');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       allTests = data.tests || [];

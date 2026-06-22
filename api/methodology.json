@@ -1,0 +1,163 @@
+{
+  "task2": {
+    "title": "Simon's Task 2 (Essay) Writing Method",
+    "subtitle": "Former IELTS Examiner Simon Corcoran's Proven 4-Paragraph Framework",
+    "corePrinciple": "Use a clear, simple structure to deliver substantial content — not complex sentence structures. Target: Band 6.5–7.5.",
+    "timeAllocation": [
+      { "stage": "Planning", "sentences": "-", "time": "10 min", "words": "-" },
+      { "stage": "Introduction", "sentences": 2, "time": "5 min", "words": "40–50" },
+      { "stage": "Main Body 1", "sentences": 5, "time": "10 min", "words": "90–100" },
+      { "stage": "Main Body 2", "sentences": 5, "time": "10 min", "words": "90–100" },
+      { "stage": "Conclusion", "sentences": 1, "time": "5 min", "words": "20–30" },
+      { "stage": "Total", "sentences": "~13", "time": "40 min", "words": "250–280" }
+    ],
+    "paragraphGuide": {
+      "introduction": {
+        "description": "2 sentences to set the tone",
+        "sentence1": { "function": "Introduce the topic", "template": "It is true that... / There is a common belief that... / Many people argue that...", "tip": "Paraphrase the question — never copy it word for word" },
+        "sentence2": { "function": "Give your general answer", "template": "In my opinion, while there are some benefits to X, I believe that Y is more beneficial because...", "tip": "State your position clearly here — DO NOT save it for the conclusion" }
+      },
+      "bodyParagraphs": {
+        "methodA": {
+          "name": "Firstly / Secondly / Finally (Listing Method)",
+          "use": "When you have multiple distinct points to cover",
+          "bestFor": ["Advantages/Disadvantages", "Problems", "Solutions"],
+          "structure": "List several points with light development for each"
+        },
+        "methodB": {
+          "name": "Idea → Explain → Example (Deep Development Method) ⭐",
+          "use": "When you have ONE core idea to develop in depth",
+          "structure": [
+            { "position": "Sentence 1", "phase": "IDEA", "description": "Topic sentence — state your main point directly" },
+            { "position": "Sentences 2–4", "phase": "EXPLAIN", "description": "Develop through reasoning, cause-effect, concession, or counter-argument (2–3 sentences)" },
+            { "position": "Sentence 5", "phase": "EXAMPLE", "description": "Support with a specific example (personal experience, hypothetical scenario, or factual case)" }
+          ],
+          "simonsQuote": "If you only have one idea for that paragraph, you have to explain it in more detail. Always ask yourself 'WHY?' to expand from idea to explanation."
+        }
+      },
+      "conclusion": {
+        "description": "1 sentence to wrap up",
+        "rule1": "NEVER introduce new content — only summarize what you have already written",
+        "rule2": "Rephrase your introduction's answer using different vocabulary",
+        "template": "In conclusion, while there are valid arguments on both sides, I firmly believe that... because... and..."
+      }
+    },
+    "essayTypes": [
+      { "type": "Discussion", "chinese": "双边讨论类", "structure": "Intro: Outline both views + give stance | Body 1: Discuss View A | Body 2: Discuss View B (your stance, more fully developed) | Conclusion: Restate stance" },
+      { "type": "Opinion", "chinese": "单边讨论类", "structure": "Intro: Paraphrase + state position clearly | Body 1: Reason 1 + Explain + Example | Body 2: Reason 2 + Explain + Example | Conclusion: Restate opinion" },
+      { "type": "Problem & Solution", "chinese": "问题解决类", "structure": "Intro: Paraphrase problem + preview solutions | Body 1: Analyze causes/consequences | Body 2: Propose solutions + Examples | Conclusion: Summarize" },
+      { "type": "Two-part Questions", "chinese": "复合问题类", "structure": "Intro: Paraphrase topic + briefly answer both questions | Body 1: Answer Q1 | Body 2: Answer Q2 | Conclusion: Synthesize both answers" }
+    ],
+    "goldenRules": [
+      { "principle": "Task Response", "rule": "Answer the question directly. Every body paragraph must tie back to the question keywords. Going off-topic = instant score penalty." },
+      { "principle": "Coherence & Cohesion", "rule": "Logic must be clear and organized. Simple linkers (firstly, secondly) are perfectly fine — examiners value internal paragraph logic over fancy transition words." },
+      { "principle": "Lexical Resource", "rule": "Good ideas + good vocabulary > complex vocabulary alone. Examiners look for topic vocabulary and natural collocations, not rare words used unnaturally." },
+      { "principle": "Grammatical Range & Accuracy", "rule": "Accuracy > Complexity. A correct simple sentence is better than an incorrect complex one." },
+      { "principle": "Planning", "rule": "The 10-minute planning phase IS the soul of your essay. Plan your ideas and vocabulary BEFORE writing. Practice each essay type template until it becomes muscle memory." }
+    ]
+  },
+  "task1": {
+    "title": "Simon's Task 1 (Academic Charts) Comparison Method",
+    "paragraphStructure": [
+      { "paragraph": "Introduction", "purpose": "Paraphrase the question (1 sentence)", "words": "20–25", "keyRule": "Never copy the question word-for-word" },
+      { "paragraph": "Overview", "purpose": "State 2 core trends/features", "words": "30–40", "keyRule": "ABSOLUTELY NO specific data! Only describe the big picture" },
+      { "paragraph": "Details A", "purpose": "Group comparison (high values)", "words": "~50", "keyRule": "Compare, do NOT list mechanically" },
+      { "paragraph": "Details B", "purpose": "Group comparison (low values/changes)", "words": "~50", "keyRule": "Compare, do NOT list mechanically" }
+    ],
+    "overviewGoldenRules": [
+      "Start with: Overall, ... / In summary, ... / It is clear that ...",
+      "Describe the 'big picture' — what changed from start to end?",
+      "NEVER include specific numbers, percentages, or year data",
+      "Mention: overall trends (up/down), highest/lowest, the biggest changes",
+      "Cover ALL visuals if there are multiple charts"
+    ],
+    "simonsQuote": "To reach Band 7 or higher, you must present a clear overview that summarises the main trends, differences, or stages. Without one, you cannot score above Band 6 in Task Achievement.",
+    "groupingStrategies": [
+      { "chartType": "Line Graph", "strategy": "Para 3: Compare all lines at the starting point. Para 4: Compare at the end point + special inflection points (peaks, sharp changes). Group by highest vs lowest, fastest vs slowest growth." },
+      { "chartType": "Bar Chart", "strategy": "Choose 2 groups to compare — never describe each bar individually. Group by time changes or category rankings." },
+      { "chartType": "Pie Chart", "strategy": "Compare categories across charts — which segments grew/shrunk? Group similar-sized categories together." },
+      { "chartType": "Table", "strategy": "Identify extremes (highest, lowest) and patterns (e.g., older = larger). Group rows/columns with similar characteristics." },
+      { "chartType": "Mixed Charts", "strategy": "Establish relationships between charts — never describe each chart in isolation." }
+    ],
+    "languageTemplates": {
+      "contrast": ["while", "whereas", "in contrast", "however", "on the other hand", "by contrast"],
+      "similarity": ["similarly", "likewise", "both... and", "equally"],
+      "ranking": ["X was the highest, followed by Y, while Z was the lowest"],
+      "proportion": ["double/triple", "X was twice as high as Y", "X accounted for the largest share"],
+      "approximation": ["around", "approximately", "roughly", "just under", "just over", "nearly"],
+      "significantDifference": ["by far the highest", "significantly higher", "dramatically lower"]
+    },
+    "tenseRule": "Past data → Past Simple (increased, fell). Future predictions → will / is expected to. No time given → Present Simple. NEVER use: passive (was increased), continuous (was increasing), perfect (has increased).",
+    "band7Checklist": {
+      "do": ["4 clear paragraphs", "Overview with NO data", "Group and compare", "Past simple tense only", "Mention start + end + special peaks", "Use while/whereas/by contrast"],
+      "dont": ["Describe each line/bar mechanically", "Include numbers in Overview", "Describe each line/bar in isolation", "Use passive/continuous/perfect tenses", "Try to mention every data point", "Just list numbers without comparison"]
+    }
+  },
+  "readingStrategies": {
+    "title": "IELTS Reading Core Question Types Strategy Guide",
+    "tfng": {
+      "name": "True / False / Not Given",
+      "definitions": [
+        { "option": "TRUE", "meaning": "Statement EXACTLY matches passage information", "criterion": "Passage clearly supports ALL parts of the statement" },
+        { "option": "FALSE", "meaning": "Statement DIRECTLY contradicts the passage", "criterion": "Passage clearly states the OPPOSITE" },
+        { "option": "NOT GIVEN", "meaning": "Passage has NO clear information to confirm or deny", "criterion": "Passage is silent on this point or only partially covers it" }
+      ],
+      "steps": [
+        "Read the statements FIRST. Underline keywords (names, dates, numbers, adjectives, qualifiers like always/only/most).",
+        "SCAN for keywords or their synonyms — IELTS heavily uses paraphrasing; don't rely on exact word matches.",
+        "Read one sentence before and after the located sentence for full context. Watch for contrast markers: however, although, despite.",
+        "Compare MEANING, not WORDS. Ask: Does the passage SUPPORT (TRUE), CONTRADICT (FALSE), or NOT ADDRESS (NOT GIVEN)?",
+        "Use NOT GIVEN as a last resort. First try TRUE vs FALSE. If no evidence for either → NOT GIVEN."
+      ],
+      "traps": [
+        { "trap": "Absolute words", "description": "always, never, all, none, only — often make a statement FALSE when the passage uses softer language (some, most, usually)" },
+        { "trap": "Partial information", "description": "If part matches but a key detail is missing → NOT GIVEN. Check EVERY part of the statement." },
+        { "trap": "Outside knowledge", "description": "NEVER use your own knowledge. Base answers strictly on the passage." },
+        { "trap": "Identical words ≠ same meaning", "description": "Words may match but context can change meaning entirely. Read the FULL context." },
+        { "trap": "Qualifier shift", "description": "some vs. all, few vs. many — a single qualifier changes the answer" },
+        { "trap": "Over-inference", "description": "Implied but NOT explicitly stated → NOT GIVEN. Only EXPLICIT statements count as TRUE." }
+      ]
+    },
+    "headings": {
+      "name": "List of Headings (Matching)",
+      "steps": [
+        "Read the PARAGRAPHS first, NOT the headings! (Reading headings first will bias you toward distractors.)",
+        "SKIM each paragraph quickly to grasp the main idea.",
+        "Summarize each paragraph in 3-5 words of your own — this forces you to identify the CORE meaning.",
+        "Read the heading list and match your summary to the closest heading.",
+        "Focus on the MAIN IDEA, not details. A heading summarizing only one detail is a distractor.",
+        "Cross off used headings to narrow down choices. Skip difficult paragraphs and return later."
+      ],
+      "keyInsights": [
+        "The FIRST and LAST sentences contain the topic sentence 70%+ of the time.",
+        "A keyword appearing in a heading does NOT mean it matches. Check if the heading summarizes the OVERALL meaning.",
+        "Start with easier paragraphs — fewer remaining options makes tough ones easier.",
+        "After However, But, Yet, In contrast — this is often where the REAL point lies.",
+        "Headings that only capture a single detail or example are DISTRACTORS."
+      ]
+    },
+    "paraphrase": {
+      "name": "Paraphrase & Synonym Location Skills",
+      "techniques": [
+        { "type": "Synonym replacement", "example": "rise ↔ grow / expand / increase" },
+        { "type": "Word form change", "example": "argue (verb) ↔ argument (noun)" },
+        { "type": "Voice conversion", "example": "Scientists conducted a study ↔ A study was carried out" },
+        { "type": "Time expression shift", "example": "in the last decade ↔ in the past ten years" },
+        { "type": "Logic restructuring", "example": "Because of drought, yields dropped ↔ Crop production declined as a result of drought" },
+        { "type": "Negation + antonym", "example": "not satisfactory ↔ disappointing" },
+        { "type": "Number/ratio conversion", "example": "70% ↔ more than two-thirds; doubled ↔ twice as high" }
+      ],
+      "mantra": "Same idea, different words."
+    },
+    "longSentences": {
+      "name": "Long & Difficult Sentences — Breaking Method",
+      "techniques": [
+        { "technique": "标 (Mark)", "description": "Mark connectors (however/therefore/because), clause markers (which/that/who), and punctuation breaks" },
+        { "technique": "拆 (Split)", "description": "Divide long sentences into smaller sense units by identifying clause boundaries" },
+        { "technique": "换 (Replace)", "description": "Replace complex modifiers with simpler expressions (e.g., 'the rapid proliferation of' → 'more')" },
+        { "technique": "补 (Complete)", "description": "Fill in omitted elements to reconstruct the full meaning" }
+      ],
+      "flow": "Find the MAIN TRUNK (S+V+O) → Identify subordinate clauses → Recognize participle structures → Note logical signal words → Understand linearly without back-reading"
+    }
+  }
+}
