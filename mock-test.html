@@ -6,16 +6,10 @@
   <title>机考模拟 — IELTS Study Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' }
-          },
-          fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] }
-        }
-      }
-    }
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
   </script>
   <style>
     :root {
@@ -1063,5 +1057,9 @@ console.log('   Features: Split-pane | Highlighting | Countdown Timer | Bottom N
 console.log('   Press Ctrl+←/→ to navigate questions. Tab to go to next question.');
 </script>
 
+
+  <!-- Supabase modules: auth guard (protected page) -->
+  <script type="module" src="/js/auth-store.js"></script>
+  <script type="module" src="/js/auth-guard.js"></script>
 </body>
 </html>

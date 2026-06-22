@@ -8,6 +8,9 @@
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
   </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+  </script>
   <style>
     body { background: #fafbfc; }
     .article-card { transition: all 0.2s ease; }
@@ -90,24 +93,8 @@
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3 no-underline">
-        <div class="w-9 h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
-        <div><h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1><p class="text-xs text-brand-400">Academic Reading & Writing</p></div>
-      </a>
-      <nav class="flex gap-1 text-sm">
-        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
-        <a href="/reading-library.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">题库大厅</a>
-        <a href="/mock-test.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">机考模拟</a>
-        <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
-        <a href="/reading.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">阅读</a>
-        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
-        <a href="/collection.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">我的收集</a>
-      </nav>
-    </div>
-  </header>
+  <!-- Header (rendered by navbar.js) -->
+  <div id="navbar-container"></div>
 
   <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
     <h1 class="text-3xl font-serif font-bold text-brand-900 mb-2">阅读训练</h1>
@@ -204,6 +191,22 @@
       <p>IELTS Study Portal · <a href="/" class="text-brand-500 hover:text-brand-700">Home</a></p>
     </div>
   </footer>
+
+  <!-- Supabase modules: auth store + navbar + db bridge -->
+  <script type="module" src="/js/auth-store.js"></script>
+  <script type="module" src="/js/navbar.js"></script>
+  <script type="module">
+    import { renderNavbar } from './js/navbar.js';
+    import { initAuth, authStore } from './js/auth-store.js';
+    import { getMyWords, saveMyWords, getMySentences, saveMySentences } from './js/db.js';
+
+    await initAuth();
+    renderNavbar();
+
+    // Bridge: expose Supabase-backed helpers to the inline script
+    window._db = { getMyWords, saveMyWords, getMySentences, saveMySentences };
+    window._auth = authStore;
+  </script>
 
   <script>
     let articles = [];
@@ -494,26 +497,6 @@
       return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    function getMyWords() {
-      try { return JSON.parse(localStorage.getItem('ielts_myWords') || '[]'); }
-      catch(e) { return []; }
-    }
-
-    function saveMyWords(words) {
-      try { localStorage.setItem('ielts_myWords', JSON.stringify(words)); }
-      catch(e) { console.warn('localStorage full or unavailable'); }
-    }
-
-    function getMySentences() {
-      try { return JSON.parse(localStorage.getItem('ielts_mySentences') || '[]'); }
-      catch(e) { return []; }
-    }
-
-    function saveMySentences(sentences) {
-      try { localStorage.setItem('ielts_mySentences', JSON.stringify(sentences)); }
-      catch(e) { console.warn('localStorage full or unavailable'); }
-    }
-
     function extractContextSentence(anchorNode) {
       // Walk up to find the closest <p> element
       let node = anchorNode;
@@ -575,6 +558,16 @@
       const btn = document.getElementById('tl-save-btn');
       if (!btn || btn.classList.contains('saved')) return;
 
+      // Check auth before saving
+      if (!window._db) {
+        btn.textContent = '🔒 请先登录';
+        btn.style.pointerEvents = 'none';
+        setTimeout(() => {
+          if (btn) { btn.textContent = '📌 加入收藏'; btn.style.pointerEvents = 'auto'; }
+        }, 2000);
+        return;
+      }
+
       if (ctx.isWord) {
         // === Save WORD ===
         btn.textContent = '⏳ 收集中...';
@@ -586,21 +579,15 @@
         const enriched = await enrichWord(word);
 
         const entry = {
-          id: Date.now(),
           word: word,
           chinese: translation?.text || '',
           phonetic: enriched?.phonetic || '',
           audioUrl: enriched?.audioUrl || '',
           synonyms: enriched?.synonyms || [],
           contextSentence: contextSentence || '',
-          savedAt: Date.now(),
         };
 
-        // Dedup by word (case-insensitive)
-        const words = getMyWords().filter(w => w.word.toLowerCase() !== word.toLowerCase());
-        words.unshift(entry);
-        if (words.length > 100) words.pop();
-        saveMyWords(words);
+        await window._db.saveMyWords([entry]);
 
         btn.textContent = '✅ 已保存';
         btn.classList.add('saved');
@@ -614,18 +601,12 @@
         const highFreqWords = matchHighFreqWords(sentence);
 
         const entry = {
-          id: Date.now(),
           sentence: sentence,
           chinese: translation?.text || '',
           highFreqWords: highFreqWords,
-          savedAt: Date.now(),
         };
 
-        // Dedup by sentence content
-        const sentences = getMySentences().filter(s => s.sentence.toLowerCase() !== sentence.toLowerCase());
-        sentences.unshift(entry);
-        if (sentences.length > 100) sentences.pop();
-        saveMySentences(sentences);
+        await window._db.saveMySentences([entry]);
 
         btn.textContent = '✅ 已保存';
         btn.classList.add('saved');

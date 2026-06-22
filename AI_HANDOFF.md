@@ -4,10 +4,11 @@
 > Every architectural decision, data schema, API route, storage key, and known limitation is documented below.
 > **Breaking any contract described here WILL cause production failures.**
 
-**Last updated:** 2026-06-17
-**Total commits on `main`:** 15
+**Last updated:** 2026-06-17 (post-Supabase migration)
+**Total commits on `main`:** upcoming
 **Production URL:** `https://elaborate-duckanoo-d25740.netlify.app`
 **GitHub remote:** `https://github.com/wilmothbnzwn-web/ielts-study-portal.git`
+**BaaS Platform:** Supabase (PostgreSQL + Auth)
 
 ---
 
@@ -22,8 +23,9 @@
 | **Local dev** | Node.js `http` server on port `3456` (run `node server.js` or `npm start`) |
 | **Architecture** | Pure HTML/CSS/JS frontend + Node.js static server + Netlify serverless functions for API |
 | **CSS Framework** | Tailwind CSS v3 CDN (`https://cdn.tailwindcss.com`) with inline brand color config |
-| **Database** | Static JSON files in `/data/` — no SQL, no ORM |
-| **State** | Browser `localStorage` only — no cookies, no session, no server-side state |
+| **Database** | Supabase PostgreSQL (formerly: static JSON files) — user data is cloud-backed, multi-tenant via RLS |
+| **State** | Supabase Auth session + Supabase DB (formerly: browser `localStorage` only) — multi-device sync, no server-side state |
+| **Auth** | Supabase Auth — email/password sign-up/sign-in, JWT session tokens, auto-refresh |
 
 ### Git History (most recent first)
 
@@ -81,15 +83,22 @@ IELTS_Study_Portal/
 ├── server.js                         # Local dev server (Node http, port 3456)
 │
 ├── index.html                        # Home page (IELTS overview dashboard)
-├── reading.html                      # Reading practice page (articles + translation + collection)
+├── reading.html                      # Reading practice page (articles + translation + Supabase save)
 ├── reading-library.html              # Reading test library (card grid, 115 tests, topic filter, search)
-├── mock-test.html                    # Computer-delivered IELTS reading mock test interface
+├── mock-test.html                    # Computer-delivered IELTS reading mock test (auth-protected)
 ├── writing.html                      # Writing practice page (essay analysis)
 ├── vocabulary.html                   # Vocabulary browser (288 academic words, search, filter)
-├── collection.html                   # "My Collection" page (saved words + sentences from localStorage)
+├── collection.html                   # "My Collection" page (Supabase-backed, auth-protected)
+├── login.html                        # ★ Sign-in page (email/password, Supabase Auth)
+├── register.html                     # ★ Registration page (email/password, Supabase Auth)
 │
 ├── js/
-│   └── vocab-card.js                 # Shared VocabCard component (3D flip, audio, theme colors)
+│   ├── vocab-card.js                 # Shared VocabCard component (3D flip, audio, theme colors)
+│   ├── auth-store.js                 # ★ Supabase client + pub/sub auth state + session recovery
+│   ├── auth-guard.js                 # ★ Route guard: redirects to login if not authenticated
+│   ├── navbar.js                     # ★ Shared navbar with reactive user menu (login/logout)
+│   ├── db.js                         # ★ Supabase CRUD: words + sentences (replaces localStorage)
+│   └── env.js                        # ★ Dynamically served: SUPABASE_URL + SUPABASE_ANON_KEY
 │
 ├── data/
 │   ├── reading_tests.json            # ★ CORE: 115 reading tests, 925 questions (1.18 MB)
@@ -109,6 +118,7 @@ IELTS_Study_Portal/
 │   └── vocabulary.js
 │
 ├── netlify/functions/                # Netlify serverless functions (production API)
+│   ├── env.js                        # ★ Serves /js/env.js (SUPABASE_URL + SUPABASE_ANON_KEY)
 │   ├── band-descriptors.js
 │   ├── essays.js
 │   ├── methodology.js
@@ -120,7 +130,10 @@ IELTS_Study_Portal/
 │   ├── mock-test-1.js                # (legacy)
 │   └── translate.js                  # Translation proxy (MyMemory API)
 │
+├── .env.local                        # ★ Supabase credentials (git-ignored)
+├── netlify.toml                      # ★ Netlify config with /js/env.js rewrite rule
 └── scripts/                          # ★ Python data pipeline scripts
+    ├── supabase_migration.sql        # ★ SQL to create user_words + user_sentences tables + RLS
     ├── batch_ocr_pipeline.py         # Batch OCR: scan PDFs → extract text (Tesseract)
     ├── inject_from_ocr.py            # OCR text → structured test JSON → inject into reading_tests.json
     ├── ocr_pipeline_phase1.py        # Original single-PDF OCR script (superseded by batch version)
@@ -145,6 +158,112 @@ IELTS_Study_Portal/
 3. **Dynamic mock test routing.** `reading-library.html` links to `mock-test.html?testId=<id>`. The mock test page reads `URLSearchParams`, fetches `/api/reading-tests`, finds the matching test by `id`, and renders it.
 
 4. **Compatibility wrapper.** `mock-test.html` normalizes old test format (`flat` questions array) to new format (`passages[]` array with nested questions) at lines ~520-545.
+
+---
+
+## 2b. Authentication & User System (Supabase BaaS)
+
+### Architecture Overview
+
+The project migrated from localStorage to Supabase BaaS for multi-user support. All user data (words, sentences) is now stored in Supabase PostgreSQL tables with Row-Level Security (RLS). Authentication is handled by Supabase Auth (email/password).
+
+### Key Architectural Decisions
+
+1. **Zero-build integration.** Supabase SDK (`@supabase/supabase-js@2.45.0`) is loaded via CDN import map (esm.sh). No npm install, no bundler. This preserves the project's zero-build philosophy.
+
+2. **Environment variable injection.** `SUPABASE_URL` and `SUPABASE_ANON_KEY` must reach the browser. Local dev uses `server.js` to read `.env.local` and serve a dynamic ES module at `/js/env.js`. Production uses a Netlify Function (`netlify/functions/env.js`) + rewrite rule in `netlify.toml`.
+
+   ```
+   Browser:  import { SUPABASE_URL } from '/js/env.js'
+                    │
+   Local dev:       server.js reads .env.local → serves JS module
+   Production:       Netlify redirect → /.netlify/functions/env → process.env
+   ```
+
+3. **Pub/sub auth store.** `js/auth-store.js` provides a vanilla JS reactive store. All pages import the same module — ES module caching ensures a singleton Supabase client and shared auth state.
+
+4. **Bridge pattern for inline scripts.** Existing pages use inline `<script>` blocks (not modules), which can't use `import`. A thin `<script type="module">` bridge imports from `js/db.js` and assigns to `window._db`, making Supabase functions available to legacy inline code.
+
+### New Files (Supabase Migration)
+
+| File | Purpose |
+|------|---------|
+| `js/auth-store.js` | Supabase client singleton, pub/sub auth state store, `initAuth()` session recovery |
+| `js/auth-guard.js` | Route guard: redirects unauthenticated users to `/login.html?redirect=...` |
+| `js/navbar.js` | Shared navbar with reactive user menu (login/register or email/logout) |
+| `js/db.js` | Supabase CRUD: `getMyWords`, `saveMyWords`, `deleteWord`, `getMySentences`, `saveMySentences`, `deleteSentence` |
+| `login.html` | Sign-in page (brand-colored, academic minimalist style) |
+| `register.html` | Registration page (matching style) |
+| `netlify/functions/env.js` | Netlify Function: serves `/js/env.js` in production |
+| `scripts/supabase_migration.sql` | SQL to create tables + RLS policies in Supabase |
+
+### Config Files
+
+| File | Purpose |
+|------|---------|
+| `.env.local` | `SUPABASE_URL` + `SUPABASE_ANON_KEY` (git-ignored) |
+| `netlify.toml` | Rewrite `/js/env.js` → `/.netlify/functions/env` |
+
+### Module Loading Order
+
+All HTML pages load modules like this:
+
+```html
+<script type="importmap">
+{ "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+</script>
+<script type="module" src="/js/auth-store.js"></script>
+```
+
+Dependency graph (linear, no cycles):
+```
+env.js (dynamically served) ← auth-store.js ← db.js
+                                           ← auth-guard.js
+                                           ← navbar.js
+```
+
+### Route Protection
+
+- **Collection page** (`collection.html`): Requires auth. Loads `auth-guard.js` → redirects to login if not signed in.
+- **Mock test** (`mock-test.html`): Requires auth. Loads `auth-guard.js` → redirects to login.
+- **Reading page** (`reading.html`): No guard — articles are public. Save button shows "请先登录" if not authenticated.
+- **All other pages**: Public. Load `navbar.js` for the user menu but no guard.
+
+### Supabase Database Tables (PostgreSQL + RLS)
+
+**`public.user_words`:**
+| Column | Type | Notes |
+|--------|------|-------|
+| id | UUID PK | gen_random_uuid() |
+| user_id | UUID FK→auth.users | ON DELETE CASCADE |
+| word | TEXT NOT NULL | |
+| chinese | TEXT | Default '' |
+| phonetic | TEXT | Default '' |
+| audio_url | TEXT | Default '' |
+| synonyms | TEXT | JSON array as string |
+| context_sentence | TEXT | Default '' |
+| saved_at | TIMESTAMPTZ | Default now() |
+
+**`public.user_sentences`:**
+| Column | Type | Notes |
+|--------|------|-------|
+| id | UUID PK | gen_random_uuid() |
+| user_id | UUID FK→auth.users | ON DELETE CASCADE |
+| sentence | TEXT NOT NULL | |
+| chinese | TEXT | Default '' |
+| high_freq_words | TEXT | JSON array as string |
+| saved_at | TIMESTAMPTZ | Default now() |
+
+**RLS Policies:** Users can SELECT/INSERT/DELETE/UPDATE only rows where `auth.uid() = user_id`.
+
+### Column Mapping (JS camelCase ↔ DB snake_case)
+
+`db.js` handles all mapping:
+- `audioUrl` ↔ `audio_url`
+- `contextSentence` ↔ `context_sentence`
+- `highFreqWords` ↔ `high_freq_words`
+- `savedAt` ↔ `saved_at`
+- `synonyms` and `highFreqWords` are serialized as JSON strings in TEXT columns
 
 ---
 
@@ -276,39 +395,46 @@ VocabCard(wordData, options)
 
 ---
 
-## 4. State Management & Storage (localStorage)
+## 4. State Management & Storage (Supabase)
 
-**There is NO server-side state.** All user data lives in `localStorage` in the user's browser.
+**All user data is stored in Supabase PostgreSQL.** There is NO localStorage usage for user content. Auth sessions are managed by Supabase Auth (refresh token in localStorage, handled automatically by the SDK).
 
-### localStorage Keys
+### Supabase Database (replaces localStorage)
 
-| Key | Structure | Purpose | Set In | Read In |
-|-----|-----------|---------|--------|---------|
-| `ielts_myWords` | `JSON.stringify([vocabEntry, ...])` | Saved vocabulary words | `reading.html` (save button), `vocabulary.html` (save button) | `collection.html`, `reading.html` |
-| `ielts_mySentences` | `JSON.stringify([sentenceEntry, ...])` | Saved example sentences | `reading.html` (save button) | `collection.html`, `reading.html` |
+| Old localStorage Key | New Supabase Table | Operations |
+|----------------------|--------------------|------------|
+| `ielts_myWords` | `public.user_words` (RLS-protected) | `getMyWords()`, `saveMyWords([entries])`, `deleteWord(id)` |
+| `ielts_mySentences` | `public.user_sentences` (RLS-protected) | `getMySentences()`, `saveMySentences([entries])`, `deleteSentence(id)` |
 
-**Code contract** (from `reading.html:498-513`, `collection.html:102-117`):
+**Code contract** (from `js/db.js`):
 ```javascript
-// Get words
-JSON.parse(localStorage.getItem('ielts_myWords') || '[]')
-// Set words
-localStorage.setItem('ielts_myWords', JSON.stringify(words))
+// All async — must use await
+const words = await window._db.getMyWords();
+await window._db.saveMyWords([{ word, chinese, ... }]);
+await window._db.deleteWord(id);
 
-// Get sentences
-JSON.parse(localStorage.getItem('ielts_mySentences') || '[]')
-// Set sentences
-localStorage.setItem('ielts_mySentences', JSON.stringify(sentences))
+const sentences = await window._db.getMySentences();
+await window._db.saveMySentences([{ sentence, chinese, ... }]);
+await window._db.deleteSentence(id);
 ```
 
-**CRITICAL:** Always wrap `localStorage.getItem()` in try-catch. Always default to `'[]'` (empty array string) when the key doesn't exist. Never assume the data is valid JSON — corrupt localStorage is common.
+**Bridge pattern:** Inline (non-module) scripts access these via `window._db`, set up by a `<script type="module">` bridge. Functions are auto-deduplicated (ilike match on word/sentence for the same user).
 
-### Session-only State (in-memory, not persisted)
+### Auth State (pub/sub store)
+
+- `authStore.user` — current Supabase user object (or null)
+- `authStore.isAuthenticated` — boolean
+- `authStore.subscribe(fn)` — reactive listener, returns unsubscribe function
+- `initAuth()` — recovers session from Supabase on page load
+
+### Session-only State (in-memory, not persisted — unchanged)
 
 | State | Location | Notes |
 |-------|----------|-------|
-| Mock test timer | `mock-test.html` (variable `timeRemaining`, initialized from `test.totalTime`) | Resets on page reload |
-| User answers | `mock-test.html` (object `userAnswers`, keyed by question ID) | NOT persisted; lost on page close |
+| Mock test timer | `mock-test.html` (variable `timeRemaining`) | Resets on page reload |
+| User answers | `mock-test.html` (object `userAnswers`) | NOT persisted; lost on page close |
 | Current question index | `mock-test.html` (variable `currentQuestionIndex`) | For highlight tracking |
+| Translation history | `reading.html` (array `lookupHistory`, max 20) | Session-only, not persisted |
 
 ---
 
@@ -500,9 +626,11 @@ Old tests with flat `questions[]` are wrapped into `passages: [{ passageText, qu
 
 2. **DO NOT add new question types** (`type` field) without adding render logic in `mock-test.html` (~line 580-620). The UI has explicit branching for `true_false_not_given` and `short_answer` only.
 
-3. **DO NOT modify `localStorage` key names** (`ielts_myWords`, `ielts_mySentences`) — this will orphan all existing user data. If you must rename, write a migration that reads the old key and writes to the new one.
+3. **DO NOT modify the Supabase table schemas** (`user_words`, `user_sentences`) without updating `js/db.js` (column mapping) and `scripts/supabase_migration.sql` (migration reference). The RLS policies are critical — without them, users could see each other's data.
 
-4. **DO NOT remove the compatibility wrapper** in `mock-test.html:520-545` — some older tests may still use the flat format.
+4. **DO NOT remove localStorage key reading code** if users may have existing data. Consider adding a one-time migration button on collection.html that reads old `ielts_myWords`/`ielts_mySentences` from localStorage, calls `saveMyWords()`/`saveMySentences()`, then clears localStorage.
+
+5. **DO NOT remove the compatibility wrapper** in `mock-test.html:520-545` — some older tests may still use the flat format.
 
 5. **DO NOT break the topic system** — `topic` values in JSON MUST exactly match keys in `TOPIC_CONFIG` in `reading-library.html`. Adding a topic requires changes in TWO files.
 
@@ -523,10 +651,26 @@ Old tests with flat `questions[]` are wrapped into `passages: [{ passageText, qu
 ### 🔧 Quick Start Commands
 
 ```bash
+# === FIRST-TIME SETUP ===
+# 1. Create a Supabase project at https://app.supabase.com
+# 2. Get your project URL and anon key from: Settings > API
+# 3. Create .env.local in project root:
+#    SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+#    SUPABASE_ANON_KEY=eyJhbGciOi...
+# 4. Run the SQL migration in Supabase SQL Editor:
+#    Copy scripts/supabase_migration.sql → paste into SQL Editor → Run
+# 5. (Optional) Disable email confirmation for dev:
+#    Supabase dashboard > Authentication > Settings > Auth Settings
+#    Toggle "Confirm email" to OFF
+
 # Local dev
 cd /Users/zzzzhangjintao/.claude/tt.1/IELTS_Study_Portal
 node server.js
 # → http://localhost:3456
+
+# Verify Supabase config is injected
+curl -s http://localhost:3456/js/env.js
+# Should output: export const SUPABASE_URL = "..."; export const SUPABASE_ANON_KEY = "...";
 
 # Validate test database
 python3 -c "
@@ -544,6 +688,11 @@ python3 scripts/batch_ocr_pipeline.py --max-pdfs 5  # process 5
 python3 scripts/inject_from_ocr.py --dry-run        # preview
 python3 scripts/inject_from_ocr.py                  # actual injection
 
+# === PRODUCTION DEPLOY ===
+# Set env vars in Netlify dashboard:
+#   Site settings > Environment variables
+#   SUPABASE_URL = https://xxxxxxxxxxxx.supabase.co
+#   SUPABASE_ANON_KEY = eyJhbGciOi...
 # Deploy
 git add -A
 git commit -m "Descriptive message"

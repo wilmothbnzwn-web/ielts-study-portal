@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <style>
+    body { background: #fafbfc; }
+    .auth-card { animation: fadeUp 0.4s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+  </script>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col items-center justify-center px-4">
+
+  <!-- Logo -->
+  <a href="/" class="flex items-center gap-3 no-underline mb-8">
+    <div class="w-10 h-10 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-base">I</div>
+    <div>
+      <h1 class="text-xl font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
+      <p class="text-xs text-brand-400">Academic Reading & Writing</p>
+    </div>
+  </a>
+
+  <!-- Login Card -->
+  <div class="auth-card bg-white rounded-2xl border border-brand-100 shadow-lg p-8 w-full max-w-md">
+    <h2 class="text-2xl font-serif font-bold text-brand-900 mb-1">登录账户</h2>
+    <p class="text-sm text-brand-400 mb-6">登录以同步你的学习数据</p>
+
+    <!-- Error message -->
+    <div id="auth-error" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm mb-4"></div>
+
+    <!-- Success message (post-registration) -->
+    <div id="auth-success" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg p-3 text-sm mb-4"></div>
+
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-brand-700 mb-1">邮箱地址</label>
+        <input id="email" type="email" name="email" autocomplete="email" required
+          class="w-full px-4 py-2.5 border border-brand-200 rounded-lg text-brand-900 placeholder-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
+          placeholder="you@example.com">
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-brand-700 mb-1">密码</label>
+        <input id="password" type="password" name="password" autocomplete="current-password" required minlength="6"
+          class="w-full px-4 py-2.5 border border-brand-200 rounded-lg text-brand-900 placeholder-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
+          placeholder="••••••••">
+      </div>
+      <button type="submit" id="submit-btn"
+        class="w-full py-2.5 bg-brand-800 text-white font-semibold rounded-lg hover:bg-brand-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        登录
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-brand-400">
+        还没有账户？
+        <a href="/register.html" class="text-brand-600 font-medium hover:text-brand-800 transition-colors">注册新账户 →</a>
+      </p>
+    </div>
+  </div>
+
+  <p class="mt-8 text-xs text-brand-300">
+    <a href="/" class="hover:text-brand-500 transition-colors">← 返回首页</a>
+  </p>
+
+  <script type="module">
+    import { supabase, authStore, initAuth } from './js/auth-store.js';
+
+    // If already logged in, redirect to home
+    await initAuth();
+    if (authStore.isAuthenticated) {
+      window.location.href = '/';
+    }
+
+    const form = document.getElementById('login-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorDiv = document.getElementById('auth-error');
+    const successDiv = document.getElementById('auth-success');
+
+    // Show success message if redirected from registration
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === '1') {
+      successDiv.textContent = '✓ 注册成功！请登录你的账户。';
+      successDiv.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorDiv.classList.add('hidden');
+      successDiv.classList.add('hidden');
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登录中...';
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errorDiv.textContent = error.message === 'Invalid login credentials'
+          ? '邮箱或密码错误，请重试'
+          : `登录失败：${error.message}`;
+        errorDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '登录';
+        return;
+      }
+
+      if (data.session) {
+        authStore._setState(data.session.user, data.session);
+        // Redirect to the page the user was trying to access, or home
+        const redirectTo = params.get('redirect') || '/';
+        window.location.href = redirectTo;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -8,6 +8,9 @@
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
   </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+  </script>
   <style>
     body { background: #fafbfc; }
     .tab-btn { transition: all 0.2s; }
@@ -37,34 +40,8 @@
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
-        <div class="w-8 h-8 sm:w-9 sm:h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
-        <div class="hidden sm:block"><h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1><p class="text-xs text-brand-400">Academic Reading & Writing</p></div>
-      </a>
-      <!-- Desktop nav -->
-      <nav class="hidden sm:flex gap-1 text-sm">
-        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
-        <a href="/reading-library.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">题库大厅</a>
-        <a href="/mock-test.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">机考模拟</a>
-        <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
-        <a href="/reading.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">阅读</a>
-        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
-        <a href="/collection.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">我的收集</a>
-      </nav>
-      <!-- Mobile nav -->
-      <div class="sm:hidden flex gap-1">
-        <a href="/" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">首页</a>
-        <a href="/reading-library.html" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">题库</a>
-        <a href="/mock-test.html" class="text-xs px-2 py-1.5 bg-brand-800 text-white rounded-md">机考</a>
-        <a href="/reading.html" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">阅读</a>
-        <a href="/vocabulary.html" class="text-xs px-2 py-1.5 bg-brand-50 text-brand-700 rounded-md">词汇</a>
-        <a href="/collection.html" class="text-xs px-2 py-1.5 bg-brand-800 text-white rounded-md">收集</a>
-      </nav>
-    </div>
-  </header>
+  <!-- Header (rendered by navbar.js) -->
+  <div id="navbar-container"></div>
 
   <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow w-full">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3">
@@ -92,31 +69,31 @@
 
   <footer class="border-t border-brand-100 py-6 px-6 bg-white/50 mt-8">
     <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
-      <p>IELTS Study Portal · Collection saved in your browser's local storage</p>
+      <p>IELTS Study Portal · Collection synced to your account via Supabase</p>
     </div>
   </footer>
 
+  <!-- Supabase modules: auth store + auth guard + navbar + db bridge -->
+  <script type="module" src="/js/auth-store.js"></script>
+  <script type="module" src="/js/auth-guard.js"></script>
+  <script type="module" src="/js/navbar.js"></script>
+  <script type="module">
+    import { renderNavbar } from './js/navbar.js';
+    import { initAuth, authStore } from './js/auth-store.js';
+    import { getMyWords, saveMyWords, deleteWord, getMySentences, saveMySentences, deleteSentence } from './js/db.js';
+
+    await initAuth();
+    renderNavbar();
+
+    // Bridge: expose Supabase-backed helpers to the inline script
+    window._db = { getMyWords, saveMyWords, deleteWord, getMySentences, saveMySentences, deleteSentence };
+    window._auth = authStore;
+  </script>
+
   <script src="js/vocab-card.js"></script>
   <script>
-    function getMyWords() {
-      try { return JSON.parse(localStorage.getItem('ielts_myWords') || '[]'); }
-      catch(e) { return []; }
-    }
-
-    function saveMyWords(words) {
-      try { localStorage.setItem('ielts_myWords', JSON.stringify(words)); }
-      catch(e) {}
-    }
-
-    function getMySentences() {
-      try { return JSON.parse(localStorage.getItem('ielts_mySentences') || '[]'); }
-      catch(e) { return []; }
-    }
-
-    function saveMySentences(sentences) {
-      try { localStorage.setItem('ielts_mySentences', JSON.stringify(sentences)); }
-      catch(e) {}
-    }
+    // All data operations now go through Supabase via window._db
+    // (set up by the module script above — runs before user interaction)
 
     function escapeHtml(str) {
       const div = document.createElement('div');
@@ -164,8 +141,8 @@
       };
     }
 
-    function renderWords() {
-      const words = getMyWords();
+    async function renderWords() {
+      const words = window._db ? await window._db.getMyWords() : [];
       const container = document.getElementById('words-container');
 
       if (words.length === 0) {
@@ -209,8 +186,8 @@
       }
     }
 
-    function renderSentences() {
-      const sentences = getMySentences();
+    async function renderSentences() {
+      const sentences = window._db ? await window._db.getMySentences() : [];
       const container = document.getElementById('sentences-container');
 
       if (sentences.length === 0) {
@@ -247,21 +224,29 @@
       }).join('');
     }
 
-    function deleteWord(id) {
-      const words = getMyWords().filter(w => w.id !== id);
-      saveMyWords(words);
+    async function deleteWord(id) {
+      if (window._db) {
+        await window._db.deleteWord(id);
+      }
       renderWords();
     }
 
-    function deleteSentence(id) {
-      const sentences = getMySentences().filter(s => s.id !== id);
-      saveMySentences(sentences);
+    async function deleteSentence(id) {
+      if (window._db) {
+        await window._db.deleteSentence(id);
+      }
       renderSentences();
     }
 
-    // Init
-    renderWords();
-    renderSentences();
+    // Init — render once module scripts have set up window._db
+    (async function init() {
+      // Wait a tick for module scripts to execute
+      if (!window._db) {
+        await new Promise(r => { const check = () => { if (window._db) r(); else setTimeout(check, 50); }; check(); });
+      }
+      renderWords();
+      renderSentences();
+    })();
   </script>
 </body>
 </html>

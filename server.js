@@ -8,6 +8,29 @@ const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_DIR = path.join(__dirname, 'data');
 
+// ===== Zero-dependency .env.local loader =====
+(function loadEnv() {
+  const envPath = path.join(__dirname, '.env.local');
+  if (!fs.existsSync(envPath)) return;
+  const content = fs.readFileSync(envPath, 'utf-8');
+  for (const line of content.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    let value = trimmed.slice(eqIdx + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (!process.env[key]) process.env[key] = value;
+  }
+  if (process.env.SUPABASE_URL) {
+    console.log('  [env] Loaded SUPABASE_URL from .env.local');
+  }
+})();
+
 // MIME types
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -38,6 +61,15 @@ const server = http.createServer((req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+
+  // Dynamic env module — injects Supabase config into browser
+  if (pathname === '/js/env.js') {
+    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+    res.end(`export const SUPABASE_URL = ${JSON.stringify(process.env.SUPABASE_URL || '')};
+export const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY || '')};
+`);
+    return;
+  }
 
   // API route: translate proxy (backend-forwards to MyMemory, avoids CORS preflight)
   if (pathname === '/api/translate') {

@@ -6,6 +6,11 @@
   included_files = ["data/**"]
 
 [[redirects]]
+  from = "/js/env.js"
+  to = "/.netlify/functions/env"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200

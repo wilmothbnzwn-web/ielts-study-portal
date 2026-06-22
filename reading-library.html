@@ -6,16 +6,10 @@
   <title>阅读题库 — IELTS Study Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' }
-          },
-          fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] }
-        }
-      }
-    }
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
   </script>
   <style>
     body { background: #fafbfc; }
@@ -110,36 +104,8 @@
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3 no-underline">
-        <div class="w-9 h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
-        <div>
-          <h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
-          <p class="text-xs text-brand-400">Academic Reading & Writing</p>
-        </div>
-      </a>
-      <nav class="hidden sm:flex gap-1 text-sm">
-        <a href="/" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">首页</a>
-        <a href="/reading-library.html" class="px-3 py-2 bg-brand-800 text-white rounded-lg font-medium">题库大厅</a>
-        <a href="/mock-test.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">机考模拟</a>
-        <a href="/writing.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">写作</a>
-        <a href="/reading.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">阅读</a>
-        <a href="/vocabulary.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">词汇</a>
-        <a href="/collection.html" class="px-3 py-2 text-brand-500 hover:text-brand-900 rounded-lg transition-colors">收集</a>
-      </nav>
-      <!-- Mobile nav -->
-      <div class="sm:hidden flex gap-2">
-        <a href="/reading-library.html" class="text-xs px-3 py-1.5 bg-brand-800 text-white rounded-md font-medium">题库</a>
-        <a href="/mock-test.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">机考</a>
-        <a href="/writing.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">写作</a>
-        <a href="/reading.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">阅读</a>
-        <a href="/vocabulary.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">词汇</a>
-        <a href="/collection.html" class="text-xs px-3 py-1.5 bg-brand-50 text-brand-700 rounded-md">收集</a>
-      </div>
-    </div>
-  </header>
+  <!-- Header (rendered by navbar.js) -->
+  <div id="navbar-container"></div>
 
   <!-- ===== MAIN LAYOUT: Sidebar + Content ===== -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
@@ -718,5 +684,15 @@
   console.log('📚 Reading Test Library loaded with sidebar navigation.');
   </script>
 
+
+  <!-- Supabase modules: auth store + navbar -->
+  <script type="module" src="/js/auth-store.js"></script>
+  <script type="module" src="/js/navbar.js"></script>
+  <script type="module">
+    import { renderNavbar } from './js/navbar.js';
+    import { initAuth } from './js/auth-store.js';
+    await initAuth();
+    renderNavbar();
+  </script>
 </body>
 </html>
