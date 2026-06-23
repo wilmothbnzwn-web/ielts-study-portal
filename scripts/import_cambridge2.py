@@ -222,21 +222,39 @@ def answer_to_question_type(answer):
     return "short_answer", None, answer
 
 
+def section_for_question(qtext, qnum):
+    heading_re = re.compile(
+        r"Questions?\s*\n?\s*(\d+)\s*(?:[-—]|and)?\s*(\d+)?",
+        re.I,
+    )
+    sections = list(heading_re.finditer(qtext))
+    for i, match in enumerate(sections):
+        start = int(match.group(1))
+        end = int(match.group(2) or start)
+        if start <= qnum <= end:
+            section_end = sections[i + 1].start() if i + 1 < len(sections) else len(qtext)
+            return qtext[match.start():section_end]
+    return qtext
+
+
 def question_prompt(qtext, qnum, title):
     if not qtext:
         return f"{title} - Q{qnum}: Answer the original Cambridge 2 question."
+    section = section_for_question(qtext, qnum)
+    if len(re.sub(r"\s+", " ", section).strip()) < 80:
+        section = qtext[:1200]
     pattern = re.compile(rf"(?:^|\n)\s*{qnum}\s+(.+?)(?=(?:\n\s*{qnum + 1}\s+)|\Z)", re.S)
-    match = pattern.search(qtext)
+    match = pattern.search(section)
     if match:
         text = match.group(0)
     else:
-        blank = re.search(rf"\({qnum}\)", qtext)
+        blank = re.search(rf"\({qnum}\)", section)
         if blank:
             start = max(0, blank.start() - 260)
-            end = min(len(qtext), blank.end() + 260)
-            text = qtext[start:end]
+            end = min(len(section), blank.end() + 260)
+            text = section[start:end]
         else:
-            text = f"Answer the original Cambridge 2 question {qnum}."
+            text = section
     text = re.sub(r"\s+", " ", text).strip()
     if len(text) > 520:
         text = text[:517].rsplit(" ", 1)[0] + "..."
