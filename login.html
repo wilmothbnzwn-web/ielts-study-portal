@@ -76,7 +76,7 @@
     // If already logged in, redirect to home
     await initAuth();
     if (authStore.isAuthenticated) {
-      window.location.href = '/';
+      window.location.href = './index.html';
     }
 
     const form = document.getElementById('login-form');
@@ -117,7 +117,7 @@
       if (data.session) {
         authStore._setState(data.session.user, data.session);
         // Redirect to the page the user was trying to access, or home
-        const redirectTo = params.get('redirect') || '/';
+        const redirectTo = params.get('redirect') || './index.html';
         window.location.href = redirectTo;
       }
     });
