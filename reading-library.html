@@ -271,8 +271,8 @@
     if (!source) return '其他来源';
 
     // Cambridge tests: group by book number
-    const camMatch = source.match(/Cambridge IELTS (\d+)/);
-    if (camMatch) return `Cambridge IELTS ${camMatch[1]}`;
+    const camMatch = source.match(/Cambridge(?: IELTS)? (\d+)/);
+    if (camMatch) return `Cambridge ${camMatch[1]}`;
 
     // Prediction tests: extract PDF number from Chinese label
     const predMatch = source.match(/阅读(\d+)/);
@@ -293,7 +293,7 @@
   function getSourceShortLabel(source) {
     // Shorten source for display in card
     if (!source) return '';
-    const camMatch = source.match(/Cambridge IELTS (\d+) Test (\d+) Passage (\d+)/);
+    const camMatch = source.match(/Cambridge(?: IELTS)? (\d+)(?: -)? Test (\d+) Passage (\d+)/);
     if (camMatch) return `Cam ${camMatch[1]} T${camMatch[2]} P${camMatch[3]}`;
 
     const predMatch = source.match(/阅读(\d+).*Passage (\d+)/);
