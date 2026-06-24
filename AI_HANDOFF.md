@@ -4,7 +4,7 @@
 > Every architectural decision, data schema, API route, storage key, and known limitation is documented below.
 > **Breaking any contract described here WILL cause production failures.**
 
-**Last updated:** 2026-06-17 (post-Supabase migration)
+**Last updated:** 2026-06-24 (vocabulary Deck System refactor)
 **Total commits on `main`:** upcoming
 **Production URL:** `https://elaborate-duckanoo-d25740.netlify.app`
 **GitHub remote:** `https://github.com/wilmothbnzwn-web/ielts-study-portal.git`
@@ -87,13 +87,15 @@ IELTS_Study_Portal/
 ├── reading-library.html              # Reading test library (card grid, 115 tests, topic filter, search)
 ├── mock-test.html                    # Computer-delivered IELTS reading mock test (auth-protected)
 ├── writing.html                      # Writing practice page (essay analysis)
-├── vocabulary.html                   # Vocabulary browser (288 academic words, search, filter)
+├── vocabulary.html                   # ★ Vocabulary Deck Library (/vocab): generated deck cover grid
+├── vocab-deck.html                   # ★ Flashcard Study Mode (/vocab/deck/<id>): one VocabCard at a time
 ├── collection.html                   # "My Collection" page (Supabase-backed, auth-protected)
 ├── login.html                        # ★ Sign-in page (email/password, Supabase Auth)
 ├── register.html                     # ★ Registration page (email/password, Supabase Auth)
 │
 ├── js/
-│   ├── vocab-card.js                 # Shared VocabCard component (3D flip, audio, theme colors)
+│   ├── vocab-card.js                 # Shared VocabCard component (3D flip, audio/TTS, theme colors)
+│   ├── vocab-decks.js                # ★ Deck grouping/chunking logic for vocabulary.html + vocab-deck.html
 │   ├── auth-store.js                 # ★ Supabase client + pub/sub auth state + session recovery
 │   ├── auth-guard.js                 # ★ Route guard: redirects to login if not authenticated
 │   ├── navbar.js                     # ★ Shared navbar with reactive user menu (login/logout)
@@ -158,6 +160,8 @@ IELTS_Study_Portal/
 3. **Dynamic mock test routing.** `reading-library.html` links to `mock-test.html?testId=<id>`. The mock test page reads `URLSearchParams`, fetches `/api/reading-tests`, finds the matching test by `id`, and renders it.
 
 4. **Compatibility wrapper.** `mock-test.html` normalizes old test format (`flat` questions array) to new format (`passages[]` array with nested questions) at lines ~520-545.
+
+5. **Vocabulary deck routing.** `server.js` maps `/vocab` → `vocabulary.html` and `/vocab/deck/<id>` → `vocab-deck.html`. Production uses matching Netlify rewrites in `netlify.toml`.
 
 ---
 
@@ -538,6 +542,27 @@ tailwind.config = {
 | Warning threshold | `600s` (10 min) | CSS class `.warning` triggers |
 | Danger threshold | `300s` (5 min) | CSS class `.danger` triggers |
 
+### Vocabulary Deck System
+
+**Files:** `vocabulary.html`, `vocab-deck.html`, `js/vocab-decks.js`, `js/vocab-card.js`
+
+The old flat vocabulary grid has been replaced by a deck-based study system:
+
+- `/vocab` renders the **词书大厅 / Deck Library** with CSS Grid cover cards.
+- `/vocab/deck/<id>` renders **Flashcard Study Mode**, showing one reused `VocabCard` at a time.
+- Prev/Next controls update the current card and progress bar. Prev is disabled on the first card; Next is disabled on the final card.
+- `VocabCard` still handles 3D flip, synonyms, IELTS example sentences, theme styling, and pronunciation. Static vocabulary entries without `audioUrl` now fall back to Web Speech API TTS.
+
+**Deck generation contract (`js/vocab-decks.js`):**
+
+1. If a word has `source`, `book`, or `origin`, group by that source label.
+2. Otherwise group the current static vocabulary by broad IELTS themes:
+   - `Academic`: Academic / Education / Research / Knowledge / Science
+   - `Business`: Economy / Trade / Finance / Business
+   - `Society`: Technology / Environment / Social / Politics / Governance / Law / Policy / Culture / Health / Medicine
+3. Each group is split with `VOCAB_DECK_TARGET_SIZE = 24`, producing 20-30 word decks for the current 288-word dataset.
+4. Current output: 14 decks total, each 20-22 words.
+
 ### Component: VocabCard
 
 **File:** `js/vocab-card.js`
@@ -600,7 +625,7 @@ Old tests with flat `questions[]` are wrapped into `passages: [{ passageText, qu
 
 | Config | Value | Location |
 |--------|-------|----------|
-| Local port | `3456` | `server.js:6` |
+| Local port | `3456` default, override with `PORT=<port>` | `server.js:6` |
 | Netlify site name | `elaborate-duckanoo-d25740` | Auto-assigned by Netlify |
 | Tailwind brand colors | `#f0f4f8` → `#102a43` (10 shades) | Inline `<script>` in every `.html` |
 | Translation debounce | `400ms` | `reading.html` |

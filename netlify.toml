@@ -11,6 +11,16 @@
   status = 200
 
 [[redirects]]
+  from = "/vocab"
+  to = "/vocabulary.html"
+  status = 200
+
+[[redirects]]
+  from = "/vocab/deck/*"
+  to = "/vocab-deck.html"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200

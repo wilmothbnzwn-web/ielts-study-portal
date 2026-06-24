@@ -47,6 +47,14 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function escapeJsString(str) {
+  return String(str == null ? '' : str)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r');
+}
+
 function renderDifficultyDots(level) {
   if (!level || level < 1) return '';
   return Array.from({ length: 5 }, function (_, i) {
@@ -114,8 +122,12 @@ function VocabCard(w, opts) {
 
   // Audio button
   var audioHtml = '';
-  if (showAudio && w.audioUrl) {
-    audioHtml = '<button class="audio-btn flex-shrink-0" id="audio-' + cardId + '" onclick="event.stopPropagation(); playAudio(\'' + cardId + '\',\'' + escapeHtml(w.audioUrl) + '\')" title="播放发音">🔊</button>';
+  if (showAudio && (w.audioUrl || w.word)) {
+    if (w.audioUrl) {
+      audioHtml = '<button class="audio-btn flex-shrink-0" id="audio-' + cardId + '" onclick="event.stopPropagation(); playAudio(\'' + escapeJsString(cardId) + '\',\'' + escapeJsString(w.audioUrl) + '\')" title="播放发音">🔊</button>';
+    } else {
+      audioHtml = '<button class="audio-btn flex-shrink-0" id="audio-' + cardId + '" onclick="event.stopPropagation(); speakWord(\'' + escapeJsString(cardId) + '\',\'' + escapeJsString(w.word) + '\')" title="播放发音">🔊</button>';
+    }
   }
 
   // Definition / context sentence on front
@@ -269,4 +281,32 @@ function playAudio(cardId, url) {
     if (btn) btn.classList.remove('playing');
     _currentAudio = null;
   };
+}
+
+function speakWord(cardId, word) {
+  if (!word || !window.speechSynthesis) return;
+  if (_currentAudio) {
+    _currentAudio.pause();
+    _currentAudio = null;
+  }
+  window.speechSynthesis.cancel();
+
+  var allBtns = document.querySelectorAll('.audio-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].classList.remove('playing');
+  }
+
+  var btn = document.getElementById('audio-' + cardId);
+  if (btn) btn.classList.add('playing');
+
+  var utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.88;
+  utterance.onend = function () {
+    if (btn) btn.classList.remove('playing');
+  };
+  utterance.onerror = function () {
+    if (btn) btn.classList.remove('playing');
+  };
+  window.speechSynthesis.speak(utterance);
 }

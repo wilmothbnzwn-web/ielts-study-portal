@@ -20,6 +20,9 @@ function activeClass(path) {
   if (path === '/' && (current === '/' || current === '/index.html')) {
     return 'bg-brand-800 text-white rounded-lg font-medium';
   }
+  if (path === '/vocab' && (current === '/vocab' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/'))) {
+    return 'bg-brand-800 text-white rounded-lg font-medium';
+  }
   if (path !== '/' && current.endsWith(path)) {
     return 'bg-brand-800 text-white rounded-lg font-medium';
   }
@@ -29,13 +32,13 @@ function activeClass(path) {
 // ── Desktop nav links ────────────────────────────────────────────
 function desktopLinks() {
   const links = [
-    { href: './', label: '首页' },
-    { href: './reading-library.html', label: '题库大厅' },
-    { href: './mock-test.html', label: '机考模拟' },
-    { href: './writing.html', label: '写作' },
-    { href: './reading.html', label: '阅读' },
-    { href: './vocabulary.html', label: '词汇' },
-    { href: './collection.html', label: '我的收集' },
+    { href: '/', label: '首页' },
+    { href: '/reading-library.html', label: '题库大厅' },
+    { href: '/mock-test.html', label: '机考模拟' },
+    { href: '/writing.html', label: '写作' },
+    { href: '/reading.html', label: '阅读' },
+    { href: '/vocab', label: '词汇' },
+    { href: '/collection.html', label: '我的收集' },
   ];
   return links.map(l =>
     `<a href="${l.href}" class="px-3 py-2 text-sm ${activeClass(l.href)}">${l.label}</a>`
@@ -47,6 +50,7 @@ function mobileLinks() {
   const current = window.location.pathname;
   function mc(path, label) {
     const isActive = (path === '/' && (current === '/' || current === '/index.html')) ||
+                     (path === '/vocab' && (current === '/vocab' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/'))) ||
                      (path !== '/' && current.endsWith(path));
     return `<a href="${path}" class="text-xs px-2 py-1.5 rounded-md ${isActive ? 'bg-brand-800 text-white' : 'bg-brand-50 text-brand-700'}">${label}</a>`;
   }
@@ -54,7 +58,7 @@ function mobileLinks() {
     mc('/reading-library.html', '题库') +
     mc('/mock-test.html', '机考') +
     mc('/reading.html', '阅读') +
-    mc('/vocabulary.html', '词汇') +
+    mc('/vocab', '词汇') +
     mc('/collection.html', '收集');
 }
 

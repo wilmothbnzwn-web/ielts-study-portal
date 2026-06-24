@@ -3,7 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3456;
+const PORT = Number(process.env.PORT) || 3456;
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DATA_DIR = path.join(__dirname, 'data');
@@ -184,6 +184,10 @@ export const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY 
 
   if (pathname === '/') {
     filePath = path.join(ROOT_DIR, 'index.html');
+  } else if (pathname === '/vocab') {
+    filePath = path.join(ROOT_DIR, 'vocabulary.html');
+  } else if (pathname.startsWith('/vocab/deck/')) {
+    filePath = path.join(ROOT_DIR, 'vocab-deck.html');
   } else {
     filePath = path.join(ROOT_DIR, pathname);
   }
@@ -234,7 +238,7 @@ server.listen(PORT, () => {
   console.log(`    Mock Test:   http://localhost:${PORT}/mock-test.html`);
   console.log(`    Writing:     http://localhost:${PORT}/writing.html`);
   console.log(`    Reading:     http://localhost:${PORT}/reading.html`);
-  console.log(`    Vocabulary:  http://localhost:${PORT}/vocabulary.html`);
+  console.log(`    Vocabulary:  http://localhost:${PORT}/vocab`);
   console.log(`    Collection:  http://localhost:${PORT}/collection.html`);
   console.log('');
   console.log('  API Endpoints:');

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>词包学习 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+  </script>
+  <style>
+    body { background: #f8fafc; }
+    .study-stage {
+      min-height: 360px;
+    }
+    .study-stage .vocab-card {
+      width: min(100%, 560px);
+      min-height: 22rem;
+      margin: 0 auto;
+      box-shadow: 0 18px 52px rgba(16, 42, 67, 0.1);
+    }
+    .study-stage .vocab-card h3 {
+      font-size: clamp(1.55rem, 4vw, 2.45rem);
+      white-space: normal;
+    }
+    .progress-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #d9e2ec;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #334e68, #829ab1);
+      transition: width 0.22s ease;
+    }
+    .control-btn {
+      min-width: 116px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+    }
+    .control-btn:not(:disabled):hover {
+      transform: translateY(-1px);
+    }
+    .control-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
+  <div id="navbar-container"></div>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-7 sm:py-9 flex-grow w-full">
+    <a href="/vocab" class="inline-flex items-center text-sm text-brand-500 hover:text-brand-900 no-underline mb-5">← 返回词书大厅</a>
+
+    <section class="bg-white border border-brand-100 rounded-lg p-4 sm:p-6 mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+        <div>
+          <p id="deck-tag" class="text-xs font-bold uppercase tracking-[0.18em] text-brand-400 mb-2">Deck</p>
+          <h1 id="deck-title" class="text-2xl sm:text-3xl font-serif font-bold text-brand-900">加载词包中...</h1>
+        </div>
+        <div class="text-sm font-semibold text-brand-500 sm:text-right">
+          <span id="progress-label">0 / 0</span>
+        </div>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </section>
+
+    <section id="study-stage" class="study-stage flex items-center justify-center py-4 sm:py-6">
+      <p class="text-brand-400">Loading flashcard...</p>
+    </section>
+
+    <section class="bg-white border border-brand-100 rounded-lg p-4 sm:p-5 mt-4">
+      <div class="flex items-center justify-between gap-3">
+        <button id="prev-btn" class="control-btn border border-brand-200 text-brand-700 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-brand-50" onclick="goPrev()">Prev</button>
+        <p id="completion-note" class="text-xs sm:text-sm text-brand-400 text-center flex-1">点击卡片查看同义词与例句</p>
+        <button id="next-btn" class="control-btn bg-brand-800 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-brand-900" onclick="goNext()">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/60 mt-8">
+    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · Flashcard study mode</p>
+    </div>
+  </footer>
+
+  <script src="/js/vocab-card.js"></script>
+  <script src="/js/vocab-decks.js"></script>
+  <script>
+    let currentDeck = null;
+    let currentIndex = 0;
+
+    function getDeckIdFromPath() {
+      const match = window.location.pathname.match(/\/vocab\/deck\/([^/]+)/);
+      if (match) return decodeURIComponent(match[1]);
+      return new URLSearchParams(window.location.search).get('id') || '';
+    }
+
+    fetch('/api/vocabulary')
+      .then(function (r) { return r.json(); })
+      .then(function (words) {
+        const decks = buildVocabularyDecks(words);
+        const deckId = getDeckIdFromPath();
+        currentDeck = findVocabularyDeck(decks, deckId);
+        if (!currentDeck && decks.length) currentDeck = decks[0];
+
+        if (!currentDeck) {
+          document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">没有找到可学习的词包。</p>';
+          return;
+        }
+
+        document.title = currentDeck.title + ' — IELTS Study Portal';
+        document.getElementById('deck-title').textContent = currentDeck.title;
+        document.getElementById('deck-tag').textContent = currentDeck.tag + ' · ' + currentDeck.wordCount + ' Words';
+        renderCurrentCard();
+      })
+      .catch(function (e) {
+        console.error('Failed to load deck', e);
+        document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
+      });
+
+    function renderCurrentCard() {
+      if (!currentDeck) return;
+      const word = currentDeck.words[currentIndex];
+      window._vocabCardFlipped = new Set();
+      document.getElementById('study-stage').innerHTML = VocabCard(word, {
+        flippable: true,
+        showAudio: true,
+        showDelete: false,
+        showTimestamp: false,
+        cardIdPrefix: 'study',
+      });
+      updateControls();
+    }
+
+    function updateControls() {
+      const total = currentDeck.words.length;
+      const current = currentIndex + 1;
+      const isFirst = currentIndex === 0;
+      const isLast = currentIndex === total - 1;
+      const percent = total ? (current / total) * 100 : 0;
+
+      document.getElementById('progress-label').textContent = current + ' / ' + total;
+      document.getElementById('progress-fill').style.width = percent + '%';
+      document.getElementById('prev-btn').disabled = isFirst;
+      document.getElementById('next-btn').disabled = isLast;
+      document.getElementById('completion-note').textContent = isLast
+        ? '本词包已到最后一张'
+        : '点击卡片查看同义词与例句';
+    }
+
+    window.goPrev = function () {
+      if (!currentDeck || currentIndex <= 0) return;
+      currentIndex -= 1;
+      renderCurrentCard();
+    };
+
+    window.goNext = function () {
+      if (!currentDeck || currentIndex >= currentDeck.words.length - 1) return;
+      currentIndex += 1;
+      renderCurrentCard();
+    };
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft') goPrev();
+      if (event.key === 'ArrowRight') goNext();
+    });
+  </script>
+
+  <script type="module" src="/js/auth-store.js"></script>
+  <script type="module" src="/js/navbar.js"></script>
+  <script type="module">
+    import { renderNavbar } from '/js/navbar.js';
+    import { initAuth } from '/js/auth-store.js';
+    await initAuth();
+    renderNavbar();
+  </script>
+</body>
+</html>
