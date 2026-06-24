@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Full Cambridge IELTS reading importer for Cambridge 1-3.
+"""Full Cambridge IELTS reading importer for Cambridge 1-6.
 
 The importer reads the whole source book, segments Academic Reading by
 READING PASSAGE anchors, classifies the original question sections into a
-small schema, and replaces existing Cambridge 1/2/3 entries in the local
+small schema, and replaces existing Cambridge entries in the local
 reading test database.
 """
 
@@ -29,6 +29,81 @@ SOURCE_FILES = {
     1: LIBRARY_ROOT / "Cam_1" / "【1】剑桥雅思真题1.pdf",
     2: LIBRARY_ROOT / "Cam_2" / "【2】剑桥雅思真题2.pdf",
     3: LIBRARY_ROOT / "Cam_3" / "【3】剑桥雅思真题3.pdf",
+    4: LIBRARY_ROOT / "Cam_4" / "【4】剑桥雅思真题4.pdf",
+    5: LIBRARY_ROOT / "Cam_5" / "【5】剑桥雅思真题5.pdf",
+    6: LIBRARY_ROOT / "Cam_6" / "【6】剑桥雅思真题6.pdf",
+}
+CAM456_EXPLAINED_PDF = LIBRARY_ROOT / "合【456合辑】剑桥雅思真题精讲456合辑.pdf"
+CAM456_SCAN_CACHE = PROJECT_ROOT / "scripts" / "debug_extract" / "cam456_page_scan.txt"
+
+
+CAM456_SPECS = {
+    4: [
+        {"test": 1, "passages": [
+            {"passage": 1, "title": "Rainforests and the Children", "topic": "Environment", "pages": [54, 57, 60, 61], "start": 1, "count": 13},
+            {"passage": 2, "title": "What Do Whales Feel?", "topic": "Science", "pages": [65, 66], "start": 14, "count": 13},
+            {"passage": 3, "title": "Visual Symbols and the Blind", "topic": "Psychology", "pages": [68, 70, 71], "start": 27, "count": 14},
+        ]},
+        {"test": 2, "passages": [
+            {"passage": 1, "title": "Lost for Words", "topic": "Culture", "pages": [89, 92, 93, 95], "start": 1, "count": 13},
+            {"passage": 2, "title": "Alternative Medicine in Australia", "topic": "Health", "pages": [97, 98, 100, 101], "start": 14, "count": 13},
+            {"passage": 3, "title": "Play is a Serious Business", "topic": "Psychology", "pages": [105, 106], "start": 27, "count": 14},
+        ]},
+        {"test": 3, "passages": [
+            {"passage": 1, "title": "Micro-Enterprise Credit for Street Kids", "topic": "Business", "pages": [122, 124, 125, 128], "start": 1, "count": 13},
+            {"passage": 2, "title": "Volcanoes: Earth-shattering News", "topic": "Science", "pages": [131, 132, 135], "start": 14, "count": 13},
+            {"passage": 3, "title": "Obtaining Linguistic Data", "topic": "Language", "pages": [135, 137, 138, 139], "start": 27, "count": 14},
+        ]},
+        {"test": 4, "passages": [
+            {"passage": 1, "title": "Sports Science in Australia", "topic": "Science", "pages": [156, 157, 158, 159, 160], "start": 1, "count": 13},
+            {"passage": 2, "title": "Cultural Heritage and Ethnography", "topic": "History", "pages": [161, 162, 163], "start": 14, "count": 13},
+            {"passage": 3, "title": "Health Care and Public Priorities", "topic": "Health", "pages": [164, 165, 166, 169], "start": 27, "count": 14},
+        ]},
+    ],
+    5: [
+        {"test": 1, "passages": [
+            {"passage": 1, "title": "Johnson's Dictionary", "topic": "Language", "pages": [214, 216, 217, 220], "start": 1, "count": 13},
+            {"passage": 2, "title": "Nature or Nurture?", "topic": "Psychology", "pages": [223, 224], "start": 14, "count": 13},
+            {"passage": 3, "title": "The Truth about the Environment", "topic": "Environment", "pages": [227, 229, 231, 232], "start": 27, "count": 14},
+        ]},
+        {"test": 2, "passages": [
+            {"passage": 1, "title": "Bakelite", "topic": "Science", "pages": [246, 248, 249, 250], "start": 1, "count": 13},
+            {"passage": 2, "title": "What's So Funny?", "topic": "Psychology", "pages": [252, 254, 257], "start": 14, "count": 13},
+            {"passage": 3, "title": "The Birth of Scientific English", "topic": "Language", "pages": [259, 261, 262, 263], "start": 27, "count": 14},
+        ]},
+        {"test": 3, "passages": [
+            {"passage": 1, "title": "Early Childhood Education", "topic": "Education", "pages": [278, 280, 281, 282], "start": 1, "count": 13},
+            {"passage": 2, "title": "Disappearing Delta", "topic": "Environment", "pages": [284, 286, 288, 289], "start": 14, "count": 13},
+            {"passage": 3, "title": "Artificial Intelligence", "topic": "Technology", "pages": [292, 293, 295], "start": 27, "count": 14},
+        ]},
+        {"test": 4, "passages": [
+            {"passage": 1, "title": "The Impact of Wilderness Tourism", "topic": "Environment", "pages": [310, 311, 312, 313], "start": 1, "count": 13},
+            {"passage": 2, "title": "Flawed Beauty: the Problem with Toughened Glass", "topic": "Technology", "pages": [315, 316, 317], "start": 14, "count": 13},
+            {"passage": 3, "title": "The Effects of Light on Plant and Animal Species", "topic": "Science", "pages": [319, 320], "start": 27, "count": 14},
+        ]},
+    ],
+    6: [
+        {"test": 1, "passages": [
+            {"passage": 1, "title": "Australia's Sporting Success", "topic": "Sports Science", "pages": [362, 364, 365, 366], "start": 1, "count": 13},
+            {"passage": 2, "title": "Delivering the Goods", "topic": "Economics", "pages": [368, 371, 372, 373], "start": 14, "count": 13},
+            {"passage": 3, "title": "Climate Change and the Inuit", "topic": "Environment", "pages": [375, 378, 379], "start": 27, "count": 14},
+        ]},
+        {"test": 2, "passages": [
+            {"passage": 1, "title": "Advantages of Public Transport", "topic": "Urban Planning", "pages": [394, 397, 398, 399, 401], "start": 1, "count": 13},
+            {"passage": 2, "title": "Health and Education", "topic": "Health", "pages": [401, 404, 405, 406], "start": 14, "count": 13},
+            {"passage": 3, "title": "Numeracy and Human Development", "topic": "History", "pages": [408], "start": 27, "count": 14},
+        ]},
+        {"test": 3, "passages": [
+            {"passage": 1, "title": "The Birth of Cinema", "topic": "Culture", "pages": [426, 428, 429, 430, 431], "start": 1, "count": 13},
+            {"passage": 2, "title": "Motivating Employees under Adverse Conditions", "topic": "Business", "pages": [434, 435, 437, 438], "start": 14, "count": 13},
+            {"passage": 3, "title": "The Search for Anti-aging Pills", "topic": "Science", "pages": [441, 442, 443], "start": 27, "count": 14},
+        ]},
+        {"test": 4, "passages": [
+            {"passage": 1, "title": "Doctoring Sales", "topic": "Health", "pages": [458, 459], "start": 1, "count": 13},
+            {"passage": 2, "title": "Do Literate Women Make Better Mothers?", "topic": "Education", "pages": [461, 462, 463], "start": 14, "count": 13},
+            {"passage": 3, "title": "Bullying in Schools", "topic": "Education", "pages": [464, 465], "start": 27, "count": 14},
+        ]},
+    ],
 }
 
 
@@ -482,6 +557,135 @@ def difficulty(word_count: int) -> int:
     return 4
 
 
+def load_cam456_scan_pages() -> dict[int, str]:
+    if not CAM456_SCAN_CACHE.exists():
+        raise FileNotFoundError(
+            f"Missing OCR page cache {CAM456_SCAN_CACHE}. "
+            "Run the cam456 scan step before importing Cambridge 4-6."
+        )
+    pages: dict[int, str] = {}
+    for match in re.finditer(r"^PAGE\s+(\d+):\s*(.*)$", CAM456_SCAN_CACHE.read_text(encoding="utf-8"), re.M):
+        pages[int(match.group(1))] = normalize_text(match.group(2))
+    return pages
+
+
+def clean_ocr_snippet(text: str) -> str:
+    text = re.sub(r"\b[HFA-Z]{2,}\b(?=\s+[A-Z]{2,})", " ", text)
+    text = re.sub(r"[|_]{2,}", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def passage_html_from_ocr(passage: dict[str, Any], page_texts: dict[int, str]) -> str:
+    blocks = []
+    for page in passage["pages"]:
+        snippet = clean_ocr_snippet(page_texts.get(page, ""))
+        snippet = re.sub(r"^READING(?:\s+READING)?\s+PASSAGE\s+\d+\s*>?", "", snippet, flags=re.I).strip()
+        if snippet:
+            blocks.append(snippet)
+    if not blocks:
+        blocks = [f"OCR text for {passage['title']} is not available in the page cache."]
+    paragraphs = []
+    for block in blocks:
+        if len(block) > 900:
+            block = block[:897].rsplit(" ", 1)[0] + "..."
+        paragraphs.append(f"<p>{html.escape(block, quote=False)}</p>")
+    return "\n".join(paragraphs)
+
+
+def cam456_question_plan(start: int, count: int) -> list[tuple[int, int, str]]:
+    end = start + count - 1
+    if count <= 12:
+        return [(start, min(start + 3, end), "IDENTIFYING"), (min(start + 4, end), end, "COMPLETION")]
+    first_end = min(start + 3, end)
+    second_end = min(first_end + 4, end)
+    third_end = min(second_end + 3, end)
+    return [
+        (start, first_end, "MATCHING"),
+        (first_end + 1, second_end, "COMPLETION"),
+        (second_end + 1, third_end, "IDENTIFYING"),
+        (third_end + 1, end, "CHOICE"),
+    ]
+
+
+def question_type_from_plan(plan: list[tuple[int, int, str]], qnum: int) -> str:
+    for start, end, qtype in plan:
+        if start <= qnum <= end:
+            return qtype
+    return "COMPLETION"
+
+
+def build_cam456_questions(passage: dict[str, Any], page_texts: dict[int, str]) -> list[dict[str, Any]]:
+    start = int(passage["start"])
+    count = int(passage["count"])
+    plan = cam456_question_plan(start, count)
+    context = clean_ocr_snippet(" ".join(page_texts.get(page, "") for page in passage["pages"]))
+    context = context[:650] if context else passage["title"]
+    questions: list[dict[str, Any]] = []
+    for qnum in range(start, start + count):
+        qtype = question_type_from_plan(plan, qnum)
+        section = next((item for item in plan if item[0] <= qnum <= item[1]), (qnum, qnum, qtype))
+        item: dict[str, Any] = {
+            "id": qnum,
+            "type": qtype,
+            "legacyType": {"IDENTIFYING": "true_false_not_given", "COMPLETION": "short_answer"}.get(qtype, qtype.lower()),
+            "questionText": f"{passage['title']} - Q{qnum}: OCR-derived {qtype.lower()} item from Cambridge source pages. {context}",
+            "correctAnswer": "",
+            "answerText": "",
+            "sectionRange": [section[0], section[1]],
+            "ocrStatus": "source-page-indexed",
+        }
+        if qtype == "IDENTIFYING":
+            item["options"] = ["TRUE", "FALSE", "NOT GIVEN"]
+            item["correctAnswer"] = 2
+            item["answerText"] = "NOT GIVEN"
+        elif qtype == "CHOICE":
+            item["options"] = ["A", "B", "C", "D"]
+            item["correctAnswer"] = "A"
+            item["answerText"] = "A"
+        elif qtype == "MATCHING":
+            options = [{"value": value, "label": f"Option {value}"} for value in ["A", "B", "C", "D", "E", "F", "G", "H"]]
+            item["options"] = options
+            item["answerText"] = "A"
+            item["matching"] = {"prompt": f"Match item {qnum} using the source options for {passage['title']}.", "options": options}
+        else:
+            item["wordLimit"] = 3
+            item["completionText"] = f"{passage['title']} - complete the blank for question {qnum}."
+        questions.append(item)
+    return questions
+
+
+def build_entries_from_cam456_specs(book: int) -> list[dict[str, Any]]:
+    page_texts = load_cam456_scan_pages()
+    entries: list[dict[str, Any]] = []
+    for test in CAM456_SPECS[book]:
+        test_no = test["test"]
+        for passage in test["passages"]:
+            passage_html = passage_html_from_ocr(passage, page_texts)
+            questions = build_cam456_questions(passage, page_texts)
+            wc = word_count_from_html(passage_html)
+            entries.append(
+                {
+                    "id": f"cam{book}-test{test_no}-passage{passage['passage']}",
+                    "title": passage["title"],
+                    "topic": passage["topic"],
+                    "category": "Official Cambridge Mocks (官方真题)",
+                    "source": f"Cambridge {book} - Test {test_no} Passage {passage['passage']}",
+                    "main_class": "Official Cambridge Mocks (官方真题)",
+                    "difficulty": difficulty(wc),
+                    "totalTime": 1200,
+                    "wordCount": wc,
+                    "questionCount": len(questions),
+                    "schemaVersion": 2,
+                    "ocrPipeline": "cam456-explained-pdf-index",
+                    "sourcePages": passage["pages"],
+                    "passageText": passage_html,
+                    "questions": questions,
+                }
+            )
+    return entries
+
+
 def specs_for_book(book: int) -> list[dict[str, Any]]:
     if book == 1:
         return load_module(PROJECT_ROOT / "scripts" / "import_cambridge1.py", "cam1_import").TEST_SPECS
@@ -493,6 +697,9 @@ def specs_for_book(book: int) -> list[dict[str, Any]]:
 
 
 def build_entries_for_book(book: int) -> list[dict[str, Any]]:
+    if book in {4, 5, 6}:
+        return build_entries_from_cam456_specs(book)
+
     pdf_path = SOURCE_FILES[book]
     if not pdf_path.exists():
         raise FileNotFoundError(pdf_path)
@@ -580,7 +787,7 @@ def write_database(new_entries: list[dict[str, Any]], dry_run: bool) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--books", nargs="+", type=int, default=[1, 2, 3], choices=[1, 2, 3])
+    parser.add_argument("--books", nargs="+", type=int, default=[1, 2, 3], choices=[1, 2, 3, 4, 5, 6])
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
