@@ -292,6 +292,45 @@
     .short-answer-input:focus { border-color: #486581; box-shadow: 0 0 0 3px rgba(72,101,129,0.06); }
     .short-answer-input.correct-show { border-color: #22c55e !important; background: #f0fdf4 !important; }
     .short-answer-input.incorrect-show { border-color: #ef4444 !important; background: #fef2f2 !important; }
+    .choice-options,
+    .matching-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .choice-option,
+    .matching-option {
+      border: 1.5px solid #d9e2ec;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      color: #334e68;
+      font-size: 13px;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .choice-option:hover,
+    .matching-option:hover { border-color: #9fb3c8; background: #f8fafc; }
+    .choice-option.selected,
+    .matching-option.selected { border-color: #334e68; background: #f0f4f8; color: #102a43; }
+    .choice-option.correct-show,
+    .matching-option.correct-show { border-color: #22c55e !important; background: #f0fdf4 !important; color: #166534 !important; }
+    .choice-option.incorrect-show,
+    .matching-option.incorrect-show { border-color: #ef4444 !important; background: #fef2f2 !important; color: #991b1b !important; }
+    .question-kind {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #486581;
+      background: #eef4f8;
+      border-radius: 999px;
+      padding: 3px 8px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
 
     /* ===== BOTTOM NAVIGATOR ===== */
     #bottom-nav {
@@ -489,6 +528,7 @@ let currentSelectionRect = null;
 
 // Current focused question index (for nav jump)
 let currentQuestionIndex = 0;
+let questionOrder = [];
 
 // Font size level
 let fontSizeLevel = 0; // 0=normal, 1=large, 2=xlarge
@@ -539,7 +579,8 @@ async function loadTestData() {
       }]
     };
 
-    totalQuestionCount = test.questions.length;
+    questionOrder = [...test.questions].sort((a, b) => Number(a.id) - Number(b.id)).map(q => Number(q.id));
+    totalQuestionCount = questionOrder.length;
 
     renderPassage();
     renderQuestions();
@@ -567,64 +608,96 @@ function renderQuestions() {
   if (!testData) return;
   const passage = testData.passages[0];
   const container = document.getElementById('questions-content');
+  const questions = [...passage.questions].sort((a, b) => Number(a.id) - Number(b.id));
 
   let html = '';
+  let lastHeaderKey = '';
 
-  // Questions section header
-  const tfnQuestions = passage.questions.filter(q => q.type === 'true_false_not_given');
-  const tfnStart = tfnQuestions.length > 0 ? tfnQuestions[0].id : 0;
-  const tfnEnd = tfnQuestions.length > 0 ? tfnQuestions[tfnQuestions.length - 1].id : 0;
-  if (tfnQuestions.length > 0) {
-    html += `<div class="section-header">Questions ${tfnStart}–${tfnEnd}</div>`;
-    html += `<div class="section-instruction">Do the following statements agree with the information given in Reading Passage 1?<br>In boxes <b>${tfnStart}–${tfnEnd}</b> on your answer sheet, write:<br><b>TRUE</b> if the statement agrees with the information<br><b>FALSE</b> if the statement contradicts the information<br><b>NOT GIVEN</b> if there is no information on this</div>`;
-
-    tfnQuestions.forEach((q, idx) => {
-      const userAns = userAnswers[q.id];
-      const isAnswered = userAns !== undefined;
-      const isCurrent = (q.id - 1) === currentQuestionIndex;
-      html += `<div class="question-block${isCurrent ? ' current' : ''}${isAnswered ? ' answered' : ''}" id="q-block-${q.id}" data-qid="${q.id}">`;
-      html += `<div class="q-header"><span class="q-num">${q.id}</span><span class="q-text">${escapeHtml(q.questionText)}</span></div>`;
-      html += `<div class="tfn-options">`;
-      q.options.forEach((opt, oi) => {
-        const selected = userAns === oi;
-        html += `<div class="tfn-option${selected ? ' selected' : ''}" data-qid="${q.id}" data-value="${oi}" onclick="selectTFN(${q.id}, ${oi}, this)">${escapeHtml(opt)}</div>`;
-      });
-      html += `</div></div>`;
-    });
-  }
-
-  // Short Answer questions
-  const saQuestions = passage.questions.filter(q => q.type === 'short_answer');
-  if (saQuestions.length > 0) {
-    const startNum = saQuestions[0].id;
-    const endNum = saQuestions[saQuestions.length - 1].id;
-    html += `<div class="section-header" style="margin-top:24px;">Questions ${startNum}–${endNum}</div>`;
-    html += `<div class="section-instruction">Answer the questions below.<br>Choose <b>NO MORE THAN ${saQuestions[0].wordLimit || 3} WORDS</b> from the passage for each answer.<br>Write your answers in boxes <b>${startNum}–${endNum}</b> on your answer sheet.</div>`;
-
-    saQuestions.forEach(q => {
-      const userAns = userAnswers[q.id] || '';
-      const isAnswered = userAns.trim() !== '';
-      const isCurrent = (q.id - 1) === currentQuestionIndex;
-      html += `<div class="question-block${isCurrent ? ' current' : ''}${isAnswered ? ' answered' : ''}" id="q-block-${q.id}" data-qid="${q.id}">`;
-      html += `<div class="q-header"><span class="q-num">${q.id}</span><span class="q-text">${escapeHtml(q.questionText)}</span></div>`;
-      html += `<input type="text" class="short-answer-input" data-qid="${q.id}" placeholder="输入你的答案（不超过${q.wordLimit || 3}个词）" value="${escapeHtml(userAns)}" oninput="saveShortAnswer(${q.id}, this.value)" onfocus="setCurrentQuestion(${q.id - 1})">`;
-      html += `</div>`;
-    });
-  }
-
-  // Placeholder for remaining passages (if fewer than 40 questions)
-  if (passage.questions.length < 40) {
-    html += `<div style="margin-top:32px; padding:20px; background:#fff; border:1px dashed #d9e2ec; border-radius:12px; text-align:center;">`;
-    html += `<div style="font-size:15px; font-weight:600; color:#627d98; margin-bottom:8px;">📋 更多文章 — 即将上线</div>`;
-    html += `<div style="font-size:13px; color:#9fb3c8;">Passage 2 和 Passage 3 的题目正在建设中。<br>当前版本包含 ${passage.questions.length} 道题的完整作答体验。</div>`;
-    html += `</div>`;
-  }
+  questions.forEach(q => {
+    const qtype = normalizeQuestionType(q);
+    const range = q.sectionRange || [q.id, q.id];
+    const headerKey = `${qtype}-${range[0]}-${range[1]}`;
+    if (headerKey !== lastHeaderKey) {
+      html += `<div class="section-header" style="${lastHeaderKey ? 'margin-top:24px;' : ''}">Questions ${range[0]}–${range[1]}</div>`;
+      html += `<div class="section-instruction">${questionInstruction(qtype, range, q)}</div>`;
+      lastHeaderKey = headerKey;
+    }
+    html += renderQuestionBlock(q, qtype);
+  });
 
   container.innerHTML = html;
 }
 
+function normalizeQuestionType(q) {
+  const type = String(q.type || q.legacyType || '').toUpperCase();
+  if (type === 'TRUE_FALSE_NOT_GIVEN') return 'IDENTIFYING';
+  if (type === 'SHORT_ANSWER') return 'COMPLETION';
+  if (['CHOICE', 'IDENTIFYING', 'MATCHING', 'COMPLETION'].includes(type)) return type;
+  return 'COMPLETION';
+}
+
+function questionInstruction(qtype, range, q) {
+  const boxText = `Write your answers in boxes <b>${range[0]}–${range[1]}</b> on your answer sheet.`;
+  if (qtype === 'IDENTIFYING') {
+    const opts = q.options || ['TRUE', 'FALSE', 'NOT GIVEN'];
+    return `Do the following statements agree with the information given in the passage?<br>${boxText}<br>${opts.map(o => `<b>${escapeHtml(String(o))}</b>`).join(' / ')}`;
+  }
+  if (qtype === 'CHOICE') {
+    return `Choose the correct letter for each question.<br>${boxText}`;
+  }
+  if (qtype === 'MATCHING') {
+    return `Match each question with the correct option from the list.<br>${boxText}`;
+  }
+  return `Complete the answers below.<br>Choose <b>NO MORE THAN ${q.wordLimit || 3} WORDS</b> from the passage for each answer.<br>${boxText}`;
+}
+
+function renderQuestionBlock(q, qtype) {
+  const qid = Number(q.id);
+  const userAns = userAnswers[qid];
+  const isAnswered = userAns !== undefined && String(userAns).trim() !== '';
+  const isCurrent = questionOrder[currentQuestionIndex] === qid;
+  let html = `<div class="question-block${isCurrent ? ' current' : ''}${isAnswered ? ' answered' : ''}" id="q-block-${qid}" data-qid="${qid}">`;
+  html += `<div class="q-header"><span class="q-num">${qid}</span><span class="q-text">${escapeHtml(q.questionText)}</span><span class="question-kind">${qtype}</span></div>`;
+  if (qtype === 'IDENTIFYING') {
+    html += `<div class="tfn-options">`;
+    (q.options || ['TRUE', 'FALSE', 'NOT GIVEN']).forEach((opt, oi) => {
+      const selected = userAns === oi;
+      html += `<div class="tfn-option${selected ? ' selected' : ''}" data-qid="${qid}" data-value="${oi}" onclick="selectOption(${qid}, ${oi}, this)">${escapeHtml(String(opt))}</div>`;
+    });
+    html += `</div>`;
+  } else if (qtype === 'CHOICE' || qtype === 'MATCHING') {
+    const options = normalizedOptions(q);
+    const cls = qtype === 'CHOICE' ? 'choice' : 'matching';
+    html += `<div class="${cls}-options">`;
+    options.forEach(opt => {
+      const value = escapeHtml(String(opt.value));
+      const label = escapeHtml(opt.label ? `${opt.value}. ${opt.label}` : String(opt.value));
+      const selected = String(userAns || '').toUpperCase() === String(opt.value).toUpperCase();
+      html += `<div class="${cls}-option${selected ? ' selected' : ''}" data-qid="${qid}" data-value="${value}" onclick="selectOption(${qid}, '${value.replace(/'/g, '&#39;')}', this)">${label}</div>`;
+    });
+    html += `</div>`;
+  } else {
+    const value = userAns || '';
+    html += `<input type="text" class="short-answer-input" data-qid="${qid}" placeholder="输入你的答案（不超过${q.wordLimit || 3}个词）" value="${escapeHtml(String(value))}" oninput="saveShortAnswer(${qid}, this.value)" onfocus="setCurrentQuestionById(${qid})">`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function normalizedOptions(q) {
+  const opts = Array.isArray(q.options) ? q.options : [];
+  if (opts.length) {
+    return opts.map((opt, idx) => {
+      if (typeof opt === 'string') return { value: opt, label: '' };
+      return { value: opt.value || String.fromCharCode(65 + idx), label: opt.label || '' };
+    });
+  }
+  const fallback = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+  return fallback.map(v => ({ value: v, label: '' }));
+}
+
 // ==================== QUESTION INTERACTION ====================
-function selectTFN(qid, value, el) {
+function selectOption(qid, value, el) {
   if (testSubmitted) return;
   startTest();
 
@@ -634,11 +707,11 @@ function selectTFN(qid, value, el) {
   const block = document.getElementById('q-block-' + qid);
   if (block) block.classList.add('answered');
 
-  const options = block.querySelectorAll('.tfn-option');
+  const options = block.querySelectorAll('.tfn-option, .choice-option, .matching-option');
   options.forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
 
-  setCurrentQuestion(qid - 1);
+  setCurrentQuestionById(qid);
   renderBottomNav();
 }
 
@@ -664,12 +737,18 @@ function setCurrentQuestion(index) {
   currentQuestionIndex = index;
   // Update visual
   document.querySelectorAll('.question-block.current').forEach(b => b.classList.remove('current'));
-  const block = document.getElementById('q-block-' + (index + 1));
+  const qid = questionOrder[index];
+  const block = document.getElementById('q-block-' + qid);
   if (block) {
     block.classList.add('current');
     block.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   renderBottomNav();
+}
+
+function setCurrentQuestionById(qid) {
+  const idx = questionOrder.indexOf(Number(qid));
+  if (idx >= 0) setCurrentQuestion(idx);
 }
 
 // ==================== TEXT SELECTION & HIGHLIGHTING ====================
@@ -837,27 +916,18 @@ function renderBottomNav() {
   html += `<button class="nav-arrow" onclick="navPrev()" title="上一题">◀</button>`;
 
   // Passage 1: Actual questions
-  for (let i = 1; i <= totalQuestionCount; i++) {
-    const isAnswered = userAnswers[i] !== undefined && userAnswers[i] !== '';
-    const isCurrent = (i - 1) === currentQuestionIndex;
-    html += `<div class="nav-q-block${isCurrent ? ' current-nav' : ''}${isAnswered ? ' answered-nav' : ''}" onclick="jumpToQuestion(${i - 1})" title="第${i}题">${i}</div>`;
-  }
+  questionOrder.forEach((qid, index) => {
+    const isAnswered = userAnswers[qid] !== undefined && userAnswers[qid] !== '';
+    const isCurrent = index === currentQuestionIndex;
+    html += `<div class="nav-q-block${isCurrent ? ' current-nav' : ''}${isAnswered ? ' answered-nav' : ''}" onclick="jumpToQuestion(${index})" title="第${qid}题">${qid}</div>`;
+  });
 
-  // If test has fewer than 40 questions, show placeholders for remaining sections
-  if (totalQuestionCount < 40) {
-    html += `<div class="nav-section-divider"></div>`;
-
-    // Passage 2 placeholder
-    const p2Start = totalQuestionCount + 1;
-    const p2End = Math.min(p2Start + 12, 26);
-    for (let i = p2Start; i <= p2End; i++) {
-      html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 2 — 即将上线">${i}</div>`;
-    }
-
-    if (p2End < 40) {
-      html += `<div class="nav-section-divider"></div>`;
-      for (let i = Math.max(p2End + 1, 27); i <= 40; i++) {
-        html += `<div class="nav-q-block" style="opacity:0.4; cursor:default;" title="Section 3 — 即将上线">${i}</div>`;
+  if (questionOrder.length) {
+    const first = questionOrder[0];
+    const last = questionOrder[questionOrder.length - 1];
+    for (let i = first; i <= last; i++) {
+      if (!questionOrder.includes(i)) {
+        html += `<div class="nav-q-block" style="opacity:0.35; cursor:default;" title="源书无第${i}题">${i}</div>`;
       }
     }
   }
@@ -874,7 +944,7 @@ function jumpToQuestion(index) {
   if (index >= totalQuestionCount) return;
 
   currentQuestionIndex = index;
-  const qid = index + 1;
+  const qid = questionOrder[index];
 
   // Scroll questions pane to the question
   const block = document.getElementById('q-block-' + qid);
@@ -929,10 +999,11 @@ function submitTest() {
     total++;
     const userAns = userAnswers[q.id];
 
-    if (q.type === 'true_false_not_given') {
+    const qtype = normalizeQuestionType(q);
+    if (qtype === 'IDENTIFYING') {
       if (userAns === q.correctAnswer) correct++;
-    } else if (q.type === 'short_answer') {
-      if (userAns && userAns.toString().toLowerCase().trim() === q.correctAnswer.toLowerCase().trim()) {
+    } else {
+      if (isTextAnswerCorrect(userAns, q.answerText || q.correctAnswer)) {
         correct++;
       }
     }
@@ -959,29 +1030,60 @@ function showAnswerResults() {
     const block = document.getElementById('q-block-' + q.id);
     if (!block) return;
 
-    if (q.type === 'true_false_not_given') {
+    const qtype = normalizeQuestionType(q);
+    if (qtype === 'IDENTIFYING') {
       const options = block.querySelectorAll('.tfn-option');
       options.forEach((opt, oi) => {
         if (oi === q.correctAnswer) opt.classList.add('correct-show');
         else if (oi === userAns && userAns !== q.correctAnswer) opt.classList.add('incorrect-show');
       });
-    } else if (q.type === 'short_answer') {
+    } else if (qtype === 'CHOICE' || qtype === 'MATCHING') {
+      const answer = String(q.answerText || q.correctAnswer || '').toUpperCase();
+      const options = block.querySelectorAll('.choice-option, .matching-option');
+      options.forEach(opt => {
+        const value = String(opt.getAttribute('data-value') || '').toUpperCase();
+        if (answerIncludesOption(answer, value)) opt.classList.add('correct-show');
+        else if (String(userAns || '').toUpperCase() === value && !answerIncludesOption(answer, value)) opt.classList.add('incorrect-show');
+      });
+      if (!isTextAnswerCorrect(userAns, q.answerText || q.correctAnswer)) {
+        appendAnswerHint(block, q.answerText || q.correctAnswer);
+      }
+    } else {
       const input = block.querySelector('.short-answer-input');
       if (input) {
         input.readOnly = true;
-        if (userAns && userAns.toString().toLowerCase().trim() === q.correctAnswer.toLowerCase().trim()) {
+        if (isTextAnswerCorrect(userAns, q.correctAnswer)) {
           input.classList.add('correct-show');
         } else {
           input.classList.add('incorrect-show');
-          // Show correct answer
-          const hint = document.createElement('div');
-          hint.style.cssText = 'font-size:12px; color:#22c55e; margin-top:4px;';
-          hint.textContent = '✓ 正确答案: ' + q.correctAnswer;
-          block.appendChild(hint);
+          appendAnswerHint(block, q.correctAnswer);
         }
       }
     }
   });
+}
+
+function answerIncludesOption(answer, value) {
+  if (!value) return false;
+  return answer.split(/[^A-Z]+/).filter(Boolean).includes(value);
+}
+
+function normalizeAnswerText(value) {
+  return String(value || '').toLowerCase().replace(/[()]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function isTextAnswerCorrect(userAns, correctAns) {
+  if (userAns === undefined || userAns === null || String(userAns).trim() === '') return false;
+  const user = normalizeAnswerText(userAns);
+  const acceptable = String(correctAns || '').split(/\/\/|\bor\b|\band\b|,/i).map(normalizeAnswerText).filter(Boolean);
+  return acceptable.some(ans => user === ans || ans.includes(user) || user.includes(ans));
+}
+
+function appendAnswerHint(block, answer) {
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:12px; color:#22c55e; margin-top:6px;';
+  hint.textContent = '✓ 正确答案: ' + answer;
+  block.appendChild(hint);
 }
 
 function reviewAnswers() {
