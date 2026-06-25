@@ -96,8 +96,15 @@
     window.SITE_BASE_PATH = window.location.hostname.endsWith('github.io') ? '/ielts-study-portal' : '';
     window.assetPath = function (path) { return window.SITE_BASE_PATH + path; };
     window.vocabApiPath = function () { return window.SITE_BASE_PATH ? window.SITE_BASE_PATH + '/api/vocabulary.json' : '/api/vocabulary'; };
-    document.write('<script src="' + window.assetPath('/js/vocab-card.js') + '"><\\/script>');
-    document.write('<script src="' + window.assetPath('/js/vocab-decks.js') + '"><\\/script>');
+    window.loadPageScript = function (src) {
+      return new Promise(function (resolve, reject) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    };
   </script>
   <script>
     let currentDeck = null;
@@ -113,7 +120,16 @@
       ? window.SITE_BASE_PATH + '/vocabulary.html'
       : '/vocabulary';
 
-    fetch(window.vocabApiPath())
+    Promise.all([
+      window.loadPageScript(window.assetPath('/js/vocab-card.js')),
+      window.loadPageScript(window.assetPath('/js/vocab-decks.js')),
+    ]).then(initDeckStudy).catch(function (e) {
+      console.error('Failed to load flashcard scripts', e);
+      document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
+    });
+
+    function initDeckStudy() {
+      fetch(window.vocabApiPath())
       .then(function (r) { return r.json(); })
       .then(function (words) {
         const decks = buildVocabularyDecks(words);
@@ -135,6 +151,7 @@
         console.error('Failed to load deck', e);
         document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
       });
+    }
 
     function renderCurrentCard() {
       if (!currentDeck) return;
