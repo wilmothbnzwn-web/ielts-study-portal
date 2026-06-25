@@ -4,7 +4,7 @@
 > Every architectural decision, data schema, API route, storage key, and known limitation is documented below.
 > **Breaking any contract described here WILL cause production failures.**
 
-**Last updated:** 2026-06-24 (vocabulary Deck System refactor)
+**Last updated:** 2026-06-25 (batch vocab extraction from local IELTS library)
 **Total commits on `main`:** upcoming
 **Production URL:** `https://elaborate-duckanoo-d25740.netlify.app`
 **GitHub remote:** `https://github.com/wilmothbnzwn-web/ielts-study-portal.git`
@@ -30,6 +30,7 @@
 ### Git History (most recent first)
 
 ```
+f6ed21b Data: Batch extract local vocabularies and auto-package into Deck system (3,816 words, 162 decks)
 f6ed21b Data: Batch OCR pipeline processes 16 prediction PDFs, expands reading library to 115 tests (925 questions)
 abd6610 Docs: update AI_HANDOFF.md with commit hash and test counts
 ea2e106 Data: OCR-extract 4 reading tests from 我预测阅读机经 阅读17.pdf and inject
@@ -490,7 +491,46 @@ pip3 install pdf2image pytesseract --break-system-packages
 - Large PDFs (190MB+) may take 3-5 minutes each to OCR
 - The parser may fail to separate passages cleanly when PDF layout is irregular
 
-### 5.2 Manual Test Injection (Legacy)
+### 5.2 Vocab Extraction & Deck Builder Pipeline
+
+**Purpose:** Extract vocabulary from local IELTS resource files and auto-package into 24-word study decks.
+
+**Source files location:** `~/Desktop/IELTS_Organized_Library/05_高频词汇与替换语料库_Vocab_and_Synonyms/`
+
+**Script:** `scripts/extract_vocab_decks.py`
+```
+python3 scripts/extract_vocab_decks.py [--dry-run] [--max-words=3000]
+```
+
+- Scans the 05 vocab library for XLSX, DOCX, PDF, and XLS files
+- Extracts structured word data: word, pos, chinese, synonyms, definition, theme, difficulty
+- Deduplicates against existing vocabulary.json entries
+- Chunks into 24-word decks grouped by source file
+- Writes `data/vocabulary.json` (flat entries) and `data/vocab_decks.json` (deck index)
+
+**Current vocabulary sources:**
+| Source | Words | Decks |
+|--------|-------|-------|
+| 雅思核心词汇库 (XLS) | 2,348 | ~98 |
+| IELTS听力场景分类词汇 (XLSX) | 645 | ~27 |
+| 阅读538考点词真经 (XLSX) | 340 | ~15 |
+| IELTS Academic Core (original) | 288 | ~12 |
+| 听力179考点同义替换 (XLSX) | 169 | ~8 |
+| 阅读99组同义词替换 (DOCX) | 26 | ~2 |
+| **Total** | **3,816** | **~162** |
+
+**Dependencies:**
+```bash
+pip3 install openpyxl xlrd python-docx pdfplumber --break-system-packages
+```
+
+**Known limitations:**
+- PDF extraction yields 0 words for most scanned/image-based PDFs (needs OCR pipeline)
+- DOCX extraction only works for paragraph-based vocab lists, not table-based
+- XLS words (2,348) lack synonyms and example sentences — basic word+definition pairs only
+- Large XLS files (7956 rows) are capped at 3000 rows for performance
+
+### 5.3 Manual Test Injection (Legacy)
 
 - `scripts/inject_tests.py` — Injects 5 LLM-generated tests (cam7-test1, cam11-test3, cam8-test1, cam10-test1, cam15-test1)
 - `scripts/inject_ocr_tests.py` — Contains 4 hand-crafted test objects from 阅读17.pdf (predict17-p1 through predict17-p4)
@@ -632,7 +672,7 @@ Old tests with flat `questions[]` are wrapped into `passages: [{ passageText, qu
 | Collection max entries | `100` per type | `reading.html`, `collection.html` |
 | History max entries | `20` | `reading.html` |
 | Dictionary entries | `558` | `data/dictionary.json` |
-| Vocabulary entries | `288` | `data/vocabulary.json` |
+| Vocabulary entries | `3,816` (6 sources, ~162 decks) | `data/vocabulary.json` |
 | Reading articles | `5` | `data/reading-articles.json` |
 | Sample essays | `3` | `data/essays.json` |
 | Mock test timer default | `3600s` (60 min) | `mock-test.html` (`TEST_TIME`) |
