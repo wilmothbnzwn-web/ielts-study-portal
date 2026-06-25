@@ -13,9 +13,21 @@
 import { authStore } from './auth-store.js';
 import { supabase } from './auth-store.js';
 
+function siteBasePath() {
+  return window.location.hostname.endsWith('github.io') ? '/ielts-study-portal' : '';
+}
+
+function hrefFor(path) {
+  if (path === '/') return siteBasePath() + '/';
+  return siteBasePath() + path;
+}
+
 // ── Determine which page is active ───────────────────────────────
 function activeClass(path) {
-  const current = window.location.pathname;
+  const base = siteBasePath();
+  const current = base && window.location.pathname.startsWith(base)
+    ? window.location.pathname.slice(base.length) || '/'
+    : window.location.pathname;
   // Normalize: "/" and "/index.html" are the same
   if (path === '/' && (current === '/' || current === '/index.html')) {
     return 'bg-brand-800 text-white rounded-lg font-medium';
@@ -41,18 +53,21 @@ function desktopLinks() {
     { href: '/collection.html', label: '我的收集' },
   ];
   return links.map(l =>
-    `<a href="${l.href}" class="px-3 py-2 text-sm ${activeClass(l.href)}">${l.label}</a>`
+    `<a href="${hrefFor(l.href)}" class="px-3 py-2 text-sm ${activeClass(l.href)}">${l.label}</a>`
   ).join('');
 }
 
 // ── Mobile nav links ─────────────────────────────────────────────
 function mobileLinks() {
-  const current = window.location.pathname;
+  const base = siteBasePath();
+  const current = base && window.location.pathname.startsWith(base)
+    ? window.location.pathname.slice(base.length) || '/'
+    : window.location.pathname;
   function mc(path, label) {
     const isActive = (path === '/' && (current === '/' || current === '/index.html')) ||
                      (path === '/vocabulary' && (current === '/vocab' || current === '/vocabulary' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/') || current.startsWith('/vocabulary/deck/'))) ||
                      (path !== '/' && current.endsWith(path));
-    return `<a href="${path}" class="text-xs px-2 py-1.5 rounded-md ${isActive ? 'bg-brand-800 text-white' : 'bg-brand-50 text-brand-700'}">${label}</a>`;
+    return `<a href="${hrefFor(path)}" class="text-xs px-2 py-1.5 rounded-md ${isActive ? 'bg-brand-800 text-white' : 'bg-brand-50 text-brand-700'}">${label}</a>`;
   }
   return mc('/', '首页') +
     mc('/reading-library.html', '题库') +
@@ -102,7 +117,7 @@ export function renderNavbar() {
   container.innerHTML = `
     <header class="border-b border-brand-100 bg-white/80 backdrop-blur sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-2">
-        <a href="./" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
+        <a href="${hrefFor('/')}" class="flex items-center gap-2 sm:gap-3 no-underline flex-shrink-0">
           <div class="w-8 h-8 sm:w-9 sm:h-9 bg-brand-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">I</div>
           <div class="hidden sm:block">
             <h1 class="text-lg font-bold text-brand-900 leading-tight">IELTS Study Portal</h1>
