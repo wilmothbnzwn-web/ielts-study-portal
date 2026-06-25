@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    { "source": "/js/env.js", "destination": "/api/env" },
+    { "source": "/vocab", "destination": "/vocabulary.html" },
+    { "source": "/vocabulary", "destination": "/vocabulary.html" },
+    { "source": "/vocab/deck/:id", "destination": "/vocab-deck.html" },
+    { "source": "/vocabulary/deck/:id", "destination": "/vocab-deck.html" },
+    { "source": "/api/vocabulary", "destination": "/data/vocabulary.json" },
+    { "source": "/api/dictionary", "destination": "/data/dictionary.json" },
+    { "source": "/api/essays", "destination": "/data/essays.json" },
+    { "source": "/api/reading-articles", "destination": "/data/reading-articles.json" },
+    { "source": "/api/methodology", "destination": "/data/methodology.json" },
+    { "source": "/api/band-descriptors", "destination": "/data/band-descriptors.json" },
+    { "source": "/api/mock-test-1", "destination": "/data/mock-test-1.json" },
+    { "source": "/api/reading-tests", "destination": "/data/reading_tests.json" },
+    { "source": "/api/translate", "destination": "/api/translate" },
+    { "source": "/api/dictionary-lookup", "destination": "/api/dictionary-lookup" },
+    { "source": "/api/env", "destination": "/api/env" }
+  ]
+}
