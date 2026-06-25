@@ -20,7 +20,7 @@ function activeClass(path) {
   if (path === '/' && (current === '/' || current === '/index.html')) {
     return 'bg-brand-800 text-white rounded-lg font-medium';
   }
-  if (path === '/vocab' && (current === '/vocab' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/'))) {
+  if (path === '/vocabulary' && (current === '/vocab' || current === '/vocabulary' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/') || current.startsWith('/vocabulary/deck/'))) {
     return 'bg-brand-800 text-white rounded-lg font-medium';
   }
   if (path !== '/' && current.endsWith(path)) {
@@ -37,7 +37,7 @@ function desktopLinks() {
     { href: '/mock-test.html', label: '机考模拟' },
     { href: '/writing.html', label: '写作' },
     { href: '/reading.html', label: '阅读' },
-    { href: '/vocab', label: '词汇' },
+    { href: '/vocabulary', label: '词汇' },
     { href: '/collection.html', label: '我的收集' },
   ];
   return links.map(l =>
@@ -50,7 +50,7 @@ function mobileLinks() {
   const current = window.location.pathname;
   function mc(path, label) {
     const isActive = (path === '/' && (current === '/' || current === '/index.html')) ||
-                     (path === '/vocab' && (current === '/vocab' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/'))) ||
+                     (path === '/vocabulary' && (current === '/vocab' || current === '/vocabulary' || current === '/vocabulary.html' || current.startsWith('/vocab/deck/') || current.startsWith('/vocabulary/deck/'))) ||
                      (path !== '/' && current.endsWith(path));
     return `<a href="${path}" class="text-xs px-2 py-1.5 rounded-md ${isActive ? 'bg-brand-800 text-white' : 'bg-brand-50 text-brand-700'}">${label}</a>`;
   }
@@ -58,7 +58,7 @@ function mobileLinks() {
     mc('/reading-library.html', '题库') +
     mc('/mock-test.html', '机考') +
     mc('/reading.html', '阅读') +
-    mc('/vocab', '词汇') +
+    mc('/vocabulary', '词汇') +
     mc('/collection.html', '收集');
 }
 

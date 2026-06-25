@@ -184,9 +184,9 @@ export const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY 
 
   if (pathname === '/') {
     filePath = path.join(ROOT_DIR, 'index.html');
-  } else if (pathname === '/vocab') {
+  } else if (pathname === '/vocab' || pathname === '/vocabulary') {
     filePath = path.join(ROOT_DIR, 'vocabulary.html');
-  } else if (pathname.startsWith('/vocab/deck/')) {
+  } else if (pathname.startsWith('/vocab/deck/') || pathname.startsWith('/vocabulary/deck/')) {
     filePath = path.join(ROOT_DIR, 'vocab-deck.html');
   } else {
     filePath = path.join(ROOT_DIR, pathname);
@@ -238,7 +238,7 @@ server.listen(PORT, () => {
   console.log(`    Mock Test:   http://localhost:${PORT}/mock-test.html`);
   console.log(`    Writing:     http://localhost:${PORT}/writing.html`);
   console.log(`    Reading:     http://localhost:${PORT}/reading.html`);
-  console.log(`    Vocabulary:  http://localhost:${PORT}/vocab`);
+  console.log(`    Vocabulary:  http://localhost:${PORT}/vocabulary`);
   console.log(`    Collection:  http://localhost:${PORT}/collection.html`);
   console.log('');
   console.log('  API Endpoints:');

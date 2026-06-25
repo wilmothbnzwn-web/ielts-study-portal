@@ -16,7 +16,17 @@
   status = 200
 
 [[redirects]]
+  from = "/vocabulary"
+  to = "/vocabulary.html"
+  status = 200
+
+[[redirects]]
   from = "/vocab/deck/*"
+  to = "/vocab-deck.html"
+  status = 200
+
+[[redirects]]
+  from = "/vocabulary/deck/*"
   to = "/vocab-deck.html"
   status = 200
 

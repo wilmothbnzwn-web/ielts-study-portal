@@ -161,7 +161,7 @@ IELTS_Study_Portal/
 
 4. **Compatibility wrapper.** `mock-test.html` normalizes old test format (`flat` questions array) to new format (`passages[]` array with nested questions) at lines ~520-545.
 
-5. **Vocabulary deck routing.** `server.js` maps `/vocab` → `vocabulary.html` and `/vocab/deck/<id>` → `vocab-deck.html`. Production uses matching Netlify rewrites in `netlify.toml`.
+5. **Vocabulary deck routing.** `server.js` maps `/vocabulary` and `/vocab` → `vocabulary.html`; `/vocabulary/deck/<id>` and `/vocab/deck/<id>` → `vocab-deck.html`. Production uses matching Netlify rewrites in `netlify.toml`.
 
 ---
 
@@ -548,8 +548,8 @@ tailwind.config = {
 
 The old flat vocabulary grid has been replaced by a deck-based study system:
 
-- `/vocab` renders the **词书大厅 / Deck Library** with CSS Grid cover cards.
-- `/vocab/deck/<id>` renders **Flashcard Study Mode**, showing one reused `VocabCard` at a time.
+- `/vocabulary` renders the **词书大厅 / Deck Library** with CSS Grid cover cards. `/vocab` is kept as a compatibility alias.
+- `/vocabulary/deck/<id>` renders **Flashcard Study Mode**, showing one reused `VocabCard` at a time. `/vocab/deck/<id>` is kept as a compatibility alias.
 - Prev/Next controls update the current card and progress bar. Prev is disabled on the first card; Next is disabled on the final card.
 - `VocabCard` still handles 3D flip, synonyms, IELTS example sentences, theme styling, and pronunciation. Static vocabulary entries without `audioUrl` now fall back to Web Speech API TTS.
 
