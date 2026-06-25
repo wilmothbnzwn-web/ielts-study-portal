@@ -1,0 +1,6 @@
+/js/env.js /.netlify/functions/env 200
+/vocab /vocabulary.html 200
+/vocabulary /vocabulary.html 200
+/vocab/deck/* /vocab-deck.html 200
+/vocabulary/deck/* /vocab-deck.html 200
+/api/* /.netlify/functions/:splat 200
