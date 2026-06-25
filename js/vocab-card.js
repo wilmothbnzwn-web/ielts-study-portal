@@ -310,3 +310,8 @@ function speakWord(cardId, word) {
   };
   window.speechSynthesis.speak(utterance);
 }
+
+window.VocabCard = VocabCard;
+window.toggleCard = toggleCard;
+window.playAudio = playAudio;
+window.speakWord = speakWord;

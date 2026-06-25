@@ -143,3 +143,6 @@ function findVocabularyDeck(decks, deckId) {
     return deck.id === deckId;
   }) || null;
 }
+
+window.buildVocabularyDecks = buildVocabularyDecks;
+window.findVocabularyDeck = findVocabularyDeck;
