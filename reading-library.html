@@ -178,6 +178,16 @@
               oninput="onSearchChange()">
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 text-sm">🔍</span>
           </div>
+          <!-- Exam type filter -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-brand-400 mr-1">类别:</span>
+            <button class="filter-chip active px-3 py-1.5 rounded-full text-xs font-medium bg-brand-800 text-white border-none cursor-pointer transition-colors"
+              data-exam="all" onclick="setExamTypeFilter('all', this)">全部</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-exam="academic" onclick="setExamTypeFilter('academic', this)">📖 Academic</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-exam="general" onclick="setExamTypeFilter('general', this)">📝 General Training</button>
+          </div>
           <!-- Filter pills row -->
           <div class="flex flex-wrap items-center gap-2">
             <!-- Question type filter -->
@@ -294,6 +304,7 @@
   let filterQuestionType = 'all';   // 'all' | 'true_false_not_given' | 'completion' | 'matching' | 'choice' | 'short_answer'
   let filterDifficulty = 'all';     // 'all' | '1' | '2' | '3' | '4' | '5'
   let filterSearch = '';           // search text
+  let filterExamType = 'all';      // 'all' | 'academic' | 'general'
 
   // ==================== TOPIC TAG ====================
   function getTopicTag(topic) {
@@ -373,9 +384,10 @@
 
     return `
       <div class="test-card bg-white rounded-2xl border border-brand-100 p-6 group" onclick="openMockTest('${test.id}')" title="点击进入机考模拟">
-        <!-- Topic Tag -->
-        <div class="mb-3">
+        <!-- Topic Tag + Test Type Badge -->
+        <div class="mb-3 flex items-center gap-2 flex-wrap">
           ${getTopicTag(test.topic)}
+          ${test.testType === 'general' ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700">📝 GT</span>' : ''}
         </div>
 
         <!-- Title -->
@@ -674,6 +686,13 @@
     applyFiltersAndRender();
   }
 
+  function setExamTypeFilter(value, btn) {
+    filterExamType = value;
+    document.querySelectorAll('[data-exam]').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    applyFiltersAndRender();
+  }
+
   function onSearchChange() {
     filterSearch = document.getElementById('search-input').value.trim().toLowerCase();
     applyFiltersAndRender();
@@ -709,6 +728,13 @@
       tests = tests.filter(t => t.difficulty === parseInt(filterDifficulty));
     }
 
+    // Exam type filter (academic = no testType or testType='academic', general = testType='general')
+    if (filterExamType === 'academic') {
+      tests = tests.filter(t => !t.testType || t.testType === 'academic');
+    } else if (filterExamType === 'general') {
+      tests = tests.filter(t => t.testType === 'general');
+    }
+
     // Search filter
     if (filterSearch) {
       const q = filterSearch;
@@ -736,6 +762,9 @@
     if (filterDifficulty !== 'all') {
       const stars = { 1: '⭐', 2: '⭐⭐', 3: '⭐⭐⭐', 4: '⭐⭐⭐⭐', 5: '⭐⭐⭐⭐⭐' };
       parts.push('难度: ' + (stars[filterDifficulty] || filterDifficulty));
+    }
+    if (filterExamType !== 'all') {
+      parts.push('类别: ' + (filterExamType === 'general' ? 'General Training' : 'Academic'));
     }
     if (filterSearch) {
       parts.push('搜索: "' + filterSearch + '"');

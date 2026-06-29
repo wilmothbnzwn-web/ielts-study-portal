@@ -45,6 +45,7 @@
       <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium transition-colors" onclick="switchTab('descriptors')">评分标准</button>
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors" onclick="switchTab('simon')">Simon 写作法</button>
       <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors" onclick="switchTab('essays')">高分范文拆解</button>
+      <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors" onclick="switchTab('gt-writing')">📝 G类写作题库</button>
     </div>
 
     <!-- Tab: Band Descriptors -->
@@ -60,6 +61,15 @@
     <!-- Tab: Essays -->
     <div id="tab-essays" class="tab-content prose">
       <div id="essays-content"><p class="text-brand-400">Loading...</p></div>
+    </div>
+
+    <!-- Tab: GT Writing Tasks -->
+    <div id="tab-gt-writing" class="tab-content">
+      <div class="mb-4 p-4 bg-purple-50 border border-purple-100 rounded-lg">
+        <p class="text-sm text-purple-700 font-medium">📝 General Training (G类) 写作题库</p>
+        <p class="text-xs text-purple-500 mt-1">来自 Cambridge IELTS 16 General Training — 4 套真题共 8 道写作任务（Task 1 书信 + Task 2 议论文）</p>
+      </div>
+      <div id="gt-writing-content"><p class="text-brand-400">Loading...</p></div>
     </div>
   </main>
 
@@ -233,6 +243,47 @@
       console.error('Failed to load essays', e);
       document.getElementById('essays-content').innerHTML = '<p class="text-brand-400">范文数据加载失败，请刷新页面重试</p>';
     });
+
+    // Load GT Writing Tasks
+    (function loadGTWriting() {
+      var base = window.location.hostname.endsWith('github.io') ? '/ielts-study-portal' : '';
+      var apiPath = base ? base + '/api/general-writing-tasks.json' : './api/general-writing-tasks.json';
+      fetch(apiPath).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(tasks) {
+        var html = '';
+        // Group by test
+        var testLabels = {};
+        tasks.forEach(function(t) {
+          var testKey = t.source.split(' Test ')[1] ? 'Test ' + t.source.split(' Test ')[1].charAt(0) : t.source;
+          if (!testLabels[testKey]) testLabels[testKey] = [];
+          testLabels[testKey].push(t);
+        });
+        Object.keys(testLabels).forEach(function(testKey) {
+          var testTasks = testLabels[testKey];
+          html += '<h2 class="text-lg font-serif font-bold text-brand-900 mb-3">' + testKey + '</h2>';
+          testTasks.forEach(function(t) {
+            var taskLabel = t.taskType === 'task1' ? 'Task 1 · 书信 (' + t.timeMinutes + '分钟, ≥' + t.wordLimit + '词)' : 'Task 2 · 议论文 (' + t.timeMinutes + '分钟, ≥' + t.wordLimit + '词)';
+            var letterBadge = t.letterType ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (t.letterType === 'formal' ? 'bg-blue-50 text-blue-700' : t.letterType === 'semi-formal' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700') + '">' + t.letterType + '</span>' : '';
+            html += '<div class="bg-white border border-brand-100 rounded-lg p-4 mb-3">' +
+              '<div class="flex items-center gap-2 mb-2 flex-wrap">' +
+                '<span class="inline-flex px-2 py-0.5 rounded text-xs font-semibold ' + (t.taskType === 'task1' ? 'bg-purple-50 text-purple-700' : 'bg-brand-100 text-brand-700') + '">' + taskLabel + '</span>' +
+                letterBadge +
+                '<span class="text-xs text-brand-400">' + (t.topic || '') + '</span>' +
+              '</div>' +
+              '<h3 class="text-sm font-bold text-brand-800 mb-2">' + (t.title || '') + '</h3>' +
+              '<div class="text-sm text-brand-600 leading-relaxed whitespace-pre-line bg-brand-50 rounded-lg p-3 mb-2">' + (t.prompt || '') + '</div>' +
+              (t.salutation ? '<p class="text-xs text-brand-400">开头已给出：<code class="text-brand-600">' + t.salutation + '</code></p>' : '') +
+            '</div>';
+          });
+        });
+        document.getElementById('gt-writing-content').innerHTML = html || '<p class="text-brand-400">暂无 G 类写作题目。</p>';
+      }).catch(function(e) {
+        console.error('Failed to load GT writing tasks', e);
+        document.getElementById('gt-writing-content').innerHTML = '<p class="text-brand-400">G 类写作题库加载失败，请刷新页面重试</p>';
+      });
+    })();
   </script>
 
   <!-- Supabase modules: auth store + navbar -->

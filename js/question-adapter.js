@@ -153,7 +153,7 @@ export function adaptReadingQuestion(rawQ, testMeta) {
       testId: (testMeta && testMeta.id) || '',
       testTitle: (testMeta && testMeta.title) || '',
       topic: (testMeta && testMeta.topic) || '',
-      examType: (testMeta && testMeta.examType) || 'Academic',
+      examType: (testMeta && (testMeta.examType || (testMeta.testType === 'general' ? 'General Training' : 'Academic'))) || 'Academic',
     },
     tags: [
       subType,
@@ -194,6 +194,7 @@ export function adaptReadingTestSummary(test) {
     questionCount: test.questionCount || (test.questions || []).length,
     subTypes: Array.from(subTypes),
     mainClass: test.main_class || '',
+    examType: test.testType === 'general' ? 'General Training' : (test.examType || 'Academic'),
     estimatedTime: test.totalTime || 3600,
     // Summary of first question as preview
     previewStem: (test.questions && test.questions[0] && test.questions[0].questionText)

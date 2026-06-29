@@ -52,6 +52,7 @@ const API_ROUTES = {
   '/api/dictionary': 'dictionary.json',
   '/api/mock-test-1': 'mock-test-1.json',
   '/api/reading-tests': 'reading_tests.json',
+  '/api/general-writing-tasks': 'general_writing_tasks.json',
 };
 
 const server = http.createServer((req, res) => {
