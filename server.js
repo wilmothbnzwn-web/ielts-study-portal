@@ -233,13 +233,13 @@ server.listen(PORT, () => {
   console.log(`  Server running at:  http://localhost:${PORT}`);
   console.log('');
   console.log('  Pages:');
-  console.log(`    Home:        http://localhost:${PORT}/`);
-  console.log(`    Library:     http://localhost:${PORT}/reading-library.html`);
-  console.log(`    Mock Test:   http://localhost:${PORT}/mock-test.html`);
-  console.log(`    Writing:     http://localhost:${PORT}/writing.html`);
-  console.log(`    Reading:     http://localhost:${PORT}/reading.html`);
-  console.log(`    Vocabulary:  http://localhost:${PORT}/vocabulary`);
-  console.log(`    Collection:  http://localhost:${PORT}/collection.html`);
+  console.log(`    Practice:     http://localhost:${PORT}/`);
+  console.log(`    Reading:      http://localhost:${PORT}/reading-library.html`);
+  console.log(`    Writing:      http://localhost:${PORT}/writing.html`);
+  console.log(`    Vocabulary:   http://localhost:${PORT}/vocabulary`);
+  console.log(`    Mock Test:    http://localhost:${PORT}/mock-test.html`);
+  console.log(`    MistakeBook:  http://localhost:${PORT}/mistake-book.html`);
+  console.log(`    Collection:   http://localhost:${PORT}/collection.html`);
   console.log('');
   console.log('  API Endpoints:');
   Object.keys(API_ROUTES).forEach(route => {

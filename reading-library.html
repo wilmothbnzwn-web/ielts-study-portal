@@ -97,6 +97,10 @@
       background: #5b21b6;
     }
 
+    /* ===== Filter chips ===== */
+    .filter-chip { transition: all 0.15s ease; }
+    .filter-chip.active { background: #243b53; color: #fff; border-color: #243b53; }
+
     /* ===== Mobile sidebar (horizontal scroll) ===== */
     .mobile-sidebar::-webkit-scrollbar { display: none; }
     .mobile-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -160,9 +164,55 @@
       <main class="flex-1 min-w-0">
 
         <!-- Category Title + Stats -->
-        <div class="mb-8" id="content-header">
+        <div class="mb-4" id="content-header">
           <div class="skeleton" style="width:200px;height:32px;margin-bottom:8px;"></div>
           <div class="skeleton" style="width:300px;height:20px;"></div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="mb-6 space-y-3" id="filter-bar" style="display:none;">
+          <!-- Search -->
+          <div class="relative">
+            <input type="text" id="search-input" placeholder="搜索试卷标题、关键词..."
+              class="w-full px-4 py-2.5 border border-brand-200 rounded-xl text-sm text-brand-800 placeholder:text-brand-300 focus:outline-none focus:border-brand-400 bg-white"
+              oninput="onSearchChange()">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-brand-300 text-sm">🔍</span>
+          </div>
+          <!-- Filter pills row -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Question type filter -->
+            <span class="text-xs text-brand-400 mr-1">题型:</span>
+            <button class="filter-chip active px-3 py-1.5 rounded-full text-xs font-medium bg-brand-800 text-white border-none cursor-pointer transition-colors"
+              data-qtype="all" onclick="setQuestionTypeFilter('all', this)">全部</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-qtype="true_false_not_given" onclick="setQuestionTypeFilter('true_false_not_given', this)">判断题</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-qtype="completion" onclick="setQuestionTypeFilter('completion', this)">填空题</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-qtype="matching" onclick="setQuestionTypeFilter('matching', this)">匹配题</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-qtype="choice" onclick="setQuestionTypeFilter('choice', this)">单选题</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-qtype="short_answer" onclick="setQuestionTypeFilter('short_answer', this)">简答题</button>
+          </div>
+          <!-- Difficulty filter -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-brand-400 mr-1">难度:</span>
+            <button class="filter-chip active px-3 py-1.5 rounded-full text-xs font-medium bg-brand-800 text-white border-none cursor-pointer transition-colors"
+              data-diff="all" onclick="setDifficultyFilter('all', this)">全部</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-diff="1" onclick="setDifficultyFilter('1', this)">⭐ 入门</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-diff="2" onclick="setDifficultyFilter('2', this)">⭐⭐ 基础</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-diff="3" onclick="setDifficultyFilter('3', this)">⭐⭐⭐ 中等</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-diff="4" onclick="setDifficultyFilter('4', this)">⭐⭐⭐⭐ 较难</button>
+            <button class="filter-chip px-3 py-1.5 rounded-full text-xs font-medium bg-white text-brand-600 border border-brand-200 cursor-pointer transition-colors hover:bg-brand-50"
+              data-diff="5" onclick="setDifficultyFilter('5', this)">⭐⭐⭐⭐⭐ 挑战</button>
+          </div>
+          <!-- Active filter summary -->
+          <div id="filter-summary" class="text-xs text-brand-400" style="display:none;"></div>
         </div>
 
         <!-- Sections Container -->
@@ -239,6 +289,11 @@
   // ==================== STATE ====================
   let allTests = [];
   let currentCategory = CATEGORY_ALL;
+
+  // Filter state
+  let filterQuestionType = 'all';   // 'all' | 'true_false_not_given' | 'completion' | 'matching' | 'choice' | 'short_answer'
+  let filterDifficulty = 'all';     // 'all' | '1' | '2' | '3' | '4' | '5'
+  let filterSearch = '';           // search text
 
   // ==================== TOPIC TAG ====================
   function getTopicTag(topic) {
@@ -575,10 +630,7 @@
   function selectCategory(category) {
     currentCategory = category;
     setSidebarActive(category);
-
-    const tests = getTestsForCategory(category);
-    renderContentHeader(category, tests);
-    renderSections(tests, category);
+    applyFiltersAndRender();
 
     // Scroll to top of content on mobile
     if (window.innerWidth < 1024) {
@@ -603,6 +655,105 @@
       });
     }
     return allTests.filter(t => t.topic === category);
+  }
+
+  // ==================== FILTER FUNCTIONS ====================
+
+  function setQuestionTypeFilter(value, btn) {
+    filterQuestionType = value;
+    // Update active class on all question type filter chips
+    document.querySelectorAll('[data-qtype]').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    applyFiltersAndRender();
+  }
+
+  function setDifficultyFilter(value, btn) {
+    filterDifficulty = value;
+    document.querySelectorAll('[data-diff]').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    applyFiltersAndRender();
+  }
+
+  function onSearchChange() {
+    filterSearch = document.getElementById('search-input').value.trim().toLowerCase();
+    applyFiltersAndRender();
+  }
+
+  /** Normalize question type for filtering */
+  function normalizeQType(rawType) {
+    const t = String(rawType || '').toUpperCase();
+    if (t === 'TRUE_FALSE_NOT_GIVEN' || t === 'IDENTIFYING') return 'true_false_not_given';
+    if (t === 'COMPLETION') return 'completion';
+    if (t === 'MATCHING') return 'matching';
+    if (t === 'CHOICE') return 'choice';
+    if (t === 'SHORT_ANSWER') return 'short_answer';
+    return t.toLowerCase();
+  }
+
+  /** Check if a test has any questions of the given normalized type */
+  function testHasQuestionType(test, normType) {
+    return (test.questions || []).some(q => normalizeQType(q.type || q.legacyType) === normType);
+  }
+
+  /** Apply all active filters to the test list */
+  function getFilteredTests() {
+    let tests = getTestsForCategory(currentCategory);
+
+    // Question type filter
+    if (filterQuestionType !== 'all') {
+      tests = tests.filter(t => testHasQuestionType(t, filterQuestionType));
+    }
+
+    // Difficulty filter
+    if (filterDifficulty !== 'all') {
+      tests = tests.filter(t => t.difficulty === parseInt(filterDifficulty));
+    }
+
+    // Search filter
+    if (filterSearch) {
+      const q = filterSearch;
+      tests = tests.filter(t => {
+        if ((t.title || '').toLowerCase().includes(q)) return true;
+        if ((t.source || '').toLowerCase().includes(q)) return true;
+        if ((t.topic || '').toLowerCase().includes(q)) return true;
+        // Search in question texts
+        return (t.questions || []).some(qq =>
+          (qq.questionText || '').toLowerCase().includes(q)
+        );
+      });
+    }
+
+    return tests;
+  }
+
+  function updateFilterSummary(tests, unfilteredCount) {
+    const summary = document.getElementById('filter-summary');
+    const parts = [];
+    if (filterQuestionType !== 'all') {
+      const labels = { true_false_not_given: '判断题', completion: '填空题', matching: '匹配题', choice: '单选题', short_answer: '简答题' };
+      parts.push('题型: ' + (labels[filterQuestionType] || filterQuestionType));
+    }
+    if (filterDifficulty !== 'all') {
+      const stars = { 1: '⭐', 2: '⭐⭐', 3: '⭐⭐⭐', 4: '⭐⭐⭐⭐', 5: '⭐⭐⭐⭐⭐' };
+      parts.push('难度: ' + (stars[filterDifficulty] || filterDifficulty));
+    }
+    if (filterSearch) {
+      parts.push('搜索: "' + filterSearch + '"');
+    }
+    if (parts.length > 0) {
+      summary.textContent = '筛选条件: ' + parts.join(' · ') + ' — 找到 ' + tests.length + ' 套试卷（共 ' + unfilteredCount + ' 套）';
+      summary.style.display = 'block';
+    } else {
+      summary.style.display = 'none';
+    }
+  }
+
+  function applyFiltersAndRender() {
+    const unfilteredTests = getTestsForCategory(currentCategory);
+    const tests = getFilteredTests();
+    updateFilterSummary(tests, unfilteredTests.length);
+    renderContentHeader(currentCategory, tests);
+    renderSections(tests, currentCategory);
   }
 
   // ==================== LOAD & INIT ====================
@@ -630,10 +781,13 @@
       renderSidebarTopics();
       renderMobileTabs();
 
-      // Render default view (all tests)
-      renderContentHeader(CATEGORY_ALL, allTests);
-      renderSections(allTests, CATEGORY_ALL);
+      // Show filter bar
+      document.getElementById('filter-bar').style.display = 'block';
+
+      // Render default view (all tests) with filters
+      currentCategory = CATEGORY_ALL;
       setSidebarActive(CATEGORY_ALL);
+      applyFiltersAndRender();
 
     } catch (err) {
       console.error('Failed to load reading tests:', err);

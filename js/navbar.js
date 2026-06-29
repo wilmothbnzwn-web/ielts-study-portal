@@ -44,13 +44,11 @@ function activeClass(path) {
 // ── Desktop nav links ────────────────────────────────────────────
 function desktopLinks() {
   const links = [
-    { href: '/', label: '首页' },
-    { href: '/reading-library.html', label: '题库大厅' },
-    { href: '/mock-test.html', label: '机考模拟' },
+    { href: '/', label: '练习中心' },
+    { href: '/reading-library.html', label: '阅读题库' },
     { href: '/writing.html', label: '写作' },
-    { href: '/reading.html', label: '阅读' },
     { href: '/vocabulary', label: '词汇' },
-    { href: '/collection.html', label: '我的收集' },
+    { href: '/mistake-book.html', label: '错题本' },
   ];
   return links.map(l =>
     `<a href="${hrefFor(l.href)}" class="px-3 py-2 text-sm ${activeClass(l.href)}">${l.label}</a>`
@@ -69,12 +67,11 @@ function mobileLinks() {
                      (path !== '/' && current.endsWith(path));
     return `<a href="${hrefFor(path)}" class="text-xs px-2 py-1.5 rounded-md ${isActive ? 'bg-brand-800 text-white' : 'bg-brand-50 text-brand-700'}">${label}</a>`;
   }
-  return mc('/', '首页') +
-    mc('/reading-library.html', '题库') +
-    mc('/mock-test.html', '机考') +
-    mc('/reading.html', '阅读') +
+  return mc('/', '练习') +
+    mc('/reading-library.html', '阅读') +
+    mc('/writing.html', '写作') +
     mc('/vocabulary', '词汇') +
-    mc('/collection.html', '收集');
+    mc('/mistake-book.html', '错题');
 }
 
 // ── User menu (right side) ───────────────────────────────────────

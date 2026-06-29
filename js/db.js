@@ -225,3 +225,233 @@ export async function deleteSentence(id) {
     return false;
   }
 }
+
+// ── Mistake Book (Wrong Questions / 错题本) ───────────────────────
+
+/**
+ * Map a DB row (snake_case) → JS mistake book item (camelCase)
+ */
+function mapWrongQuestionRow(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    questionId: row.question_id,
+    questionType: row.question_type || 'reading',
+    questionPayload: parseJsonField(row.question_payload, {}),
+    sourceType: row.source_type || 'manual',
+    sourceExamId: row.source_exam_id || '',
+    wrongCount: row.wrong_count || 0,
+    firstAddedAt: row.first_added_at ? new Date(row.first_added_at).getTime() : Date.now(),
+    lastWrongAt: row.last_wrong_at ? new Date(row.last_wrong_at).getTime() : Date.now(),
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+    updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now(),
+  };
+}
+
+/**
+ * Get wrong questions for the current user with pagination.
+ * Supports filtering by source_type and question_type.
+ *
+ * @param {Object} opts — { page?: number, pageSize?: number, sourceType?: string, questionType?: string }
+ * @returns {Promise<{ items: Array, total: number, page: number, pageSize: number, hasMore: boolean }>}
+ */
+export async function getMistakeBookItems(opts = {}) {
+  try {
+    const user = requireUser();
+    const page = Math.max(1, opts.page || 1);
+    const pageSize = Math.min(100, Math.max(1, opts.pageSize || 20));
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Build query for items
+    let query = supabase
+      .from('wrong_questions')
+      .select('*', { count: 'exact' })
+      .eq('user_id', user.id)
+      .order('last_wrong_at', { ascending: false })
+      .range(from, to);
+
+    if (opts.sourceType) {
+      query = query.eq('source_type', opts.sourceType);
+    }
+    if (opts.questionType) {
+      query = query.eq('question_type', opts.questionType);
+    }
+
+    const { data, error, count } = await query;
+    if (error) { console.error('getMistakeBookItems error:', error); return { items: [], total: 0, page, pageSize, hasMore: false }; }
+
+    const total = count || 0;
+    const hasMore = from + (data || []).length < total;
+
+    return {
+      items: (data || []).map(mapWrongQuestionRow),
+      total,
+      page,
+      pageSize,
+      hasMore,
+    };
+  } catch (e) {
+    console.error('getMistakeBookItems exception:', e);
+    return { items: [], total: 0, page: 1, pageSize: 20, hasMore: false };
+  }
+}
+
+/**
+ * Add a question to the mistake book (upsert).
+ * - If the question is NOT yet in the book: inserts a new record.
+ * - If the question IS already in the book: increments wrong_count
+ *   and updates last_wrong_at.
+ *
+ * @param {string} questionId     — the question id (from test JSON data or vocab word)
+ * @param {string} sourceType     — 'manual' | 'exam' | 'practice'
+ * @param {string} [sourceExamId] — optional test/deck id
+ * @param {Object} [opts]         — { questionType?: 'reading'|'vocabulary', questionPayload?: object }
+ * @returns {Promise<Object|null>} — the upserted record, or null on error
+ */
+export async function addToMistakeBook(questionId, sourceType = 'manual', sourceExamId = '', opts = {}) {
+  try {
+    const user = requireUser();
+    if (!questionId) return null;
+
+    const questionType = opts.questionType || 'reading';
+    const questionPayload = opts.questionPayload || {};
+
+    // Check if this question already exists for this user (by question_id + question_type)
+    const { data: existing, error: checkErr } = await supabase
+      .from('wrong_questions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('question_id', String(questionId))
+      .eq('question_type', questionType)
+      .maybeSingle();
+
+    if (checkErr) { console.error('addToMistakeBook check error:', checkErr); return null; }
+
+    if (existing) {
+      // Update existing record: increment wrong_count, update timestamps
+      const newCount = (existing.wrong_count || 0) + 1;
+      const updateData = {
+        wrong_count: newCount,
+        last_wrong_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      // If this is an exam/practice update, update source info
+      if ((sourceType === 'exam' || sourceType === 'practice') && sourceExamId) {
+        updateData.source_type = sourceType;
+        updateData.source_exam_id = String(sourceExamId);
+      }
+      // Update payload if new one has more data
+      if (questionPayload && Object.keys(questionPayload).length > 0) {
+        updateData.question_payload = questionPayload;
+      }
+
+      const { data: updated, error: updateErr } = await supabase
+        .from('wrong_questions')
+        .update(updateData)
+        .eq('id', existing.id)
+        .select('*')
+        .single();
+
+      if (updateErr) { console.error('addToMistakeBook update error:', updateErr); return null; }
+      return mapWrongQuestionRow(updated);
+    }
+
+    // Insert new record
+    const { data: inserted, error: insertErr } = await supabase
+      .from('wrong_questions')
+      .insert({
+        user_id: user.id,
+        question_id: String(questionId),
+        question_type: questionType,
+        question_payload: questionPayload,
+        source_type: sourceType,
+        source_exam_id: sourceExamId ? String(sourceExamId) : null,
+        wrong_count: 1,
+        first_added_at: new Date().toISOString(),
+        last_wrong_at: new Date().toISOString(),
+      })
+      .select('*')
+      .single();
+
+    if (insertErr) {
+      // Handle race condition: unique constraint violation (concurrent insert)
+      if (insertErr.code === '23505') {
+        const { data: raceRow } = await supabase
+          .from('wrong_questions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('question_id', String(questionId))
+          .eq('question_type', questionType)
+          .maybeSingle();
+        if (raceRow) {
+          const newCount = (raceRow.wrong_count || 0) + 1;
+          await supabase
+            .from('wrong_questions')
+            .update({ wrong_count: newCount, last_wrong_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq('id', raceRow.id);
+        }
+      }
+      console.error('addToMistakeBook insert error:', insertErr);
+      return null;
+    }
+    return mapWrongQuestionRow(inserted);
+  } catch (e) {
+    console.error('addToMistakeBook exception:', e);
+    return null;
+  }
+}
+
+/**
+ * Remove a question from the mistake book by its UUID.
+ * @param {string} id — the wrong_questions record UUID
+ * @returns {Promise<boolean>}
+ */
+export async function removeFromMistakeBook(id) {
+  try {
+    requireUser();
+    const { error } = await supabase
+      .from('wrong_questions')
+      .delete()
+      .eq('id', id);
+
+    if (error) console.error('removeFromMistakeBook error:', error);
+    return !error;
+  } catch (e) {
+    console.error('removeFromMistakeBook exception:', e);
+    return false;
+  }
+}
+
+/**
+ * Check whether a question is already in the current user's mistake book.
+ * Returns the record id if found, or null.
+ * @param {string} questionId
+ * @param {string} [questionType='reading'] — 'reading' | 'vocabulary'
+ * @returns {Promise<string|null>} — the record UUID if found, null otherwise
+ */
+export async function isInMistakeBook(questionId, questionType = 'reading') {
+  try {
+    const user = requireUser();
+    if (!questionId) return null;
+
+    let query = supabase
+      .from('wrong_questions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('question_id', String(questionId));
+
+    if (questionType) {
+      query = query.eq('question_type', questionType);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) { console.error('isInMistakeBook error:', error); return null; }
+    return data ? data.id : null;
+  } catch (e) {
+    console.error('isInMistakeBook exception:', e);
+    return null;
+  }
+}
+

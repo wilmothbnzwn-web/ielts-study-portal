@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IELTS Study Portal — Academic Reading & Writing</title>
+  <title>练习中心 — IELTS Study Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
@@ -12,87 +12,405 @@
   { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
   </script>
   <style>
-    body { background: #fafbfc; }
-    .card-hover { transition: all 0.25s ease; }
-    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-    .hero-line { height: 3px; width: 60px; background: linear-gradient(90deg, #334e68, #829ab1); border-radius: 2px; }
+    body { background: #f8fafc; }
+
+    /* Skill card */
+    .skill-card {
+      transition: all 0.22s ease;
+      cursor: pointer;
+    }
+    .skill-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(16,42,67,0.08); }
+    .skill-card.coming-soon { cursor: default; opacity: 0.72; }
+    .skill-card.coming-soon:hover { transform: none; box-shadow: none; }
+
+    /* Tool card */
+    .tool-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(16,42,67,0.06); }
+
+    /* Stat pill */
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* Recommend section */
+    .rec-item {
+      transition: all 0.18s ease;
+    }
+    .rec-item:hover { background: #f0f4f8; }
+
+    /* Skeleton shimmer */
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton {
+      background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header (rendered by navbar.js) -->
   <div id="navbar-container"></div>
 
-  <!-- Hero -->
-  <section class="py-16 md:py-24 px-6">
-    <div class="max-w-4xl mx-auto text-center">
-      <p class="text-sm font-semibold text-brand-400 uppercase tracking-widest mb-3">IELTS Academic Module</p>
-      <h2 class="text-3xl md:text-5xl font-serif font-bold text-brand-900 leading-tight mb-5">
-        体系化备考<br class="sm:hidden">阅读与写作一站打通
-      </h2>
-      <p class="text-brand-500 text-lg max-w-2xl mx-auto mb-2">
-        基于前考官 Simon 方法论、官方评分标准与高分范文拆解，
-      </p>
-      <p class="text-brand-400 text-base max-w-2xl mx-auto mb-8">
-        为 IELTS 学术类考生提供结构化备考路径
-      </p>
-      <div class="hero-line mx-auto mb-10"></div>
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow w-full">
+
+    <!-- Welcome bar -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3" id="welcome-bar">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-brand-900 mb-1">练习中心</h1>
+        <p class="text-sm text-brand-500">IELTS Academic · 按技能分类练习 · 追踪弱项提升</p>
+      </div>
+      <div id="user-greeting" class="text-sm text-brand-400">
+        加载中...
+      </div>
     </div>
-  </section>
 
-  <!-- Cards -->
-  <section class="px-6 pb-24 flex-grow">
-    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- ===== Row 1: Four Skills ===== -->
+    <section class="mb-8">
+      <h2 class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-3">IELTS 四项技能</h2>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-      <!-- Writing Card -->
-      <a href="./writing.html" class="card-hover bg-white rounded-2xl p-7 border border-brand-100 no-underline group block">
-        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-5 group-hover:bg-blue-100 transition-colors">
-          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+        <!-- Reading -->
+        <a href="./reading-library.html" class="skill-card bg-white rounded-2xl border border-brand-100 p-5 no-underline block group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-xl">📖</div>
+            <div>
+              <h3 class="font-bold text-brand-900 group-hover:text-emerald-700 transition-colors">Reading</h3>
+              <p class="text-xs text-brand-400">阅读</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="stat-pill bg-emerald-50 text-emerald-700">187 套真题</span>
+            <span class="stat-pill bg-brand-50 text-brand-500">6 种题型</span>
+          </div>
+          <p class="text-xs text-brand-400 mt-3">官方真题 + 预测机经 · 仿真机考界面</p>
+        </a>
+
+        <!-- Writing -->
+        <a href="./writing.html" class="skill-card bg-white rounded-2xl border border-brand-100 p-5 no-underline block group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-xl">✍️</div>
+            <div>
+              <h3 class="font-bold text-brand-900 group-hover:text-purple-700 transition-colors">Writing</h3>
+              <p class="text-xs text-brand-400">写作</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="stat-pill bg-purple-50 text-purple-700">Task 1 + 2</span>
+            <span class="stat-pill bg-brand-50 text-brand-500">Simon 框架</span>
+          </div>
+          <p class="text-xs text-brand-400 mt-3">评分标准详解 · 3 篇 Band 8+ 范文拆解</p>
+        </a>
+
+        <!-- Listening (coming soon) -->
+        <div class="skill-card coming-soon bg-white rounded-2xl border border-brand-100 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-xl">🎧</div>
+            <div>
+              <h3 class="font-bold text-brand-400">Listening</h3>
+              <p class="text-xs text-brand-300">听力</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="stat-pill bg-brand-50 text-brand-400">即将上线</span>
+          </div>
+          <p class="text-xs text-brand-300 mt-3">Section 1-4 训练 · 精听与听写 · 题型专项</p>
         </div>
-        <h3 class="text-xl font-bold text-brand-900 mb-2">写作方法论</h3>
-        <p class="text-sm text-brand-500 leading-relaxed">官方评分标准详解 · Simon 四段式框架 · Task 1 数据对比法 · 3 篇 Band 8+ 范文拆解</p>
-        <span class="inline-block mt-4 text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">探索写作指南 →</span>
-      </a>
 
-      <!-- Reading Card -->
-      <a href="./reading.html" class="card-hover bg-white rounded-2xl p-7 border border-brand-100 no-underline group block">
-        <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-5 group-hover:bg-emerald-100 transition-colors">
-          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        <!-- Speaking (coming soon) -->
+        <div class="skill-card coming-soon bg-white rounded-2xl border border-brand-100 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-xl">🎤</div>
+            <div>
+              <h3 class="font-bold text-brand-400">Speaking</h3>
+              <p class="text-xs text-brand-300">口语</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="stat-pill bg-brand-50 text-brand-400">即将上线</span>
+          </div>
+          <p class="text-xs text-brand-300 mt-3">Part 1-3 话题库 · Cue Card 训练 · 高分语料</p>
         </div>
-        <h3 class="text-xl font-bold text-brand-900 mb-2">阅读训练</h3>
-        <p class="text-sm text-brand-500 leading-relaxed">5 篇学术外刊精读 · T/F/NG 解题法 · Headings 匹配技巧 · 长难句断句法则</p>
-        <span class="inline-block mt-4 text-sm font-semibold text-emerald-600 group-hover:translate-x-1 transition-transform">进入阅读训练 →</span>
-      </a>
 
-      <!-- Vocabulary Card -->
-      <a href="./vocabulary.html" class="card-hover bg-white rounded-2xl p-7 border border-brand-100 no-underline group block">
-        <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-5 group-hover:bg-amber-100 transition-colors">
-          <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/></svg>
+      </div>
+    </section>
+
+    <!-- ===== Row 2: Quick Tools ===== -->
+    <section class="mb-8">
+      <h2 class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-3">快捷工具</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <!-- Mock Exam -->
+        <a href="./reading-library.html" class="tool-card bg-white rounded-2xl border border-brand-100 p-5 no-underline block group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-xl">🏛️</div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-brand-900 text-sm group-hover:text-red-700 transition-colors">机考模拟</h3>
+              <p class="text-xs text-brand-400 mt-0.5">60 分钟全真计时 · 即时出分 · 逐题解析</p>
+            </div>
+            <span class="text-brand-300 group-hover:translate-x-1 transition-transform text-lg">→</span>
+          </div>
+        </a>
+
+        <!-- Vocabulary -->
+        <a href="./vocabulary" class="tool-card bg-white rounded-2xl border border-brand-100 p-5 no-underline block group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-xl">📝</div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-brand-900 text-sm group-hover:text-amber-700 transition-colors">词汇练习</h3>
+              <p class="text-xs text-brand-400 mt-0.5">3,816 词 · 162 个词包 · 闪卡记忆 · 不认识收录</p>
+            </div>
+            <span class="text-brand-300 group-hover:translate-x-1 transition-transform text-lg">→</span>
+          </div>
+        </a>
+
+        <!-- Mistake Book -->
+        <a href="./mistake-book.html" class="tool-card bg-white rounded-2xl border border-brand-100 p-5 no-underline block group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-xl">📘</div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-brand-900 text-sm group-hover:text-indigo-700 transition-colors">错题本</h3>
+              <p class="text-xs text-brand-400 mt-0.5" id="mistake-book-desc">自动收录考试错题 · 词汇生词 · 随时复习</p>
+            </div>
+            <span class="text-brand-300 group-hover:translate-x-1 transition-transform text-lg">→</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ===== Row 3: Stats & Recommendations (auth-gated) ===== -->
+    <section id="recommendations-section" style="display:none;">
+      <h2 class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-3">我的弱项 · 推荐练习</h2>
+      <div id="recommendations-container">
+        <!-- Skeleton -->
+        <div class="bg-white rounded-2xl border border-brand-100 p-6">
+          <div class="skeleton" style="width:220px;height:20px;margin-bottom:16px;"></div>
+          <div class="space-y-3">
+            <div class="skeleton" style="width:100%;height:40px;"></div>
+            <div class="skeleton" style="width:100%;height:40px;"></div>
+            <div class="skeleton" style="width:60%;height:40px;"></div>
+          </div>
         </div>
-        <h3 class="text-xl font-bold text-brand-900 mb-2">高频词汇</h3>
-        <p class="text-sm text-brand-500 leading-relaxed">288 个 IELTS 学术核心词 · 中英释义 · 同义替换 · 主题分类 · 例句语境 · 发音音频</p>
-        <span class="inline-block mt-4 text-sm font-semibold text-amber-600 group-hover:translate-x-1 transition-transform">浏览词库 →</span>
-      </a>
-    </div>
-  </section>
+      </div>
+    </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50">
+    <!-- Not logged in → CTA section -->
+    <section id="login-cta-section" class="mt-6" style="display:none;">
+      <div class="bg-gradient-to-r from-brand-50 to-blue-50 rounded-2xl border border-brand-100 p-6 text-center sm:text-left sm:flex sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-brand-900 mb-1">登录后解锁完整功能</h3>
+          <p class="text-sm text-brand-500">登录后可记录练习进度、自动收录错题、获取个性化弱项推荐</p>
+        </div>
+        <div class="flex gap-2 justify-center mt-4 sm:mt-0 flex-shrink-0">
+          <a href="./login.html?redirect=/" class="px-5 py-2.5 bg-brand-800 text-white rounded-xl text-sm font-medium hover:bg-brand-900 transition-colors no-underline">登录</a>
+          <a href="./register.html" class="px-5 py-2.5 border border-brand-200 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 transition-colors no-underline">注册</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Row 4: More Resources ===== -->
+    <section class="mt-8">
+      <h2 class="text-xs font-semibold text-brand-400 uppercase tracking-wider mb-3">更多资源</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- Reading practice articles -->
+        <a href="./reading.html" class="tool-card bg-white rounded-2xl border border-brand-100 p-4 no-underline block group">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">📄</span>
+            <h3 class="font-bold text-brand-900 text-sm group-hover:text-brand-700 transition-colors">阅读精读训练</h3>
+          </div>
+          <p class="text-xs text-brand-400">5 篇学术外刊 · 查词翻译 · 长难句断句 · 逐段收藏</p>
+        </a>
+
+        <!-- Collection -->
+        <a href="./collection.html" class="tool-card bg-white rounded-2xl border border-brand-100 p-4 no-underline block group">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">📚</span>
+            <h3 class="font-bold text-brand-900 text-sm group-hover:text-brand-700 transition-colors">我的收集</h3>
+          </div>
+          <p class="text-xs text-brand-400">已收藏的单词与句子 · 同步至云端</p>
+        </a>
+
+        <!-- Writing methodology -->
+        <a href="./writing.html" class="tool-card bg-white rounded-2xl border border-brand-100 p-4 no-underline block group">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">📐</span>
+            <h3 class="font-bold text-brand-900 text-sm group-hover:text-brand-700 transition-colors">写作方法指南</h3>
+          </div>
+          <p class="text-xs text-brand-400">Simon 框架 · 官方评分标准 · 范文深度拆解</p>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50 mt-8">
     <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
-      <p>IELTS Study Portal · Data sourced from official IELTS band descriptors, Simon's methodology, PLOS ONE, The Guardian, WEF</p>
-      <p class="mt-1">Built for academic IELTS (A类) candidates · 2026</p>
+      <p>IELTS Study Portal · 体系化 IELTS 学术类备考工具</p>
     </div>
   </footer>
 
-
-  <!-- Supabase modules: auth store + navbar -->
+  <!-- Supabase modules -->
   <script type="module" src="./js/auth-store.js"></script>
   <script type="module" src="./js/navbar.js"></script>
   <script type="module">
     import { renderNavbar } from './js/navbar.js';
-    import { initAuth } from './js/auth-store.js';
-    await initAuth();
+    import { initAuth, authStore, supabase } from './js/auth-store.js';
+    import { getMistakeBookItems } from './js/db.js';
+
+    // Bridge for inline scripts
+    window._auth = authStore;
+
+    try {
+      await initAuth();
+    } catch (e) {
+      console.warn('[练习中心] Auth init warning:', e.message);
+    }
     renderNavbar();
+
+    // Update UI based on auth state
+    const user = authStore.user;
+    const greetingEl = document.getElementById('user-greeting');
+    const recSection = document.getElementById('recommendations-section');
+    const loginCta = document.getElementById('login-cta-section');
+    const mbDesc = document.getElementById('mistake-book-desc');
+
+    if (user) {
+      greetingEl.textContent = '👋 ' + (user.email || 'User');
+      loginCta.style.display = 'none';
+
+      // Load mistake book stats for recommendations
+      try {
+        const result = await getMistakeBookItems({ page: 1, pageSize: 5 });
+        const total = result.total || 0;
+
+        // Update mistake book description
+        if (mbDesc) {
+          mbDesc.textContent = '共 ' + total + ' 道错题 · 自动收录考试错题 · 随时复习';
+        }
+
+        // Show recommendations section
+        recSection.style.display = 'block';
+        renderRecommendations(result);
+      } catch (e) {
+        console.warn('[练习中心] Failed to load recommendations:', e.message);
+        recSection.style.display = 'none';
+      }
+    } else {
+      greetingEl.textContent = '未登录';
+      loginCta.style.display = 'block';
+      recSection.style.display = 'none';
+    }
+
+    function renderRecommendations(mbResult) {
+      const container = document.getElementById('recommendations-container');
+      const items = mbResult.items || [];
+      const total = mbResult.total || 0;
+
+      if (total === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl border border-brand-100 p-8 text-center">
+            <div class="text-3xl mb-3">🎯</div>
+            <h3 class="font-bold text-brand-900 mb-2">还没有错题数据</h3>
+            <p class="text-sm text-brand-400 mb-4">完成一次模拟考试或词汇练习，系统会自动分析你的弱项</p>
+            <a href="./reading-library.html" class="inline-block px-5 py-2.5 bg-brand-800 text-white rounded-xl text-sm font-medium hover:bg-brand-900 transition-colors no-underline">开始模拟考试 →</a>
+          </div>`;
+        return;
+      }
+
+      // Count by question type
+      const readingItems = items.filter(i => i.questionType === 'reading');
+      const vocabItems = items.filter(i => i.questionType === 'vocabulary');
+
+      // Count by topic (from payload)
+      const topicCounts = {};
+      readingItems.forEach(item => {
+        const topic = (item.questionPayload && item.questionPayload.topic) || '未知';
+        topicCounts[topic] = (topicCounts[topic] || 0) + 1;
+      });
+
+      // Count by reading question subtype (from payload)
+      const subTypeCounts = {};
+      readingItems.forEach(item => {
+        const st = (item.questionPayload && item.questionPayload.type) || '其他';
+        const normalized = normalizeReadingType(st);
+        subTypeCounts[normalized] = (subTypeCounts[normalized] || 0) + 1;
+      });
+
+      let html = '<div class="space-y-4">';
+
+      // Summary card
+      html += `
+        <div class="bg-white rounded-2xl border border-brand-100 p-5">
+          <h3 class="font-bold text-brand-900 text-sm mb-3">📊 错题概览</h3>
+          <div class="flex flex-wrap gap-3 text-sm">
+            <span class="stat-pill bg-red-50 text-red-700">📖 阅读错题 ${readingItems.length}</span>
+            <span class="stat-pill bg-purple-50 text-purple-700">📝 词汇生词 ${vocabItems.length}</span>
+            <span class="stat-pill bg-brand-50 text-brand-600">📘 共 ${total} 道</span>
+          </div>`;
+
+      // Recommend: weakest question type
+      const sortedSubTypes = Object.entries(subTypeCounts).sort((a, b) => b[1] - a[1]);
+      if (sortedSubTypes.length > 0) {
+        const [weakestType, count] = sortedSubTypes[0];
+        html += `
+          <div class="mt-3 pt-3 border-t border-brand-50">
+            <p class="text-sm text-brand-700">
+              ⚡ <b>弱项提醒</b>：<span class="text-red-600">${weakestType}</span> 题型答错最多（${count} 次）。
+              <a href="./reading-library.html" class="text-brand-600 underline text-sm">去练同类题型 →</a>
+            </p>
+          </div>`;
+      }
+
+      // Recommend: weakest topic
+      const sortedTopics = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]);
+      if (sortedTopics.length > 0 && sortedTopics[0][0] !== '未知') {
+        const [weakestTopic, tCount] = sortedTopics[0];
+        html += `
+          <div class="mt-1">
+            <p class="text-sm text-brand-700">
+              📚 <b>话题弱项</b>：<span class="text-amber-600">${weakestTopic}</span> 话题错题最多（${tCount} 次）。
+              <a href="./reading-library.html" class="text-brand-600 underline text-sm">去练该话题 →</a>
+            </p>
+          </div>`;
+      }
+
+      html += `</div>`;
+
+      // Quick action links
+      html += `
+        <div class="bg-white rounded-2xl border border-brand-100 p-5">
+          <h3 class="font-bold text-brand-900 text-sm mb-3">🔗 快捷操作</h3>
+          <div class="flex flex-wrap gap-3">
+            <a href="./mistake-book.html" class="inline-flex items-center gap-1 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors no-underline">📘 查看全部错题</a>
+            <a href="./reading-library.html" class="inline-flex items-center gap-1 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium hover:bg-emerald-100 transition-colors no-underline">📖 继续刷题</a>
+            <a href="./vocabulary" class="inline-flex items-center gap-1 px-4 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-medium hover:bg-amber-100 transition-colors no-underline">📝 背单词</a>
+          </div>
+        </div>`;
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function normalizeReadingType(rawType) {
+      const t = String(rawType || '').toUpperCase();
+      if (t === 'TRUE_FALSE_NOT_GIVEN' || t === 'IDENTIFYING') return '判断题';
+      if (t === 'SHORT_ANSWER' || t === 'COMPLETION') return '填空题';
+      if (t === 'CHOICE') return '单选题';
+      if (t === 'MATCHING') return '匹配题';
+      return rawType || '其他';
+    }
   </script>
 </body>
 </html>

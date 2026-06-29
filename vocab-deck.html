@@ -50,6 +50,11 @@
       opacity: 0.42;
       cursor: not-allowed;
     }
+    #dont-know-btn.added {
+      background: #f0fdf4;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
@@ -78,11 +83,19 @@
     </section>
 
     <section class="bg-white border border-brand-100 rounded-lg p-4 sm:p-5 mt-4">
-      <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
         <button id="prev-btn" class="control-btn border border-brand-200 text-brand-700 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-brand-50" onclick="goPrev()">Prev</button>
-        <p id="completion-note" class="text-xs sm:text-sm text-brand-400 text-center flex-1">点击卡片查看同义词与例句</p>
+        <div class="flex items-center gap-2 flex-1 justify-center">
+          <button id="dont-know-btn" class="control-btn border border-red-200 text-red-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-red-50" onclick="markDontKnow()" title="不认识这个词 — 加入错题本">
+            ✗ 不认识
+          </button>
+          <button id="know-btn" class="control-btn border border-green-200 text-green-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-green-50" onclick="markKnown()" title="我认识这个词">
+            ✓ 认识
+          </button>
+        </div>
         <button id="next-btn" class="control-btn bg-brand-800 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-brand-900" onclick="goNext()">Next</button>
       </div>
+      <p id="completion-note" class="text-xs sm:text-sm text-brand-400 text-center mt-3">点击卡片查看同义词与例句</p>
     </section>
   </main>
 
@@ -183,6 +196,23 @@
         : '点击卡片查看同义词与例句';
     }
 
+    // Track word status: 'unseen' | 'known' | 'unknown'
+    let wordStatus = {};
+    const STATUS_UNSEEN = 'unseen';
+    const STATUS_KNOWN = 'known';
+    const STATUS_UNKNOWN = 'unknown';
+
+    function getWordKey() {
+      if (!currentDeck || !currentDeck.words[currentIndex]) return null;
+      const w = currentDeck.words[currentIndex];
+      return String(w.id || w.word);
+    }
+
+    function getCurrentWord() {
+      if (!currentDeck) return null;
+      return currentDeck.words[currentIndex] || null;
+    }
+
     window.goPrev = function () {
       if (!currentDeck || currentIndex <= 0) return;
       currentIndex -= 1;
@@ -195,17 +225,108 @@
       renderCurrentCard();
     };
 
+    window.markDontKnow = async function () {
+      const key = getWordKey();
+      const word = getCurrentWord();
+      if (!key || !word) return;
+
+      wordStatus[key] = STATUS_UNKNOWN;
+      updateJudgingButtons();
+
+      // Add to mistake book
+      if (window._mistakeBook && window._auth && window._auth.isAuthenticated) {
+        const btn = document.getElementById('dont-know-btn');
+        if (btn) { btn.textContent = '⏳ ...'; btn.disabled = true; }
+
+        try {
+          const deckId = getDeckIdFromPath();
+          const payload = {
+            word: word.word || '',
+            pos: word.pos || '',
+            chinese: word.chinese || '',
+            definition: word.definition || '',
+            example: word.example || '',
+            synonyms: word.synonyms || [],
+            theme: word.theme || '',
+            difficulty: word.difficulty || 0,
+            source: word.source || '',
+          };
+          await window._mistakeBook.addToMistakeBook(String(word.id || word.word), 'practice', deckId, {
+            questionType: 'vocabulary',
+            questionPayload: payload
+          });
+          console.log('[错题本·词汇] Added word:', word.word);
+          if (btn) { btn.innerHTML = '✓ 已收录'; btn.classList.add('added'); }
+        } catch (e) {
+          console.error('[错题本·词汇] Failed to add word:', e);
+          if (btn) { btn.innerHTML = '✗ 不认识'; btn.disabled = false; }
+        }
+      } else {
+        // Not logged in — prompt user
+        const wantLogin = confirm('登录后才能将生词加入错题本。是否去登录？');
+        if (wantLogin) {
+          window.location.href = './login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }
+      }
+    };
+
+    window.markKnown = function () {
+      const key = getWordKey();
+      if (!key) return;
+
+      wordStatus[key] = STATUS_KNOWN;
+      updateJudgingButtons();
+
+      // Auto-advance to next card
+      setTimeout(function () {
+        if (currentDeck && currentIndex < currentDeck.words.length - 1) {
+          goNext();
+        }
+      }, 300);
+    };
+
+    function updateJudgingButtons() {
+      const key = getWordKey();
+      const status = key ? (wordStatus[key] || STATUS_UNSEEN) : STATUS_UNSEEN;
+      const knowBtn = document.getElementById('know-btn');
+      const dontKnowBtn = document.getElementById('dont-know-btn');
+
+      if (status === STATUS_KNOWN) {
+        if (knowBtn) { knowBtn.classList.add('bg-green-50'); knowBtn.style.opacity = '0.8'; }
+        if (dontKnowBtn) { dontKnowBtn.classList.remove('bg-red-50'); dontKnowBtn.style.opacity = '1'; dontKnowBtn.disabled = false; }
+      } else if (status === STATUS_UNKNOWN) {
+        if (dontKnowBtn) { dontKnowBtn.classList.add('bg-red-50'); dontKnowBtn.style.opacity = '0.8'; }
+        if (knowBtn) { knowBtn.classList.remove('bg-green-50'); knowBtn.style.opacity = '1'; }
+      } else {
+        if (knowBtn) { knowBtn.classList.remove('bg-green-50'); knowBtn.style.opacity = '1'; }
+        if (dontKnowBtn) { dontKnowBtn.classList.remove('bg-red-50'); dontKnowBtn.style.opacity = '1'; dontKnowBtn.disabled = false; dontKnowBtn.innerHTML = '✗ 不认识'; }
+      }
+    }
+
     document.addEventListener('keydown', function (event) {
       if (event.key === 'ArrowLeft') goPrev();
-      if (event.key === 'ArrowRight') goNext();
+      if (event.key === 'ArrowRight' && !event.shiftKey) goNext();
+      if (event.key === 'ArrowRight' && event.shiftKey) { event.preventDefault(); markKnown(); }
+      if (event.key === 'ArrowDown') { event.preventDefault(); markDontKnow(); }
     });
   </script>
 
   <script type="module">
     const base = window.SITE_BASE_PATH || '';
     const { renderNavbar } = await import(base + '/js/navbar.js');
-    const { initAuth } = await import(base + '/js/auth-store.js');
-    await initAuth();
+    const { initAuth, authStore } = await import(base + '/js/auth-store.js');
+    const { addToMistakeBook } = await import(base + '/js/db.js');
+
+    // Bridge for inline script
+    window._mistakeBook = { addToMistakeBook };
+    window._auth = authStore;
+
+    try {
+      await initAuth();
+      console.log('[错题本·词汇] Bridge loaded, user:', authStore.user ? authStore.user.email : 'anonymous');
+    } catch (e) {
+      console.warn('[错题本·词汇] Auth warning:', e.message);
+    }
     renderNavbar();
   </script>
 </body>

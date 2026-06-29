@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>错题本 — IELTS Study Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
+  </script>
+  <script type="importmap">
+  { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.0" } }
+  </script>
+  <style>
+    body { background: #fafbfc; }
+    .tab-btn { transition: all 0.2s; }
+    .tab-btn.active { background: #243b53; color: #fff; }
+    .mb-item { transition: all 0.2s ease; }
+    .mb-item:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.02em; white-space: nowrap; }
+    .badge-reading { background: #fef3c7; color: #92400e; }
+    .badge-vocab { background: #ede9fe; color: #5b21b6; }
+    .badge-exam { background: #fee2e2; color: #991b1b; }
+    .badge-manual { background: #dbeafe; color: #1e40af; }
+    .badge-practice { background: #d1fae5; color: #065f46; }
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.6; }
+    .filter-btn { transition: all 0.15s; }
+    .filter-btn.active { background: #334e68; color: #fff; border-color: #334e68; }
+    .load-more-btn { transition: all 0.15s; }
+    .load-more-btn:hover { transform: translateY(-1px); }
+  </style>
+</head>
+<body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header (rendered by navbar.js) -->
+  <div id="navbar-container"></div>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow w-full">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3">
+      <div>
+        <a href="./" class="inline-flex items-center text-sm text-brand-400 hover:text-brand-700 no-underline mb-2">← 返回练习中心</a>
+        <h1 class="text-2xl sm:text-3xl font-serif font-bold text-brand-900 mb-1">📘 错题本</h1>
+        <p class="text-sm sm:text-base text-brand-500">收录模拟考试与词汇练习中的错题 · 支持手动添加 · 随时复习</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+      <!-- Question type filter -->
+      <div class="flex gap-1 bg-brand-50 rounded-xl p-1 flex-shrink-0">
+        <button class="filter-btn active px-3 py-2 rounded-lg text-sm font-medium" data-qtype="all" onclick="setFilter('questionType', 'all', this)">全部题型</button>
+        <button class="filter-btn px-3 py-2 rounded-lg text-sm font-medium text-brand-600" data-qtype="reading" onclick="setFilter('questionType', 'reading', this)">📖 阅读题</button>
+        <button class="filter-btn px-3 py-2 rounded-lg text-sm font-medium text-brand-600" data-qtype="vocabulary" onclick="setFilter('questionType', 'vocabulary', this)">📝 词汇题</button>
+      </div>
+      <!-- Source type filter -->
+      <div class="flex gap-1 bg-brand-50 rounded-xl p-1 flex-shrink-0">
+        <button class="filter-btn active px-3 py-2 rounded-lg text-sm font-medium" data-stype="all" onclick="setFilter('sourceType', 'all', this)">全部来源</button>
+        <button class="filter-btn px-3 py-2 rounded-lg text-sm font-medium text-brand-600" data-stype="exam" onclick="setFilter('sourceType', 'exam', this)">考试收录</button>
+        <button class="filter-btn px-3 py-2 rounded-lg text-sm font-medium text-brand-600" data-stype="practice" onclick="setFilter('sourceType', 'practice', this)">练习收录</button>
+        <button class="filter-btn px-3 py-2 rounded-lg text-sm font-medium text-brand-600" data-stype="manual" onclick="setFilter('sourceType', 'manual', this)">手动添加</button>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div id="stats-bar" class="flex items-center gap-4 mb-4 text-xs text-brand-400">
+      <span id="stats-count">加载中...</span>
+    </div>
+
+    <!-- Items list -->
+    <div id="items-container" class="space-y-3">
+      <!-- Skeleton loading -->
+      <div class="mb-item bg-white rounded-2xl border border-brand-100 p-5 animate-pulse">
+        <div class="h-4 bg-brand-100 rounded w-3/4 mb-3"></div>
+        <div class="h-3 bg-brand-50 rounded w-1/2 mb-2"></div>
+        <div class="flex gap-2"><div class="h-5 bg-brand-50 rounded-full w-16"></div><div class="h-5 bg-brand-50 rounded-full w-20"></div></div>
+      </div>
+    </div>
+
+    <!-- Load more -->
+    <div id="load-more-container" class="text-center mt-6" style="display:none;">
+      <button class="load-more-btn px-6 py-3 bg-white border border-brand-200 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 hover:border-brand-300 transition-colors"
+        onclick="loadMore()">
+        加载更多 ↓
+      </button>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-100 py-6 px-6 bg-white/50 mt-8">
+    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · Mistake Book synced to your account via Supabase</p>
+    </div>
+  </footer>
+
+  <!-- Supabase modules: auth store + auth guard + navbar + db bridge -->
+  <script type="module" src="./js/auth-store.js"></script>
+  <script type="module" src="./js/auth-guard.js"></script>
+  <script type="module" src="./js/navbar.js"></script>
+  <script type="module">
+    import { renderNavbar } from './js/navbar.js';
+    import { initAuth, authStore } from './js/auth-store.js';
+    import { getMistakeBookItems, addToMistakeBook, removeFromMistakeBook, isInMistakeBook } from './js/db.js';
+
+    // Always set up bridge first
+    window._mistakeBook = { getMistakeBookItems, addToMistakeBook, removeFromMistakeBook, isInMistakeBook };
+    window._auth = authStore;
+
+    try {
+      await initAuth();
+      renderNavbar();
+      console.log('[错题本] Bridge loaded, user:', authStore.user ? authStore.user.email : 'anonymous');
+    } catch (e) {
+      console.warn('[错题本] Auth init warning:', e.message);
+      renderNavbar();
+    }
+  </script>
+
+  <script>
+    // ── Global state ──
+    let allItems = [];
+    let currentPage = 1;
+    const PAGE_SIZE = 20;
+    let totalItems = 0;
+    let hasMore = false;
+    let filters = { questionType: null, sourceType: null };
+    let questionMetaCache = {};  // fallback cache from JSON files
+
+    // ── Escape HTML ──
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function truncate(str, maxLen) {
+      if (!str) return '';
+      return str.length > maxLen ? str.substring(0, maxLen) + '…' : str;
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '—';
+      return new Date(ts).toLocaleString('zh-CN');
+    }
+
+    // ── Normalize reading question type for display ──
+    function normalizeReadingType(rawType) {
+      const t = String(rawType || '').toUpperCase();
+      if (t === 'TRUE_FALSE_NOT_GIVEN' || t === 'IDENTIFYING') return '判断题';
+      if (t === 'SHORT_ANSWER' || t === 'COMPLETION') return '填空题';
+      if (t === 'CHOICE') return '单选题';
+      if (t === 'MATCHING') return '匹配题';
+      return rawType || '';
+    }
+
+    // ── Set filter ──
+    function setFilter(filterKey, value, btn) {
+      filters[filterKey] = value === 'all' ? null : value;
+
+      // Update active class on sibling buttons
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Reset and reload
+      currentPage = 1;
+      allItems = [];
+      loadItems();
+    }
+
+    // ── Load items (page 1 or next page) ──
+    async function loadItems() {
+      if (!window._mistakeBook) {
+        await waitForBridge();
+      }
+
+      const container = document.getElementById('items-container');
+      if (currentPage === 1) {
+        container.innerHTML = '<p class="text-center text-brand-400 py-8">加载中...</p>';
+      }
+
+      const opts = { page: currentPage, pageSize: PAGE_SIZE };
+      if (filters.questionType) opts.questionType = filters.questionType;
+      if (filters.sourceType) opts.sourceType = filters.sourceType;
+
+      try {
+        const result = await window._mistakeBook.getMistakeBookItems(opts);
+        if (currentPage === 1) {
+          allItems = result.items;
+        } else {
+          allItems = allItems.concat(result.items);
+        }
+        totalItems = result.total;
+        hasMore = result.hasMore;
+
+        document.getElementById('stats-count').textContent =
+          '共 ' + totalItems + ' 道错题' +
+          (filters.questionType || filters.sourceType ? '（已筛选）' : '') +
+          ' · 第 ' + currentPage + ' 页';
+
+        renderItems();
+        document.getElementById('load-more-container').style.display = hasMore ? 'block' : 'none';
+      } catch (err) {
+        console.error('[错题本] Load failed:', err);
+        if (currentPage === 1) {
+          container.innerHTML = '<p class="text-center text-red-500 py-8">加载失败，请刷新页面重试</p>';
+        }
+      }
+    }
+
+    function loadMore() {
+      currentPage++;
+      loadItems();
+    }
+
+    // ── Render items ──
+    function renderItems() {
+      const container = document.getElementById('items-container');
+
+      if (allItems.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📘</div>
+            <h3 class="text-lg font-bold text-brand-700 mb-2">错题本还是空的</h3>
+            <p class="text-sm text-brand-400 mb-4">
+              去 <a href="./reading-library.html" class="text-brand-600 underline">阅读题库</a> 开始模拟考试，答错的题目会自动收录。<br>
+              或在 <a href="./vocabulary" class="text-brand-600 underline">词汇学习</a> 中练习单词，标记不认识的词也会加入。
+            </p>
+            <div class="flex flex-wrap gap-2 justify-center">
+              <a href="./reading-library.html" class="inline-block px-5 py-2.5 bg-brand-800 text-white rounded-xl text-sm font-medium hover:bg-brand-900 transition-colors no-underline">去阅读题库 →</a>
+              <a href="./" class="inline-block px-5 py-2.5 border border-brand-200 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 transition-colors no-underline">返回练习中心</a>
+            </div>
+          </div>`;
+        document.getElementById('load-more-container').style.display = 'none';
+        return;
+      }
+
+      container.innerHTML = allItems.map(item => renderItemCard(item)).join('');
+    }
+
+    function renderItemCard(item) {
+      const qtype = item.questionType || 'reading';
+      const payload = item.questionPayload || {};
+
+      if (qtype === 'vocabulary') {
+        return renderVocabCard(item, payload);
+      }
+      return renderReadingCard(item, payload);
+    }
+
+    // ── Reading question card ──
+    function renderReadingCard(item, payload) {
+      const questionText = payload.questionText || '题目 #' + item.questionId;
+      const typeDisplay = normalizeReadingType(payload.type) || '阅读理解';
+      const correctAnswer = payload.correctAnswer || '';
+      const topic = payload.topic || '';
+      const testTitle = payload.testTitle || item.sourceExamId || '';
+
+      const sourceTypeLabel = { exam: '考试收录', manual: '手动添加', practice: '练习收录' }[item.sourceType] || item.sourceType;
+      const sourceClass = 'badge-' + (item.sourceType === 'exam' ? 'exam' : item.sourceType === 'practice' ? 'practice' : 'manual');
+
+      return `
+      <div class="mb-item bg-white rounded-2xl border border-brand-100 p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <!-- Type badge + Source badge -->
+            <div class="flex flex-wrap items-center gap-2 text-xs mb-2">
+              <span class="badge badge-reading">📖 阅读题</span>
+              <span class="badge ${sourceClass}">${sourceTypeLabel}</span>
+              <span class="badge" style="background:#f0f4f8;color:#486581;">${typeDisplay}</span>
+              ${topic ? `<span class="badge" style="background:#f0f4f8;color:#486581;">🏷 ${escapeHtml(topic)}</span>` : ''}
+            </div>
+
+            <!-- Question text -->
+            <p class="text-brand-800 font-medium leading-relaxed mb-2">
+              <span class="text-brand-400 text-xs mr-1">Q${escapeHtml(item.questionId)}.</span>
+              ${escapeHtml(truncate(questionText, 250))}
+            </p>
+
+            <!-- Correct answer -->
+            ${correctAnswer ? `<p class="text-xs text-green-600 mb-2">✓ 正确答案: ${escapeHtml(correctAnswer)}</p>` : ''}
+
+            <!-- Source / test -->
+            ${testTitle ? `<p class="text-xs text-brand-400 mb-1">📄 ${escapeHtml(truncate(testTitle, 50))}</p>` : ''}
+
+            <!-- Stats -->
+            <div class="flex flex-wrap items-center gap-3 mt-2 text-xs text-brand-400">
+              <span title="答错次数">❌ 答错 <b class="text-brand-600">${item.wrongCount}</b> 次</span>
+              <span title="最近答错">🕐 ${formatTime(item.lastWrongAt)}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-2 flex-shrink-0">
+            <button class="text-xs px-3 py-1.5 bg-brand-800 text-white rounded-lg hover:bg-brand-900 transition-colors whitespace-nowrap"
+              onclick="goToTest('${escapeHtml(item.sourceExamId || '')}')">🔄 重练</button>
+            <button class="text-xs px-3 py-1.5 border border-brand-200 rounded-lg text-brand-500 hover:text-red-500 hover:border-red-200 transition-colors whitespace-nowrap"
+              onclick="removeItem('${escapeHtml(item.id)}')">🗑 移除</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // ── Vocabulary card ──
+    function renderVocabCard(item, payload) {
+      const word = payload.word || item.questionId;
+      const pos = payload.pos || '';
+      const chinese = payload.chinese || '';
+      const definition = payload.definition || '';
+      const example = payload.example || '';
+      const theme = payload.theme || payload.source || '';
+      const synonyms = Array.isArray(payload.synonyms) ? payload.synonyms : [];
+      const difficulty = payload.difficulty || 0;
+
+      const sourceTypeLabel = { exam: '考试收录', manual: '手动添加', practice: '练习收录' }[item.sourceType] || item.sourceType;
+      const sourceClass = 'badge-' + (item.sourceType === 'exam' ? 'exam' : item.sourceType === 'practice' ? 'practice' : 'manual');
+
+      return `
+      <div class="mb-item bg-white rounded-2xl border border-brand-100 p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <!-- Type badge + Source badge -->
+            <div class="flex flex-wrap items-center gap-2 text-xs mb-2">
+              <span class="badge badge-vocab">📝 词汇题</span>
+              <span class="badge ${sourceClass}">${sourceTypeLabel}</span>
+              ${pos ? `<span class="badge" style="background:#f0f4f8;color:#486581;">${escapeHtml(pos)}</span>` : ''}
+              ${theme ? `<span class="badge" style="background:#f0f4f8;color:#486581;">🏷 ${escapeHtml(theme)}</span>` : ''}
+            </div>
+
+            <!-- Word (as title) -->
+            <p class="text-lg font-serif font-bold text-brand-900 mb-1">${escapeHtml(word)}</p>
+            ${chinese ? `<p class="text-sm text-brand-600 mb-1">${escapeHtml(chinese)}</p>` : ''}
+            ${definition ? `<p class="text-sm text-brand-500 leading-relaxed mb-2">${escapeHtml(truncate(definition, 200))}</p>` : ''}
+            ${example ? `<p class="text-xs italic text-brand-400 mb-2">"${escapeHtml(truncate(example, 200))}"</p>` : ''}
+
+            <!-- Synonyms -->
+            ${synonyms.length > 0 ? `
+            <div class="flex flex-wrap gap-1 mt-1 mb-2">
+              ${synonyms.slice(0, 6).map(s => `<span class="badge" style="background:#f0f4f8;color:#627d98;font-size:0.6rem;">${escapeHtml(s)}</span>`).join('')}
+            </div>` : ''}
+
+            <!-- Difficulty dots -->
+            ${difficulty > 0 ? `
+            <div class="flex items-center gap-1 mb-2">
+              ${[1,2,3,4,5].map(d => `<span class="inline-block w-2 h-2 rounded-full ${d <= difficulty ? 'bg-brand-700' : 'bg-brand-200'}"></span>`).join('')}
+            </div>` : ''}
+
+            <!-- Stats -->
+            <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-brand-400">
+              <span title="答错次数">❌ 答错 <b class="text-brand-600">${item.wrongCount}</b> 次</span>
+              <span title="最近答错">🕐 ${formatTime(item.lastWrongAt)}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-2 flex-shrink-0">
+            <button class="text-xs px-3 py-1.5 bg-brand-800 text-white rounded-lg hover:bg-brand-900 transition-colors whitespace-nowrap"
+              onclick="goToDeck('${escapeHtml(item.sourceExamId || '')}')">🔄 复习</button>
+            <button class="text-xs px-3 py-1.5 border border-brand-200 rounded-lg text-brand-500 hover:text-red-500 hover:border-red-200 transition-colors whitespace-nowrap"
+              onclick="removeItem('${escapeHtml(item.id)}')">🗑 移除</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // ── Go to test ──
+    function goToTest(testId) {
+      if (testId) {
+        window.location.href = './mock-test.html?testId=' + encodeURIComponent(testId);
+      } else {
+        window.location.href = './mock-test.html';
+      }
+    }
+
+    // ── Go to vocab deck ──
+    function goToDeck(deckId) {
+      if (deckId) {
+        window.location.href = './vocabulary/deck/' + encodeURIComponent(deckId);
+      } else {
+        window.location.href = './vocabulary';
+      }
+    }
+
+    // ── Remove item ──
+    async function removeItem(id) {
+      if (!window._mistakeBook) return;
+      if (!confirm('确定要从错题本中移除这道题吗？')) return;
+
+      const ok = await window._mistakeBook.removeFromMistakeBook(id);
+      if (ok) {
+        allItems = allItems.filter(item => item.id !== id);
+        totalItems--;
+        renderItems();
+        document.getElementById('stats-count').textContent =
+          '共 ' + totalItems + ' 道错题' +
+          (filters.questionType || filters.sourceType ? '（已筛选）' : '') +
+          ' · 第 ' + currentPage + ' 页';
+      } else {
+        alert('移除失败，请重试');
+      }
+    }
+
+    // ── Wait for bridge ──
+    async function waitForBridge() {
+      if (window._mistakeBook) return;
+      await new Promise(r => {
+        const check = () => { if (window._mistakeBook) r(); else setTimeout(check, 50); };
+        check();
+      });
+    }
+
+    // ── Init ──
+    (async function init() {
+      await waitForBridge();
+      loadItems();
+    })();
+  </script>
+</body>
+</html>

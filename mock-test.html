@@ -332,6 +332,35 @@
       white-space: nowrap;
     }
 
+    /* Mistake book button (错题本) */
+    .mb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #d9e2ec;
+      background: #fff;
+      color: #627d98;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+      white-space: nowrap;
+    }
+    .mb-btn:hover { border-color: #9fb3c8; color: #334e68; background: #f8fafc; }
+    .mb-btn.added {
+      border-color: #a7f3d0;
+      background: #f0fdf4;
+      color: #065f46;
+      cursor: default;
+    }
+    .mb-btn.loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
     /* ===== BOTTOM NAVIGATOR ===== */
     #bottom-nav {
       height: 56px;
@@ -441,7 +470,7 @@
   <!-- ==================== TOP EXAM BAR ==================== -->
   <div id="exam-topbar">
     <div class="flex items-center gap-4">
-      <a href="./reading-library.html" class="topbar-btn" title="返回题库大厅" style="text-decoration:none;">←</a>
+      <a href="./reading-library.html" class="topbar-btn" title="返回阅读题库" style="text-decoration:none;">←</a>
       <span class="test-label">IELTS Academic · Reading</span>
       <span class="section-indicator" id="section-indicator">Section 1 of 3</span>
     </div>
@@ -452,6 +481,7 @@
     </div>
 
     <div class="topbar-actions">
+      <a href="./mistake-book.html" class="topbar-btn" title="错题本" style="text-decoration:none;font-size:13px;">📘</a>
       <button class="topbar-btn" title="字体大小" onclick="changeFontSize()" style="font-size:13px;font-weight:700;">Aa</button>
       <button class="topbar-btn" title="帮助" onclick="toggleHelp()">?</button>
       <button class="topbar-btn" title="提交试卷" onclick="submitTest()" style="font-size:13px;">✓</button>
@@ -489,6 +519,11 @@
       <div>
         <button class="btn-secondary" onclick="reviewAnswers()">查看答案</button>
         <button class="btn-primary" onclick="resetTest()">重新开始</button>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #d9e2ec;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        <a href="./mistake-book.html" class="no-underline text-xs px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-600 hover:bg-indigo-50 transition-colors">📘 查看错题本</a>
+        <a href="./" class="no-underline text-xs px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 hover:bg-brand-50 transition-colors">🏠 返回练习中心</a>
+        <a href="./reading-library.html" class="no-underline text-xs px-3 py-1.5 rounded-lg border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition-colors">📖 继续刷题</a>
       </div>
     </div>
   </div>
@@ -559,7 +594,7 @@ async function loadTestData() {
       test = tests[0];
     }
     if (!test) {
-      document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">题库暂无可用试卷，请先 <a href="./reading-library.html" style="color:#334e68;">返回题库大厅</a>。</p>';
+      document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">题库暂无可用试卷，请先 <a href="./reading-library.html" style="color:#334e68;">返回阅读题库</a>。</p>';
       return;
     }
 
@@ -588,7 +623,7 @@ async function loadTestData() {
     updateSectionIndicator();
   } catch (err) {
     console.error('Failed to load test data:', err);
-    document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">加载试卷失败，请 <a href="./reading-library.html" style="color:#334e68;">返回题库大厅</a> 重试。</p>';
+    document.getElementById('passage-content').innerHTML = '<p style="color:red;text-align:center;padding-top:40px;">加载试卷失败，请 <a href="./reading-library.html" style="color:#334e68;">返回阅读题库</a> 重试。</p>';
   }
 }
 
@@ -1021,6 +1056,52 @@ function submitTest() {
 
   // Show correct/incorrect on questions
   showAnswerResults();
+
+  // Auto-add wrong answers to mistake book
+  autoAddWrongQuestions();
+}
+
+function autoAddWrongQuestions() {
+  if (!window._mistakeBook) {
+    console.warn('[错题本] db bridge not loaded, skipping auto-collection');
+    return;
+  }
+  const passage = testData.passages[0];
+  const examId = currentTestMeta ? currentTestMeta.id : '';
+
+  passage.questions.forEach(q => {
+    const userAns = userAnswers[q.id];
+    const qtype = normalizeQuestionType(q);
+    let isCorrect = false;
+
+    if (qtype === 'IDENTIFYING') {
+      isCorrect = userAns === q.correctAnswer;
+    } else {
+      isCorrect = isTextAnswerCorrect(userAns, q.answerText || q.correctAnswer);
+    }
+
+    if (!isCorrect) {
+      // Build question payload for display later
+      const payload = {
+        questionText: q.questionText || '',
+        type: q.type || q.legacyType || '',
+        correctAnswer: q.correctAnswer || q.answerText || '',
+        topic: currentTestMeta ? currentTestMeta.topic : '',
+        testTitle: currentTestMeta ? currentTestMeta.title : '',
+      };
+      window._mistakeBook.addToMistakeBook(String(q.id), 'exam', examId, {
+        questionType: 'reading',
+        questionPayload: payload
+      })
+        .then(result => {
+          if (result) {
+            console.log('[错题本] Auto-added reading question', q.id);
+            updateMistakeBookButton(q.id);
+          }
+        })
+        .catch(err => console.error('[错题本] Auto-add failed for question', q.id, err));
+    }
+  });
 }
 
 function showAnswerResults() {
@@ -1060,7 +1141,108 @@ function showAnswerResults() {
         }
       }
     }
+
+    // Append "加入错题本" / "已加入错题本" button
+    appendMistakeBookButton(block, q.id);
   });
+}
+
+function appendMistakeBookButton(block, qid) {
+  // Avoid duplicate buttons
+  if (block.querySelector('.mb-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.className = 'mb-btn loading';
+  btn.dataset.qid = String(qid);
+  btn.innerHTML = '⏳ ...';
+  btn.onclick = function() { toggleMistakeBookItem(String(qid), btn); };
+  block.appendChild(btn);
+
+  // Check current state from DB
+  if (window._mistakeBook) {
+    window._mistakeBook.isInMistakeBook(String(qid), 'reading').then(recordId => {
+      if (recordId) {
+        btn.className = 'mb-btn added';
+        btn.innerHTML = '📘 已加入错题本';
+        btn.dataset.recordId = recordId;
+      } else {
+        btn.className = 'mb-btn';
+        btn.innerHTML = '📘 加入错题本';
+      }
+    }).catch(() => {
+      btn.className = 'mb-btn';
+      btn.innerHTML = '📘 加入错题本';
+    });
+  } else {
+    // DB bridge not loaded — show disabled state
+    btn.className = 'mb-btn';
+    btn.innerHTML = '📘 加入错题本';
+    btn.style.opacity = '0.5';
+    btn.title = '请先登录';
+  }
+}
+
+function updateMistakeBookButton(qid) {
+  const btn = document.querySelector('.mb-btn[data-qid="' + String(qid) + '"]');
+  if (!btn || !window._mistakeBook) return;
+
+  window._mistakeBook.isInMistakeBook(String(qid), 'reading').then(recordId => {
+    if (recordId) {
+      btn.className = 'mb-btn added';
+      btn.innerHTML = '📘 已加入错题本';
+      btn.dataset.recordId = recordId;
+    }
+  }).catch(() => {});
+}
+
+async function toggleMistakeBookItem(qid, btn) {
+  if (!window._mistakeBook) return;
+  if (btn.classList.contains('added')) {
+    // Already in book — clicking removes it
+    if (btn.dataset.recordId) {
+      await window._mistakeBook.removeFromMistakeBook(btn.dataset.recordId);
+      btn.className = 'mb-btn';
+      btn.innerHTML = '📘 加入错题本';
+      delete btn.dataset.recordId;
+    }
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.innerHTML = '⏳ ...';
+
+  const examId = currentTestMeta ? currentTestMeta.id : '';
+  const q = (testData && testData.passages[0])
+    ? testData.passages[0].questions.find(qq => String(qq.id) === String(qid))
+    : null;
+  const payload = q ? {
+    questionText: q.questionText || '',
+    type: q.type || q.legacyType || '',
+    correctAnswer: q.correctAnswer || q.answerText || '',
+    topic: currentTestMeta ? currentTestMeta.topic : '',
+    testTitle: currentTestMeta ? currentTestMeta.title : '',
+  } : {};
+
+  try {
+    const result = await window._mistakeBook.addToMistakeBook(String(qid), 'manual', examId, {
+      questionType: 'reading',
+      questionPayload: payload
+    });
+    if (result) {
+      btn.className = 'mb-btn added';
+      btn.innerHTML = '📘 已加入错题本';
+      btn.dataset.recordId = result.id;
+    } else {
+      btn.className = 'mb-btn';
+      btn.innerHTML = '📘 加入错题本（失败）';
+      setTimeout(() => { btn.innerHTML = '📘 加入错题本'; }, 2000);
+    }
+  } catch (e) {
+    console.error('[错题本] toggleMistakeBookItem error:', e);
+    btn.className = 'mb-btn';
+    btn.innerHTML = '📘 加入错题本（失败）';
+    setTimeout(() => { btn.innerHTML = '📘 加入错题本'; }, 2000);
+  }
 }
 
 function answerIncludesOption(answer, value) {
@@ -1160,8 +1342,24 @@ console.log('   Press Ctrl+←/→ to navigate questions. Tab to go to next ques
 </script>
 
 
-  <!-- Supabase modules: auth guard (protected page) -->
+  <!-- Supabase modules: auth guard (protected page) + db bridge -->
   <script type="module" src="./js/auth-store.js"></script>
   <script type="module" src="./js/auth-guard.js"></script>
+  <script type="module">
+    import { initAuth, authStore } from './js/auth-store.js';
+    import { addToMistakeBook, isInMistakeBook, removeFromMistakeBook } from './js/db.js';
+
+    // Always set up the bridge, even if initAuth encounters issues
+    const bridge = { addToMistakeBook, isInMistakeBook, removeFromMistakeBook };
+    window._mistakeBook = bridge;
+    window._auth = authStore;
+
+    try {
+      await initAuth();
+      console.log('[错题本] Bridge loaded — auto-collection enabled (user: ' + (authStore.user ? authStore.user.email : 'anonymous') + ')');
+    } catch (e) {
+      console.warn('[错题本] Bridge loaded but initAuth failed:', e.message);
+    }
+  </script>
 </body>
 </html>
