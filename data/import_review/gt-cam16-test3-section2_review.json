@@ -1,0 +1,106 @@
+{
+  "id": "gt-cam16-test3-section2",
+  "testType": "general",
+  "title": "Qualities That Make a Great Barista & Running a Meeting",
+  "topic": "Workplace — Hospitality & Management Skills",
+  "source": "Cambridge IELTS 16 General Training Test 3 Section 2",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 720,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Qualities that make a great barista</h3><p>Truly great baristas take the time to develop the key skills that will enable them to deliver the highest possible quality of coffee-based beverage and service. As a barista, you must make a concerted effort to listen to exactly what the customer wants and produce drinks that are correct for them. It is important to filter out any distractions and ignore the conversation going on around you.</p><p>Great baristas also know their equipment inside out. The coffee machine needs to be kept clean, and fresh milk should always be used. The grind of the coffee is critical — if it is too coarse, the coffee will taste weak and lack flavour; if it is too fine, the result can be unpleasantly bitter. The filter in the machine must be changed regularly to ensure consistent quality.</p><p>Beyond technical skills, outstanding baristas have a genuine passion for their craft. They take pride in creating beautiful latte art and are constantly seeking to improve their skills. A great barista remembers regular customers' orders, creating a welcoming atmosphere that keeps people coming back.</p><hr><h3>Running a meeting</h3><p>If you're running a meeting for the first time, here are a few tips to help you. Prior to the meeting, think about the seating and arrange it in an appropriate way. It is a good idea to prepare a meeting agenda and circulate it to participants in advance, along with any relevant information they might need.</p><p>During the meeting, it is important to stay focused on the agenda and avoid getting sidetracked. If a discussion goes off topic, acknowledge the point but suggest it be discussed at another time. At the end of the meeting, summarise the key decisions and agreed actions. This helps to avoid any confusion and ensures everyone knows what is expected of them going forward.</p>",
+  "questions": [
+    {
+      "id": 15,
+      "type": "COMPLETION",
+      "questionText": "Be sure you make drinks that are _____ for the customer. (ONE WORD)",
+      "correctAnswer": "correct",
+      "wordLimit": 1
+    },
+    {
+      "id": 16,
+      "type": "COMPLETION",
+      "questionText": "Ignore any _____ around you. (ONE WORD)",
+      "correctAnswer": "conversation",
+      "wordLimit": 1
+    },
+    {
+      "id": 17,
+      "type": "COMPLETION",
+      "questionText": "The coffee machine needs to be kept clean and the _____ must be fresh. (ONE WORD)",
+      "correctAnswer": "filter",
+      "wordLimit": 1
+    },
+    {
+      "id": 18,
+      "type": "COMPLETION",
+      "questionText": "If coffee is too coarse, it will lack _____. (ONE WORD)",
+      "correctAnswer": "flavour",
+      "wordLimit": 1
+    },
+    {
+      "id": 19,
+      "type": "COMPLETION",
+      "questionText": "If the coffee grind is too fine, it will taste _____. (ONE WORD)",
+      "correctAnswer": "bitter",
+      "wordLimit": 1
+    },
+    {
+      "id": 20,
+      "type": "COMPLETION",
+      "questionText": "Great baristas take pride in creating beautiful latte _____. (ONE WORD)",
+      "correctAnswer": "art",
+      "wordLimit": 1
+    },
+    {
+      "id": 21,
+      "type": "COMPLETION",
+      "questionText": "Plan the seating and choose a suitable _____. (ONE WORD)",
+      "correctAnswer": "day",
+      "wordLimit": 1
+    },
+    {
+      "id": 22,
+      "type": "COMPLETION",
+      "questionText": "Prepare and circulate the agenda, plus any relevant _____. (ONE WORD)",
+      "correctAnswer": "issues",
+      "wordLimit": 1
+    },
+    {
+      "id": 23,
+      "type": "COMPLETION",
+      "questionText": "Give participants the agenda and _____ in advance. (TWO WORDS)",
+      "correctAnswer": "relevant information",
+      "wordLimit": 2
+    },
+    {
+      "id": 24,
+      "type": "COMPLETION",
+      "questionText": "Keep the meeting focused on the _____. (TWO WORDS)",
+      "correctAnswer": "meeting agenda",
+      "wordLimit": 2
+    },
+    {
+      "id": 25,
+      "type": "COMPLETION",
+      "questionText": "Handle _____ quickly if they arise. (ONE WORD)",
+      "correctAnswer": "conflicts",
+      "wordLimit": 1
+    },
+    {
+      "id": 26,
+      "type": "COMPLETION",
+      "questionText": "Try to avoid any feelings of _____ among participants. (ONE WORD)",
+      "correctAnswer": "tension",
+      "wordLimit": 1
+    },
+    {
+      "id": 27,
+      "type": "COMPLETION",
+      "questionText": "Close with a brief _____ to maintain good relations. (TWO WORDS)",
+      "correctAnswer": "social activity",
+      "wordLimit": 2
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "gt-cam16-test2-section2",
+  "testType": "general",
+  "title": "Barrington Music Service: Business Manager & Health and Safety in Small Businesses",
+  "topic": "Workplace — Job Applications & Workplace Safety",
+  "source": "Cambridge IELTS 16 General Training Test 2 Section 2",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 750,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Barrington Music Service: Business and Development Manager</h3><p>Barrington Music Service organises a wide range of music activities for children and young people resident in and around Barrington. It provides singing and specialist instrumental lessons in schools, and it owns a collection of instruments for use in schools, as well as arranging hire instruments. The service runs events such as festivals for local and visiting schools and supports the Barrington Youth Orchestra.</p><p>The Business and Development Manager post requires someone who can identify new income streams and manage the budget effectively. The successful candidate will be responsible for developing partnerships with external organisations and will seek to increase the diversity of activities available. They will also maintain a database of all financial transactions and be responsible for all accounting procedures.</p><hr><h3>Health and safety in small businesses</h3><p>The rate of accidents at work is almost 75% higher in small businesses than in larger companies. One possible reason is that many managers of small businesses have an inadequate knowledge of health and safety issues.</p><p>Many managers of small businesses claim their situation is made worse by bureaucracy, arguing that too many regulations and too much paperwork make it hard for them to understand their responsibilities. However, health and safety regulations are not as complex as many managers believe. The key requirement is simply that employers do what is reasonably practicable to ensure the safety of their employees and anyone else who might be affected by their work.</p><p>Good health and safety management does not need to be costly. Simple measures such as providing information through leaflets and safety notices can be highly effective. All employers are required by law to have a written health and safety policy statement. This document should set out how health and safety is managed in the business and who has specific responsibilities. When using external contractors, it is essential to ensure they follow the same safety standards as permanent staff.</p><p>Finally, it is important to remember that good health and safety is not just about avoiding accidents — it can also reduce workplace stress and improve overall productivity.</p>",
+  "questions": [
+    {
+      "id": 15,
+      "type": "COMPLETION",
+      "questionText": "Barrington Music Service runs events such as _____ for local and visiting schools. (ONE WORD)",
+      "correctAnswer": "festivals",
+      "wordLimit": 1
+    },
+    {
+      "id": 16,
+      "type": "COMPLETION",
+      "questionText": "The Business and Development Manager needs to manage the _____ effectively. (ONE WORD)",
+      "correctAnswer": "budget",
+      "wordLimit": 1
+    },
+    {
+      "id": 17,
+      "type": "COMPLETION",
+      "questionText": "The postholder will develop _____ with external organisations. (ONE WORD)",
+      "correctAnswer": "partnerships",
+      "wordLimit": 1
+    },
+    {
+      "id": 18,
+      "type": "COMPLETION",
+      "questionText": "Increase the _____ of activities available. (ONE WORD)",
+      "correctAnswer": "diversity",
+      "wordLimit": 1
+    },
+    {
+      "id": 19,
+      "type": "COMPLETION",
+      "questionText": "Maintain a _____ of all financial transactions. (ONE WORD)",
+      "correctAnswer": "database",
+      "wordLimit": 1
+    },
+    {
+      "id": 20,
+      "type": "COMPLETION",
+      "questionText": "Be responsible for all _____ procedures. (ONE WORD)",
+      "correctAnswer": "accounting",
+      "wordLimit": 1
+    },
+    {
+      "id": 21,
+      "type": "COMPLETION",
+      "questionText": "One cause of health and safety problems in small businesses is that managers do not have enough relevant _____. (ONE WORD)",
+      "correctAnswer": "knowledge",
+      "wordLimit": 1
+    },
+    {
+      "id": 22,
+      "type": "COMPLETION",
+      "questionText": "Managers complain they have too many _____ to deal with. (ONE WORD)",
+      "correctAnswer": "regulations",
+      "wordLimit": 1
+    },
+    {
+      "id": 23,
+      "type": "COMPLETION",
+      "questionText": "Employers must do what is reasonably practicable regarding safety _____. (ONE WORD)",
+      "correctAnswer": "responsibilities",
+      "wordLimit": 1
+    },
+    {
+      "id": 24,
+      "type": "COMPLETION",
+      "questionText": "Information can be provided to staff through documents such as _____. (ONE WORD)",
+      "correctAnswer": "leaflets",
+      "wordLimit": 1
+    },
+    {
+      "id": 25,
+      "type": "COMPLETION",
+      "questionText": "Every employer must have a written health and safety policy _____. (ONE WORD)",
+      "correctAnswer": "statement",
+      "wordLimit": 1
+    },
+    {
+      "id": 26,
+      "type": "COMPLETION",
+      "questionText": "External _____ must follow the same safety standards as permanent staff. (ONE WORD)",
+      "correctAnswer": "contractors",
+      "wordLimit": 1
+    },
+    {
+      "id": 27,
+      "type": "COMPLETION",
+      "questionText": "Good health and safety can reduce workplace _____. (ONE WORD)",
+      "correctAnswer": "stress",
+      "wordLimit": 1
+    }
+  ]
+}

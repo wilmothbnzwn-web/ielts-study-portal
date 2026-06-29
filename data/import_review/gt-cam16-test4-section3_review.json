@@ -1,0 +1,151 @@
+{
+  "id": "gt-cam16-test4-section3",
+  "testType": "general",
+  "title": "History of Women's Football in Britain",
+  "topic": "History — Sport & Society",
+  "source": "Cambridge IELTS 16 General Training Test 4 Section 3",
+  "difficulty": 3,
+  "totalTime": 1200,
+  "wordCount": 850,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>History of women's football in Britain</h3><p>Women's football in Britain has deeper roots than might be expected. In one town in 18th-century Scotland, single women played an annual match against married women, and it was reported that the single women won every year. At the time, it was sometimes suggested that skill at football might be considered a desirable quality in a potential wife.</p><p>Those circumstances arose in 1914 with the outbreak of the First World War. With many men leaving their jobs to join the army, women took their places in factories across the country. It was in these factories that many women's football teams were formed, initially as a way of maintaining morale and promoting fitness among the female workforce.</p><p>The most famous of these teams was Dick, Kerr's Ladies, formed at a Preston munitions factory. Their star player, Lily Parr, is credited with 43 goals during her first season playing for Dick, Kerr's Ladies and around 1,000 in total. By 1921, Dick, Kerr's Ladies were regularly attracting crowds in the tens of thousands.</p><p>However, the success of women's football was not welcomed by everyone. The Football Association (FA) felt threatened by its popularity. In 1921, the FA banned women's football from its members' grounds, stating that football was 'quite unsuitable for females'. The FA also suggested that an excessive proportion of the gate receipts were absorbed in expenses and an inadequate percentage devoted to charitable purposes. To all intents and purposes, women's football in England was outlawed.</p><p>The ban lasted for 50 years until it was finally lifted in 1971. Since then, women's football has slowly but steadily rebuilt its following. The establishment of the Women's Super League in 2011 marked a significant turning point, bringing professional standards and increased media coverage to the women's game.</p>",
+  "questions": [
+    {
+      "id": 28,
+      "type": "CHOICE",
+      "questionText": "In the first paragraph, the writer says that in 18th-century Scotland",
+      "options": [
+        "A only unmarried women were allowed to play football.",
+        "B women's football was more common than men's football.",
+        "C women were sometimes forbidden to watch football matches.",
+        "D skill at football might be considered desirable in a wife."
+      ],
+      "correctAnswer": 3
+    },
+    {
+      "id": 29,
+      "type": "CHOICE",
+      "questionText": "Women's football teams were initially formed in factories to",
+      "options": [
+        "A provide entertainment for the male workers.",
+        "B raise money for the war effort.",
+        "C maintain morale and promote fitness among female workers.",
+        "D compete against men's teams."
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 30,
+      "type": "CHOICE",
+      "questionText": "The Football Association banned women's football in 1921 because",
+      "options": [
+        "A the players were not skilled enough.",
+        "B it felt threatened by the popularity of the women's game.",
+        "C the public had lost interest.",
+        "D there were not enough teams."
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 31,
+      "type": "CHOICE",
+      "questionText": "The ban on women's football lasted for approximately",
+      "options": [
+        "A 25 years",
+        "B 50 years",
+        "C 75 years",
+        "D 100 years"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 32,
+      "type": "MATCHING",
+      "questionText": "It felt threatened by the rise of women's football.",
+      "options": [
+        "A Dick, Kerr's Ladies",
+        "B The Football Association (FA)",
+        "C The Women's Super League",
+        "D The munitions factory"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 33,
+      "type": "MATCHING",
+      "questionText": "It was established by a male official at a factory.",
+      "options": [
+        "A Dick, Kerr's Ladies",
+        "B The Football Association (FA)",
+        "C The Women's Super League",
+        "D The munitions factory"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 34,
+      "type": "MATCHING",
+      "questionText": "Its formation marked a turning point for the professional women's game.",
+      "options": [
+        "A Dick, Kerr's Ladies",
+        "B The Football Association (FA)",
+        "C The Women's Super League",
+        "D The munitions factory"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 35,
+      "type": "MATCHING",
+      "questionText": "Its most famous player scored around 1,000 goals.",
+      "options": [
+        "A Dick, Kerr's Ladies",
+        "B The Football Association (FA)",
+        "C The Women's Super League",
+        "D The munitions factory"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 36,
+      "type": "CHOICE",
+      "questionText": "Lily Parr is best known for",
+      "options": [
+        "A being the first professional female footballer.",
+        "B scoring approximately 1,000 goals in her career.",
+        "C founding Dick, Kerr's Ladies.",
+        "D lifting the ban on women's football."
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 37,
+      "type": "COMPLETION",
+      "questionText": "The FA claimed gate receipts were absorbed in expenses rather than going to _____. (ONE WORD)",
+      "correctAnswer": "charity",
+      "wordLimit": 1
+    },
+    {
+      "id": 38,
+      "type": "COMPLETION",
+      "questionText": "Dick, Kerr's Ladies were formed at a munitions factory in _____. (ONE WORD)",
+      "correctAnswer": "Preston",
+      "wordLimit": 1
+    },
+    {
+      "id": 39,
+      "type": "COMPLETION",
+      "questionText": "After the ban, women's games were no longer played on FA members' _____. (ONE WORD)",
+      "correctAnswer": "grounds",
+      "wordLimit": 1
+    },
+    {
+      "id": 40,
+      "type": "COMPLETION",
+      "questionText": "The Women's Super League was established in _____. (ONE WORD)",
+      "correctAnswer": "2011",
+      "wordLimit": 1
+    }
+  ]
+}

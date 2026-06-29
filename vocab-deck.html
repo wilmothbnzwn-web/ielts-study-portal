@@ -13,9 +13,7 @@
   </script>
   <style>
     body { background: #f8fafc; }
-    .study-stage {
-      min-height: 360px;
-    }
+    .study-stage { min-height: 360px; }
     .study-stage .vocab-card {
       width: min(100%, 560px);
       min-height: 22rem;
@@ -26,45 +24,44 @@
       font-size: clamp(1.55rem, 4vw, 2.45rem);
       white-space: normal;
     }
-    .progress-track {
-      height: 8px;
-      border-radius: 999px;
-      background: #d9e2ec;
-      overflow: hidden;
+    .progress-track { height: 8px; border-radius: 999px; background: #d9e2ec; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, #334e68, #829ab1); transition: width 0.22s ease; }
+    .control-btn { min-width: 116px; transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease; }
+    .control-btn:not(:disabled):hover { transform: translateY(-1px); }
+    .control-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+    #dont-know-btn.added { background: #f0fdf4; color: #065f46; border-color: #a7f3d0; }
+
+    /* Mode tabs */
+    .mode-tab { transition: all 0.18s ease; cursor: pointer; }
+    .mode-tab.active { background: #243b53; color: #fff; }
+
+    /* Quiz option buttons */
+    .quiz-option {
+      transition: all 0.16s ease;
+      cursor: pointer;
     }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #334e68, #829ab1);
-      transition: width 0.22s ease;
+    .quiz-option:hover:not(.answered) {
+      transform: translateX(4px);
+      border-color: #829ab1;
     }
-    .control-btn {
-      min-width: 116px;
-      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
-    }
-    .control-btn:not(:disabled):hover {
-      transform: translateY(-1px);
-    }
-    .control-btn:disabled {
-      opacity: 0.42;
-      cursor: not-allowed;
-    }
-    #dont-know-btn.added {
-      background: #f0fdf4;
-      color: #065f46;
-      border-color: #a7f3d0;
-    }
+    .quiz-option.correct { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+    .quiz-option.wrong { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+    .quiz-option.answered { cursor: default; }
+
+    /* Spelling input */
+    .spell-input { font-size: 1.2rem; letter-spacing: 0.05em; }
+    .spell-result { transition: all 0.2s ease; }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
   <div id="navbar-container"></div>
 
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-7 sm:py-9 flex-grow w-full">
-    <a id="back-to-library" href="/vocabulary" class="inline-flex items-center text-sm text-brand-500 hover:text-brand-900 no-underline mb-5">← 返回词书大厅</a>
+    <a id="back-to-library" href="/vocabulary" class="inline-flex items-center text-sm text-brand-500 hover:text-brand-900 no-underline mb-5">← 返回词汇练习</a>
 
+    <!-- Deck header + Mode tabs -->
     <section class="bg-white border border-brand-100 rounded-lg p-4 sm:p-6 mb-5">
-      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
         <div>
           <p id="deck-tag" class="text-xs font-bold uppercase tracking-[0.18em] text-brand-400 mb-2">Deck</p>
           <h1 id="deck-title" class="text-2xl sm:text-3xl font-serif font-bold text-brand-900">加载词包中...</h1>
@@ -76,22 +73,36 @@
       <div class="progress-track" aria-hidden="true">
         <div id="progress-fill" class="progress-fill"></div>
       </div>
+      <!-- Mode tabs -->
+      <div class="flex gap-2 mt-4 flex-wrap" id="mode-tabs">
+        <button class="mode-tab active px-4 py-2 rounded-lg text-sm font-semibold" data-mode="flashcard" onclick="switchMode('flashcard')">📇 翻卡学习</button>
+        <button class="mode-tab px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100" data-mode="quiz" onclick="switchMode('quiz')">✏️ 选择题测验</button>
+        <button class="mode-tab px-4 py-2 rounded-lg text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100" data-mode="spelling" onclick="switchMode('spelling')">⌨️ 拼写练习</button>
+      </div>
     </section>
 
-    <section id="study-stage" class="study-stage flex items-center justify-center py-4 sm:py-6">
+    <!-- Flashcard stage -->
+    <section id="stage-flashcard" class="study-stage flex items-center justify-center py-4 sm:py-6">
       <p class="text-brand-400">Loading flashcard...</p>
     </section>
 
-    <section class="bg-white border border-brand-100 rounded-lg p-4 sm:p-5 mt-4">
+    <!-- Quiz stage (hidden initially) -->
+    <section id="stage-quiz" class="py-4 sm:py-6 hidden">
+      <div id="quiz-content" class="max-w-lg mx-auto"></div>
+    </section>
+
+    <!-- Spelling stage (hidden initially) -->
+    <section id="stage-spelling" class="py-4 sm:py-6 hidden">
+      <div id="spelling-content" class="max-w-lg mx-auto"></div>
+    </section>
+
+    <!-- Controls (flashcard mode) -->
+    <section id="controls-flashcard" class="bg-white border border-brand-100 rounded-lg p-4 sm:p-5 mt-4">
       <div class="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
         <button id="prev-btn" class="control-btn border border-brand-200 text-brand-700 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-brand-50" onclick="goPrev()">Prev</button>
         <div class="flex items-center gap-2 flex-1 justify-center">
-          <button id="dont-know-btn" class="control-btn border border-red-200 text-red-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-red-50" onclick="markDontKnow()" title="不认识这个词 — 加入错题本">
-            ✗ 不认识
-          </button>
-          <button id="know-btn" class="control-btn border border-green-200 text-green-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-green-50" onclick="markKnown()" title="我认识这个词">
-            ✓ 认识
-          </button>
+          <button id="dont-know-btn" class="control-btn border border-red-200 text-red-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-red-50" onclick="markDontKnow()" title="不认识这个词 — 加入错题本">✗ 不认识</button>
+          <button id="know-btn" class="control-btn border border-green-200 text-green-600 rounded-lg px-4 py-2 text-sm font-semibold bg-white hover:bg-green-50" onclick="markKnown()" title="我认识这个词">✓ 认识</button>
         </div>
         <button id="next-btn" class="control-btn bg-brand-800 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-brand-900" onclick="goNext()">Next</button>
       </div>
@@ -101,17 +112,18 @@
 
   <footer class="border-t border-brand-100 py-6 px-6 bg-white/60 mt-8">
     <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
-      <p>IELTS Study Portal · Flashcard study mode</p>
+      <p>IELTS Study Portal · Flashcard, quiz & spelling practice modes</p>
     </div>
   </footer>
 
+  <!-- ═══ Scripts ═══ -->
   <script>
     window.SITE_BASE_PATH = window.location.hostname.endsWith('github.io') ? '/ielts-study-portal' : '';
     window.assetPath = function (path) { return window.SITE_BASE_PATH + path; };
     window.vocabApiPath = function () { return window.SITE_BASE_PATH ? window.SITE_BASE_PATH + '/api/vocabulary.json' : '/api/vocabulary'; };
     window.loadPageScript = function (src) {
       return new Promise(function (resolve, reject) {
-        const script = document.createElement('script');
+        var script = document.createElement('script');
         script.src = src;
         script.onload = resolve;
         script.onerror = reject;
@@ -120,11 +132,20 @@
     };
   </script>
   <script>
-    let currentDeck = null;
-    let currentIndex = 0;
+    // ── State ──
+    var currentDeck = null;
+    var currentIndex = 0;
+    var currentMode = 'flashcard';
+    var wordStatus = {};
+    var STATUS_UNSEEN = 'unseen';
+    var STATUS_KNOWN = 'known';
+    var STATUS_UNKNOWN = 'unknown';
+    // Quiz/spelling score
+    var quizScore = { correct: 0, total: 0 };
+    var spellScore = { correct: 0, total: 0 };
 
     function getDeckIdFromPath() {
-      const match = window.location.pathname.match(/\/(?:vocab|vocabulary)\/deck\/([^/]+)/);
+      var match = window.location.pathname.match(/\/(?:vocab|vocabulary)\/deck\/([^/]+)/);
       if (match) return decodeURIComponent(match[1]);
       return new URLSearchParams(window.location.search).get('id') || '';
     }
@@ -133,78 +154,61 @@
       ? window.SITE_BASE_PATH + '/vocabulary.html'
       : '/vocabulary';
 
-    Promise.all([
-      window.loadPageScript(window.assetPath('/js/vocab-card.js')),
-      window.loadPageScript(window.assetPath('/js/vocab-decks.js')),
-    ]).then(initDeckStudy).catch(function (e) {
-      console.error('Failed to load flashcard scripts', e);
-      document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
-    });
-
-    function initDeckStudy() {
-      fetch(window.vocabApiPath())
-      .then(function (r) { return r.json(); })
-      .then(function (words) {
-        const decks = buildVocabularyDecks(words);
-        const deckId = getDeckIdFromPath();
-        currentDeck = findVocabularyDeck(decks, deckId);
-        if (!currentDeck && decks.length) currentDeck = decks[0];
-
-        if (!currentDeck) {
-          document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">没有找到可学习的词包。</p>';
-          return;
+    // ── Mode switching ──
+    window.switchMode = function (mode) {
+      currentMode = mode;
+      // Update tabs
+      document.querySelectorAll('.mode-tab').forEach(function (btn) {
+        btn.classList.remove('active', 'bg-brand-50', 'text-brand-600');
+        if (btn.getAttribute('data-mode') === mode) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.add('bg-brand-50', 'text-brand-600');
         }
-
-        document.title = currentDeck.title + ' — IELTS Study Portal';
-        document.getElementById('deck-title').textContent = currentDeck.title;
-        document.getElementById('deck-tag').textContent = currentDeck.tag + ' · ' + currentDeck.wordCount + ' Words';
-        renderCurrentCard();
-      })
-      .catch(function (e) {
-        console.error('Failed to load deck', e);
-        document.getElementById('study-stage').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
       });
-    }
+      // Show/hide stages
+      document.getElementById('stage-flashcard').classList.toggle('hidden', mode !== 'flashcard');
+      document.getElementById('stage-quiz').classList.toggle('hidden', mode !== 'quiz');
+      document.getElementById('stage-spelling').classList.toggle('hidden', mode !== 'spelling');
+      document.getElementById('controls-flashcard').classList.toggle('hidden', mode !== 'flashcard');
+      document.getElementById('completion-note').classList.toggle('hidden', mode !== 'flashcard');
+
+      // Reset index and render
+      currentIndex = 0;
+      if (mode === 'quiz') { quizScore = { correct: 0, total: 0 }; initQuiz(); }
+      else if (mode === 'spelling') { spellScore = { correct: 0, total: 0 }; initSpelling(); }
+      else { renderCurrentCard(); }
+    };
+
+    // ═══════════════════════════════════════════════════
+    // FLASHCARD MODE (existing)
+    // ═══════════════════════════════════════════════════
 
     function renderCurrentCard() {
       if (!currentDeck) return;
-      const word = currentDeck.words[currentIndex];
+      var word = currentDeck.words[currentIndex];
       window._vocabCardFlipped = new Set();
-      document.getElementById('study-stage').innerHTML = VocabCard(word, {
-        flippable: true,
-        showAudio: true,
-        showDelete: false,
-        showTimestamp: false,
-        cardIdPrefix: 'study',
+      document.getElementById('stage-flashcard').innerHTML = VocabCard(word, {
+        flippable: true, showAudio: true, showDelete: false, showTimestamp: false, cardIdPrefix: 'study',
       });
       updateControls();
     }
 
     function updateControls() {
-      const total = currentDeck.words.length;
-      const current = currentIndex + 1;
-      const isFirst = currentIndex === 0;
-      const isLast = currentIndex === total - 1;
-      const percent = total ? (current / total) * 100 : 0;
-
+      var total = currentDeck.words.length;
+      var current = currentIndex + 1;
+      var isFirst = currentIndex === 0;
+      var isLast = currentIndex === total - 1;
+      var percent = total ? (current / total) * 100 : 0;
       document.getElementById('progress-label').textContent = current + ' / ' + total;
       document.getElementById('progress-fill').style.width = percent + '%';
       document.getElementById('prev-btn').disabled = isFirst;
       document.getElementById('next-btn').disabled = isLast;
-      document.getElementById('completion-note').textContent = isLast
-        ? '本词包已到最后一张'
-        : '点击卡片查看同义词与例句';
     }
-
-    // Track word status: 'unseen' | 'known' | 'unknown'
-    let wordStatus = {};
-    const STATUS_UNSEEN = 'unseen';
-    const STATUS_KNOWN = 'known';
-    const STATUS_UNKNOWN = 'unknown';
 
     function getWordKey() {
       if (!currentDeck || !currentDeck.words[currentIndex]) return null;
-      const w = currentDeck.words[currentIndex];
+      var w = currentDeck.words[currentIndex];
       return String(w.id || w.word);
     }
 
@@ -213,120 +217,362 @@
       return currentDeck.words[currentIndex] || null;
     }
 
-    window.goPrev = function () {
-      if (!currentDeck || currentIndex <= 0) return;
-      currentIndex -= 1;
-      renderCurrentCard();
-    };
-
-    window.goNext = function () {
-      if (!currentDeck || currentIndex >= currentDeck.words.length - 1) return;
-      currentIndex += 1;
-      renderCurrentCard();
-    };
+    window.goPrev = function () { if (!currentDeck || currentIndex <= 0) return; currentIndex -= 1; renderCurrentCard(); };
+    window.goNext = function () { if (!currentDeck || currentIndex >= currentDeck.words.length - 1) return; currentIndex += 1; renderCurrentCard(); };
 
     window.markDontKnow = async function () {
-      const key = getWordKey();
-      const word = getCurrentWord();
+      var key = getWordKey();
+      var word = getCurrentWord();
       if (!key || !word) return;
-
       wordStatus[key] = STATUS_UNKNOWN;
       updateJudgingButtons();
-
-      // Add to mistake book
       if (window._mistakeBook && window._auth && window._auth.isAuthenticated) {
-        const btn = document.getElementById('dont-know-btn');
+        var btn = document.getElementById('dont-know-btn');
         if (btn) { btn.textContent = '⏳ ...'; btn.disabled = true; }
-
         try {
-          const deckId = getDeckIdFromPath();
-          const payload = {
-            word: word.word || '',
-            pos: word.pos || '',
-            chinese: word.chinese || '',
-            definition: word.definition || '',
-            example: word.example || '',
-            synonyms: word.synonyms || [],
-            theme: word.theme || '',
-            difficulty: word.difficulty || 0,
-            source: word.source || '',
-          };
+          var deckId = getDeckIdFromPath();
           await window._mistakeBook.addToMistakeBook(String(word.id || word.word), 'practice', deckId, {
             questionType: 'vocabulary',
-            questionPayload: payload
+            questionPayload: { word: word.word || '', pos: word.pos || '', chinese: word.chinese || '', definition: word.definition || '', example: word.example || '', synonyms: word.synonyms || [], theme: word.theme || '', difficulty: word.difficulty || 0, source: word.source || '' }
           });
-          console.log('[错题本·词汇] Added word:', word.word);
           if (btn) { btn.innerHTML = '✓ 已收录'; btn.classList.add('added'); }
-        } catch (e) {
-          console.error('[错题本·词汇] Failed to add word:', e);
-          if (btn) { btn.innerHTML = '✗ 不认识'; btn.disabled = false; }
-        }
-      } else {
-        // Not logged in — prompt user
-        const wantLogin = confirm('登录后才能将生词加入错题本。是否去登录？');
-        if (wantLogin) {
-          window.location.href = './login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
-        }
+        } catch (e) { console.error(e); if (btn) { btn.innerHTML = '✗ 不认识'; btn.disabled = false; } }
       }
     };
 
     window.markKnown = function () {
-      const key = getWordKey();
+      var key = getWordKey();
       if (!key) return;
-
       wordStatus[key] = STATUS_KNOWN;
       updateJudgingButtons();
-
-      // Auto-advance to next card
-      setTimeout(function () {
-        if (currentDeck && currentIndex < currentDeck.words.length - 1) {
-          goNext();
-        }
-      }, 300);
+      setTimeout(function () { if (currentDeck && currentIndex < currentDeck.words.length - 1) goNext(); }, 300);
     };
 
     function updateJudgingButtons() {
-      const key = getWordKey();
-      const status = key ? (wordStatus[key] || STATUS_UNSEEN) : STATUS_UNSEEN;
-      const knowBtn = document.getElementById('know-btn');
-      const dontKnowBtn = document.getElementById('dont-know-btn');
-
+      var key = getWordKey();
+      var status = key ? (wordStatus[key] || STATUS_UNSEEN) : STATUS_UNSEEN;
+      var knowBtn = document.getElementById('know-btn');
+      var dontKnowBtn = document.getElementById('dont-know-btn');
       if (status === STATUS_KNOWN) {
         if (knowBtn) { knowBtn.classList.add('bg-green-50'); knowBtn.style.opacity = '0.8'; }
         if (dontKnowBtn) { dontKnowBtn.classList.remove('bg-red-50'); dontKnowBtn.style.opacity = '1'; dontKnowBtn.disabled = false; }
       } else if (status === STATUS_UNKNOWN) {
         if (dontKnowBtn) { dontKnowBtn.classList.add('bg-red-50'); dontKnowBtn.style.opacity = '0.8'; }
         if (knowBtn) { knowBtn.classList.remove('bg-green-50'); knowBtn.style.opacity = '1'; }
-      } else {
-        if (knowBtn) { knowBtn.classList.remove('bg-green-50'); knowBtn.style.opacity = '1'; }
-        if (dontKnowBtn) { dontKnowBtn.classList.remove('bg-red-50'); dontKnowBtn.style.opacity = '1'; dontKnowBtn.disabled = false; dontKnowBtn.innerHTML = '✗ 不认识'; }
       }
     }
 
+    // ═══════════════════════════════════════════════════
+    // QUIZ MODE (multiple choice)
+    // ═══════════════════════════════════════════════════
+
+    function initQuiz() {
+      if (!currentDeck || !currentDeck.words.length) {
+        document.getElementById('quiz-content').innerHTML = '<p class="text-brand-400 text-center py-12">词包为空，无法开始测验。</p>';
+        return;
+      }
+      if (currentDeck.words.length < 4) {
+        document.getElementById('quiz-content').innerHTML = '<div class="text-center py-12"><p class="text-brand-500 mb-2">⚠️ 词包词量不足</p><p class="text-brand-400 text-sm">本词包只有 ' + currentDeck.words.length + ' 个词，需要至少 4 个词才能生成选择题。<br>请选择更大的词包或使用翻卡/拼写模式。</p></div>';
+        return;
+      }
+      quizScore = { correct: 0, total: 0 };
+      renderQuizQuestion();
+    }
+
+    function shuffleArray(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+
+    function renderQuizQuestion() {
+      if (!currentDeck || currentIndex >= currentDeck.words.length) {
+        showQuizResults();
+        return;
+      }
+      var word = currentDeck.words[currentIndex];
+      var correctChinese = word.chinese || '(无释义)';
+      // Pick 3 distractors from other words in the deck
+      var others = currentDeck.words.filter(function (w, i) { return i !== currentIndex && w.chinese; });
+      if (others.length < 3) {
+        // Not enough distractors — just show what we have
+        var distractorPool = others.length >= 2 ? others : currentDeck.words.filter(function (w, i) { return i !== currentIndex; });
+        var picked = shuffleArray(distractorPool).slice(0, 3);
+        while (picked.length < 3) picked.push({ chinese: '——' });
+        var options = shuffleArray([{ chinese: correctChinese, correct: true }].concat(picked.map(function (w) { return { chinese: w.chinese, correct: false }; })));
+        renderQuizOptions(word, options);
+        return;
+      }
+      var distractors = shuffleArray(others).slice(0, 3);
+      var options = shuffleArray([
+        { chinese: correctChinese, correct: true },
+        { chinese: distractors[0].chinese, correct: false },
+        { chinese: distractors[1].chinese, correct: false },
+        { chinese: distractors[2].chinese, correct: false },
+      ]);
+      renderQuizOptions(word, options);
+    }
+
+    function renderQuizOptions(word, options) {
+      var total = currentDeck.words.length;
+      var current = currentIndex + 1;
+      var percent = total ? (current / total) * 100 : 0;
+      document.getElementById('progress-label').textContent = '测验 ' + current + ' / ' + total + ' | 正确 ' + quizScore.correct;
+      document.getElementById('progress-fill').style.width = percent + '%';
+
+      var html = '<div class="bg-white border border-brand-100 rounded-xl p-6 sm:p-8 text-center">';
+      html += '<p class="text-xs text-brand-400 mb-1">选择题测验</p>';
+      html += '<h2 class="text-2xl sm:text-3xl font-serif font-bold text-brand-900 mb-6">' + escapeHtml(word.word) + '</h2>';
+      if (word.pos) html += '<p class="text-xs text-brand-400 italic mb-4">' + escapeHtml(word.pos) + '</p>';
+      html += '<p class="text-sm text-brand-500 mb-6">选择正确的中文释义：</p>';
+      html += '<div class="space-y-2.5">';
+      var labels = ['A', 'B', 'C', 'D'];
+      for (var i = 0; i < options.length; i++) {
+        html += '<div class="quiz-option flex items-center gap-3 p-3 rounded-lg border border-brand-200 bg-white text-left" data-idx="' + i + '" data-correct="' + options[i].correct + '" onclick="answerQuiz(this, ' + i + ')">';
+        html += '<span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold flex-shrink-0">' + labels[i] + '</span>';
+        html += '<span class="text-sm text-brand-700">' + escapeHtml(options[i].chinese) + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '<div class="flex justify-between mt-5">';
+      html += '<button class="text-sm text-brand-500 hover:text-brand-700" onclick="currentIndex=0; quizScore={correct:0,total:0}; renderQuizQuestion();">🔄 重新开始</button>';
+      html += '<button class="text-sm font-semibold text-brand-600 hover:text-brand-800" id="quiz-next-btn" style="display:none;" onclick="quizNext()">下一题 →</button>';
+      html += '</div>';
+      html += '</div>';
+      document.getElementById('quiz-content').innerHTML = html;
+    }
+
+    window.answerQuiz = function (el, idx) {
+      var container = el.parentElement;
+      var allOpts = container.querySelectorAll('.quiz-option');
+      var isCorrect = el.getAttribute('data-correct') === 'true';
+      quizScore.total++;
+
+      allOpts.forEach(function (opt) {
+        opt.classList.add('answered');
+        if (opt.getAttribute('data-correct') === 'true') opt.classList.add('correct');
+        if (opt.getAttribute('data-idx') === String(idx) && !isCorrect) opt.classList.add('wrong');
+      });
+
+      if (isCorrect) quizScore.correct++;
+
+      // Show next button
+      var nextBtn = document.getElementById('quiz-next-btn');
+      if (nextBtn) nextBtn.style.display = 'inline-block';
+    };
+
+    window.quizNext = function () {
+      currentIndex++;
+      if (currentIndex >= currentDeck.words.length) {
+        showQuizResults();
+      } else {
+        renderQuizQuestion();
+      }
+    };
+
+    function showQuizResults() {
+      var total = quizScore.total || currentDeck.words.length;
+      var correct = quizScore.correct;
+      var pct = total > 0 ? Math.round(correct / total * 100) : 0;
+      var emoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '💪';
+      document.getElementById('quiz-content').innerHTML =
+        '<div class="bg-white border border-brand-100 rounded-xl p-8 text-center">' +
+          '<p class="text-4xl mb-4">' + emoji + '</p>' +
+          '<h2 class="text-xl font-bold text-brand-900 mb-2">测验完成！</h2>' +
+          '<p class="text-3xl font-bold text-brand-800 mb-1">' + correct + ' / ' + total + '</p>' +
+          '<p class="text-brand-500 mb-4">正确率 ' + pct + '%</p>' +
+          '<div class="w-full bg-brand-100 rounded-full h-3 mb-6"><div class="bg-green-500 h-3 rounded-full" style="width:' + pct + '%"></div></div>' +
+          '<div class="flex gap-3 justify-center">' +
+            '<button class="px-5 py-2.5 bg-brand-800 text-white rounded-lg text-sm font-semibold hover:bg-brand-900" onclick="currentIndex=0; quizScore={correct:0,total:0}; renderQuizQuestion();">再来一次</button>' +
+            '<button class="px-5 py-2.5 border border-brand-200 text-brand-700 rounded-lg text-sm font-semibold hover:bg-brand-50" onclick="switchMode(\'flashcard\')">返回翻卡</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // ═══════════════════════════════════════════════════
+    // SPELLING MODE
+    // ═══════════════════════════════════════════════════
+
+    function initSpelling() {
+      if (!currentDeck || !currentDeck.words.length) {
+        document.getElementById('spelling-content').innerHTML = '<p class="text-brand-400 text-center py-12">词包为空，无法开始拼写练习。</p>';
+        return;
+      }
+      spellScore = { correct: 0, total: 0 };
+      renderSpellingQuestion();
+    }
+
+    function renderSpellingQuestion() {
+      if (!currentDeck || currentIndex >= currentDeck.words.length) {
+        showSpellResults();
+        return;
+      }
+      var word = currentDeck.words[currentIndex];
+      var hint = word.chinese || word.definition || '';
+      if (!hint) {
+        // Skip words without any hint
+        currentIndex++;
+        renderSpellingQuestion();
+        return;
+      }
+      var total = currentDeck.words.length;
+      var current = currentIndex + 1;
+      var percent = total ? (current / total) * 100 : 0;
+      document.getElementById('progress-label').textContent = '拼写 ' + current + ' / ' + total + ' | 正确 ' + spellScore.correct;
+      document.getElementById('progress-fill').style.width = percent + '%';
+
+      var html = '<div class="bg-white border border-brand-100 rounded-xl p-6 sm:p-8">';
+      html += '<p class="text-xs text-brand-400 mb-1 text-center">拼写练习</p>';
+      html += '<div class="text-center mb-6">';
+      html += '<p class="text-sm text-brand-400 mb-2">根据释义拼写单词：</p>';
+      html += '<p class="text-xl font-bold text-brand-800">' + escapeHtml(hint) + '</p>';
+      if (word.pos) html += '<p class="text-xs text-brand-400 mt-1">' + escapeHtml(word.pos) + '</p>';
+      html += '</div>';
+      html += '<div class="flex gap-2 mb-2">';
+      html += '<input id="spell-input" type="text" class="spell-input flex-1 text-center border-2 border-brand-200 rounded-lg py-3 px-4 focus:outline-none focus:border-brand-500 text-brand-800" placeholder="输入英文单词..." autocomplete="off" autocapitalize="off" spellcheck="false">';
+      html += '<button id="spell-submit" class="px-5 py-3 bg-brand-800 text-white rounded-lg text-sm font-semibold hover:bg-brand-900" onclick="checkSpelling()">提交</button>';
+      html += '</div>';
+      html += '<div id="spell-result" class="text-center mt-3 spell-result"></div>';
+      html += '<div class="flex justify-between mt-4">';
+      html += '<button class="text-sm text-brand-500 hover:text-brand-700" onclick="currentIndex=0; spellScore={correct:0,total:0}; renderSpellingQuestion();">🔄 重新开始</button>';
+      html += '<button class="text-sm font-semibold text-brand-600 hover:text-brand-800" id="spell-next-btn" style="display:none;" onclick="spellNext()">下一题 →</button>';
+      html += '</div>';
+      html += '</div>';
+      document.getElementById('spelling-content').innerHTML = html;
+      // Focus input
+      setTimeout(function () { var inp = document.getElementById('spell-input'); if (inp) inp.focus(); }, 100);
+    }
+
+    window.checkSpelling = function () {
+      var input = document.getElementById('spell-input');
+      var submitBtn = document.getElementById('spell-submit');
+      var resultDiv = document.getElementById('spell-result');
+      var nextBtn = document.getElementById('spell-next-btn');
+      if (!input || !currentDeck) return;
+
+      var word = currentDeck.words[currentIndex];
+      var userAnswer = input.value.trim();
+      var correctAnswer = (word.word || '').trim();
+      spellScore.total++;
+
+      // Case-insensitive comparison, trim whitespace
+      var isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+      if (isCorrect) spellScore.correct++;
+
+      if (isCorrect) {
+        resultDiv.innerHTML = '<p class="text-green-600 font-semibold">✅ 正确！</p>';
+      } else {
+        resultDiv.innerHTML = '<p class="text-red-500 font-semibold">❌ 错误</p><p class="text-brand-600 mt-1">正确拼写：<strong class="text-brand-900 text-lg">' + escapeHtml(correctAnswer) + '</strong></p>';
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (input) input.disabled = true;
+      if (nextBtn) nextBtn.style.display = 'inline-block';
+    };
+
+    window.spellNext = function () {
+      currentIndex++;
+      if (currentIndex >= currentDeck.words.length) {
+        showSpellResults();
+      } else {
+        renderSpellingQuestion();
+      }
+    };
+
+    // Enter key submits spelling
     document.addEventListener('keydown', function (event) {
+      if (currentMode === 'spelling' && event.key === 'Enter') {
+        var input = document.getElementById('spell-input');
+        if (input && !input.disabled) checkSpelling();
+      }
+    });
+
+    function showSpellResults() {
+      var total = spellScore.total || currentDeck.words.length;
+      var correct = spellScore.correct;
+      var pct = total > 0 ? Math.round(correct / total * 100) : 0;
+      var emoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '💪';
+      document.getElementById('spelling-content').innerHTML =
+        '<div class="bg-white border border-brand-100 rounded-xl p-8 text-center">' +
+          '<p class="text-4xl mb-4">' + emoji + '</p>' +
+          '<h2 class="text-xl font-bold text-brand-900 mb-2">拼写练习完成！</h2>' +
+          '<p class="text-3xl font-bold text-brand-800 mb-1">' + correct + ' / ' + total + '</p>' +
+          '<p class="text-brand-500 mb-4">正确率 ' + pct + '%</p>' +
+          '<div class="w-full bg-brand-100 rounded-full h-3 mb-6"><div class="bg-green-500 h-3 rounded-full" style="width:' + pct + '%"></div></div>' +
+          '<div class="flex gap-3 justify-center">' +
+            '<button class="px-5 py-2.5 bg-brand-800 text-white rounded-lg text-sm font-semibold hover:bg-brand-900" onclick="currentIndex=0; spellScore={correct:0,total:0}; renderSpellingQuestion();">再来一次</button>' +
+            '<button class="px-5 py-2.5 border border-brand-200 text-brand-700 rounded-lg text-sm font-semibold hover:bg-brand-50" onclick="switchMode(\'flashcard\')">返回翻卡</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // ── Helpers ──
+    function escapeHtml(str) {
+      if (str == null) return '';
+      var div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    // ── Keyboard navigation (flashcard mode only) ──
+    document.addEventListener('keydown', function (event) {
+      if (currentMode !== 'flashcard') return;
       if (event.key === 'ArrowLeft') goPrev();
       if (event.key === 'ArrowRight' && !event.shiftKey) goNext();
       if (event.key === 'ArrowRight' && event.shiftKey) { event.preventDefault(); markKnown(); }
       if (event.key === 'ArrowDown') { event.preventDefault(); markDontKnow(); }
     });
+
+    // ── Init ──
+    Promise.all([
+      window.loadPageScript(window.assetPath('/js/vocab-card.js')),
+      window.loadPageScript(window.assetPath('/js/vocab-decks.js')),
+    ]).then(initDeckStudy).catch(function (e) {
+      console.error('Failed to load scripts', e);
+      document.getElementById('stage-flashcard').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
+    });
+
+    function initDeckStudy() {
+      fetch(window.vocabApiPath())
+      .then(function (r) { return r.json(); })
+      .then(function (words) {
+        var decks = buildVocabularyDecks(words);
+        var deckId = getDeckIdFromPath();
+        currentDeck = findVocabularyDeck(decks, deckId);
+        if (!currentDeck && decks.length) currentDeck = decks[0];
+        if (!currentDeck) {
+          document.getElementById('stage-flashcard').innerHTML = '<p class="text-brand-400 text-center py-12">没有找到可学习的词包。</p>';
+          return;
+        }
+        document.title = currentDeck.title + ' — IELTS Study Portal';
+        document.getElementById('deck-title').textContent = currentDeck.title;
+        document.getElementById('deck-tag').textContent = currentDeck.tag + ' · ' + currentDeck.wordCount + ' Words';
+        // Read mode from URL params
+        var urlMode = new URLSearchParams(window.location.search).get('mode');
+        if (urlMode && (urlMode === 'quiz' || urlMode === 'spelling' || urlMode === 'flashcard')) {
+          switchMode(urlMode);
+        } else {
+          renderCurrentCard();
+        }
+      })
+      .catch(function (e) {
+        console.error('Failed to load deck', e);
+        document.getElementById('stage-flashcard').innerHTML = '<p class="text-brand-400 text-center py-12">词包加载失败，请刷新页面重试</p>';
+      });
+    }
   </script>
 
   <script type="module">
-    const base = window.SITE_BASE_PATH || '';
-    const { renderNavbar } = await import(base + '/js/navbar.js');
-    const { initAuth, authStore } = await import(base + '/js/auth-store.js');
-    const { addToMistakeBook } = await import(base + '/js/db.js');
-
-    // Bridge for inline script
-    window._mistakeBook = { addToMistakeBook };
+    var base = window.SITE_BASE_PATH || '';
+    var { renderNavbar } = await import(base + '/js/navbar.js');
+    var { initAuth, authStore } = await import(base + '/js/auth-store.js');
+    var { addToMistakeBook } = await import(base + '/js/db.js');
+    window._mistakeBook = { addToMistakeBook: addToMistakeBook };
     window._auth = authStore;
-
-    try {
-      await initAuth();
-      console.log('[错题本·词汇] Bridge loaded, user:', authStore.user ? authStore.user.email : 'anonymous');
-    } catch (e) {
-      console.warn('[错题本·词汇] Auth warning:', e.message);
-    }
+    try { await initAuth(); } catch (e) { console.warn('[词汇] Auth warning:', e.message); }
     renderNavbar();
   </script>
 </body>

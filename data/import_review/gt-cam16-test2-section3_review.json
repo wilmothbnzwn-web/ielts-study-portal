@@ -1,0 +1,163 @@
+{
+  "id": "gt-cam16-test2-section3",
+  "testType": "general",
+  "title": "Jobs in Ancient Egypt",
+  "topic": "History — Ancient Civilisations",
+  "source": "Cambridge IELTS 16 General Training Test 2 Section 3",
+  "difficulty": 3,
+  "totalTime": 1200,
+  "wordCount": 850,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Jobs in ancient Egypt</h3><p>In order to be engaged in the higher professions in ancient Egypt, a person had to be literate and so first had to become a scribe. The apprenticeship for this job lasted many years and was tough and challenging. It principally involved memorising hieroglyphic symbols and practising handwritten lettering. Scribes wrote on papyrus, pottery, stone and wood. Their work included recording tax liabilities, court cases, legal documents, and all manner of administrative texts.</p><p>Beyond the role of the scribe, there was a wide range of occupations in ancient Egyptian society. Farmers made up the bulk of the population and their work was dictated by the annual flooding of the Nile. During the inundation period when fields were underwater, many farmers were unable to work their land and were conscripted to work on royal building projects. This community service was vital for the construction of pyramids and temples.</p><p>Other specialised workers included reed cutters who harvested papyrus from the Nile marshes — a hazardous occupation that involved daily dangers from crocodiles and hippopotamuses. Potters, weavers, carpenters, and metalworkers all played vital roles in the economy. Metalworkers who worked with copper were particularly valued, as copper was used for tools, weapons, and decorative items.</p><p>Part of making a living, regardless of one's special skills, was taking part in the king's monumental building projects. Although it is commonly believed that the great monuments and temples of Egypt were achieved through slave labour, there is absolutely no evidence to support this. The pyramids and other monuments were built by Egyptian labourers who either donated their time as community service or were paid for their work. These labourers were organised into teams with supervisors who divided them into smaller working groups.</p><p>The building process itself was a remarkable logistical achievement. Huge stone blocks had to be transported from quarries, often across significant distances. In some cases, these were moved on wooden sledges across the desert. The shifting sand presented a particular challenge, and research has revealed that the Egyptians poured water onto the sand in front of the sledges to make the ground firmer and easier to traverse. This ingenious solution allowed them to move massive stone blocks that weighed many tonnes. It is a testament to the sophistication of ancient Egyptian engineering that these structures have survived for over 4,500 years.</p>",
+  "questions": [
+    {
+      "id": 28,
+      "type": "CHOICE",
+      "questionText": "What does the writer say about scribes in ancient Egypt?",
+      "options": [
+        "A Their working days were very long.",
+        "B The topics they wrote about were very varied.",
+        "C Many of them were once ordinary working people.",
+        "D Few of them realised the true value of their occupation."
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 29,
+      "type": "CHOICE",
+      "questionText": "What is the writer's main point about farmers in ancient Egypt?",
+      "options": [
+        "A They were better off than many other workers.",
+        "B Their work was affected by environmental conditions.",
+        "C They had a higher status than is generally believed.",
+        "D They mainly produced food for the royal court."
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 30,
+      "type": "CHOICE",
+      "questionText": "What does the writer say about reed cutters?",
+      "options": [
+        "A They were employed on a seasonal basis.",
+        "B Their job provided materials for the scribes.",
+        "C Their work involved a significant element of risk.",
+        "D They had little contact with other workers."
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 31,
+      "type": "CHOICE",
+      "questionText": "The writer says that workers on royal building projects were",
+      "options": [
+        "A mostly foreign slaves.",
+        "B volunteers or paid labourers.",
+        "C prisoners of war.",
+        "D mainly farmers with no other skills."
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 32,
+      "type": "CHOICE",
+      "questionText": "What point does the writer make about the transportation of stone blocks?",
+      "options": [
+        "A It could only be done at certain times of year.",
+        "B It required the use of specially built roads.",
+        "C It was done using wooden wheeled vehicles.",
+        "D It involved an innovative technique using water."
+      ],
+      "correctAnswer": 3
+    },
+    {
+      "id": 33,
+      "type": "MATCHING",
+      "questionText": "was unable to work at certain times",
+      "options": [
+        "A scribe",
+        "B reed cutter",
+        "C farmer",
+        "D potter",
+        "E metalworker",
+        "F weaver",
+        "G carpenter"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 34,
+      "type": "MATCHING",
+      "questionText": "divided workers into groups",
+      "options": [
+        "A scribe",
+        "B reed cutter",
+        "C farmer",
+        "D potter",
+        "E metalworker",
+        "F weaver",
+        "G carpenter"
+      ],
+      "correctAnswer": 5
+    },
+    {
+      "id": 35,
+      "type": "MATCHING",
+      "questionText": "faced daily hazards",
+      "options": [
+        "A scribe",
+        "B reed cutter",
+        "C farmer",
+        "D potter",
+        "E metalworker",
+        "F weaver",
+        "G carpenter"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 36,
+      "type": "MATCHING",
+      "questionText": "underwent a long period of training",
+      "options": [
+        "A scribe",
+        "B reed cutter",
+        "C farmer",
+        "D potter",
+        "E metalworker",
+        "F weaver",
+        "G carpenter"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 37,
+      "type": "COMPLETION",
+      "questionText": "Workers contributed to royal projects as a form of _____ (TWO WORDS)",
+      "correctAnswer": "community service",
+      "wordLimit": 2
+    },
+    {
+      "id": 38,
+      "type": "COMPLETION",
+      "questionText": "The Egyptians poured water on _____ to make sledges move more easily. (TWO WORDS)",
+      "correctAnswer": "shifting sand",
+      "wordLimit": 2
+    },
+    {
+      "id": 39,
+      "type": "COMPLETION",
+      "questionText": "Metalworkers who worked with _____ were particularly valued. (ONE WORD)",
+      "correctAnswer": "copper",
+      "wordLimit": 1
+    },
+    {
+      "id": 40,
+      "type": "COMPLETION",
+      "questionText": "_____ made up the bulk of the population in ancient Egypt. (ONE WORD)",
+      "correctAnswer": "farmers",
+      "wordLimit": 1
+    }
+  ]
+}

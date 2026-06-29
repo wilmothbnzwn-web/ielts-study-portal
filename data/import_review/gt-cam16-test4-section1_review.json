@@ -1,0 +1,201 @@
+{
+  "id": "gt-cam16-test4-section1",
+  "testType": "general",
+  "title": "The Best Hiking Boots & Beekeeping Workshop at Elm Farm",
+  "topic": "Leisure — Outdoor Activities & Crafts",
+  "source": "Cambridge IELTS 16 General Training Test 4 Section 1",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 700,
+  "questionCount": 14,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>The best hiking boots</h3><p><strong>A Hanwag Tatra Boots</strong> — These boots are expensive but will give you a lifetime of wear. They are a wide fit and offer excellent ankle support. They passed our waterproof test when worn for a full day in wet conditions.</p><p><strong>B Merrell Moab Boots</strong> — These boots are a good choice for people who want to look smart when they are walking. They come in a range of colours and have a stylish design that doesn't look out of place in a pub after a walk.</p><p><strong>C Keen Targhee Boots</strong> — People do not need to spend time getting their feet accustomed to these boots. They are comfortable straight out of the box and require virtually no breaking in. The wide toe box gives plenty of room.</p><p><strong>D Salomon Quest Boots</strong> — The soles on these boots provide excellent grip on slippery surfaces. They are also lighter than most other boots in this category, making them ideal for long-distance hiking.</p><p><strong>E Scarpa Ranger Boots</strong> — These boots are not suitable for people with narrow feet. They have a particularly wide fit and are designed for those who need extra room. The leather is high quality and water-resistant.</p><p><strong>F Berghaus Hillwalker Boots</strong> — These are recommended for people who are looking for value for money. They offer good performance at a reasonable price and come with a two-year guarantee against manufacturing defects.</p><p><strong>G Zamberlan Trek Lite Boots</strong> — These boots are very good value for money and have a higher ankle than most other boots reviewed, providing extra support on rough terrain.</p><hr><h3>Beekeeping workshop at Elm Farm</h3><p>If you've ever wanted to keep bees and have your own delicious honey, there's no better time to begin. Whether you're keen to learn everything you need to know to get you started, or simply extremely interested in the idea of keeping bees, this one-day interactive workshop will teach you the fascinating secrets of beekeeping.</p><p>The workshop is suitable for complete beginners as well as those with some knowledge. Participants will have the opportunity to put on protective clothing and get hands-on experience with actual beehives. You will learn about the life cycle of bees, how honey is made, and what equipment you need to start your own hive. The day includes a light lunch made from local produce, and all participants receive a certificate of attendance.</p><p>At the end of the day, you will have the chance to purchase beekeeping supplies at a discounted rate. The workshop costs £75 per person and runs from 10 am to 4 pm on selected Saturdays throughout the summer.</p>",
+  "questions": [
+    {
+      "id": 1,
+      "type": "MATCHING",
+      "questionText": "These boots are a good choice for people who want to look smart when they are walking.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 2,
+      "type": "MATCHING",
+      "questionText": "People do not need to spend time getting their feet accustomed to these boots.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 3,
+      "type": "MATCHING",
+      "questionText": "These boots are not suitable for people with narrow feet.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 4
+    },
+    {
+      "id": 4,
+      "type": "MATCHING",
+      "questionText": "The soles on these boots provide good grip on wet surfaces.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 3
+    },
+    {
+      "id": 5,
+      "type": "MATCHING",
+      "questionText": "These boots represent very good value for money and have a higher ankle.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 6
+    },
+    {
+      "id": 6,
+      "type": "MATCHING",
+      "questionText": "These boots are recommended for people who are looking for value for money.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 5
+    },
+    {
+      "id": 7,
+      "type": "MATCHING",
+      "questionText": "These boots are comfortable straight from the box with no breaking in required.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 8,
+      "type": "MATCHING",
+      "questionText": "These boots have a particularly wide fit and offer excellent ankle support.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 9,
+      "type": "true_false_not_given",
+      "questionText": "The workshop is only suitable for people who already keep their own bees.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 10,
+      "type": "true_false_not_given",
+      "questionText": "Participants will meet people who sell honey produced by their own bees.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 11,
+      "type": "true_false_not_given",
+      "questionText": "Protective clothing is provided for participants.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 12,
+      "type": "true_false_not_given",
+      "questionText": "Participants must bring their own lunch.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 13,
+      "type": "true_false_not_given",
+      "questionText": "Beekeeping equipment can be bought at the end of the workshop.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 14,
+      "type": "true_false_not_given",
+      "questionText": "The workshop takes place every weekend throughout the year.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    }
+  ]
+}

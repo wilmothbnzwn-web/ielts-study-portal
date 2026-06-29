@@ -1,0 +1,204 @@
+{
+  "id": "gt-cam16-test2-section1",
+  "testType": "general",
+  "title": "How to Choose Your Builder & Island Adventure Activities",
+  "topic": "Everyday Life — Home Building & Adventure Sports",
+  "source": "Cambridge IELTS 16 General Training Test 2 Section 1",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 700,
+  "questionCount": 14,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>How to choose your builder</h3><p>Building a new home is a significant investment, and it's essential to find the right builder for the job. Before you look for a builder, it's important to develop a comprehensive budget and have clear plans. Once you have a design in mind, it is time to start narrowing down your builder options.</p><p>The first step is to ask for recommendations from friends, family, or colleagues who have recently built homes. You can also check with local building associations for lists of registered builders in your area. In Australia, you can check the Housing Industry Association (HIA) or Master Builders Association for accredited professionals.</p><p>Once you have a shortlist of potential builders, you should arrange to meet them in person. Ask to see examples of their previous work and request references from past clients. It is also important to check that the builder is properly licensed and insured for the type of work you require. Take the time to visit some of their completed projects if possible, as this will give you the best indication of their quality of work.</p><p>When comparing quotes from different builders, make sure you are comparing like with like. The cheapest quote is not always the best value. Look carefully at what is included and excluded from each quote. Ensure the contract includes a detailed specification of materials and a clear timeline for completion. Most importantly, never sign a contract until you fully understand all of its terms and conditions.</p><hr><h3>Island adventure activities</h3><p><strong>A Rib riding</strong> — Conquer stormy seas on a high-speed ride in an RIB (Rigid Inflatable Boat). These powerful boats cut through choppy waters with ease. You'll need to hold on tight as the boat bounces across the wake of awesome cruise liners in one of the world's busiest shipping lanes.</p><p><strong>B Horse riding</strong> — Experience the thrill of riding a horse along beautiful coastal trails. Suitable for beginners and experienced riders alike, with expert guides to lead the way. All safety equipment is provided, including helmets and protective gear.</p><p><strong>C Cave exploring</strong> — Discover the hidden underground world of the island's limestone caves. Experienced guides will lead you through stunning chambers filled with stalactites and stalagmites. You may get some minor bruises or scrapes as you navigate through narrow passages.</p><p><strong>D Mountain biking</strong> — Explore the island's rugged interior on two wheels. Trails range from easy to extreme, so there's something for every level of fitness. Bikes and safety equipment including helmets and knee pads are provided free of charge.</p><p><strong>E Sea kayaking</strong> — Paddle along the coastline and explore hidden coves and beaches. You can see a disused lighthouse from the water and spot seals basking on the rocks. Previous kayaking experience is recommended but not essential.</p><p><strong>F Rock climbing</strong> — Challenge yourself on the island's sea cliffs under the supervision of qualified instructors. All technical equipment is provided. You need a reasonable level of fitness and a head for heights.</p><p><strong>G Coasteering</strong> — An adrenaline-filled activity combining climbing, swimming, and cliff jumping. You'll be accompanied by experienced guides at all times. Wetsuits, helmets, and buoyancy aids are supplied.</p><p><strong>H Paragliding</strong> — Experience the ultimate freedom of flight. Tandem flights with qualified instructors give you a bird's eye view of the stunning coastline. No previous experience is necessary.</p>",
+  "questions": [
+    {
+      "id": 1,
+      "type": "true_false_not_given",
+      "questionText": "After selecting a builder, you should decide on the design of your new house.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 2,
+      "type": "true_false_not_given",
+      "questionText": "In Australia, you can make sure a builder is professionally qualified by contacting one of two official organisations.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 3,
+      "type": "true_false_not_given",
+      "questionText": "You should ask a builder to see examples of previous building projects that are still in progress.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 4,
+      "type": "true_false_not_given",
+      "questionText": "The most expensive builder's quote will probably include the best-quality materials.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 5,
+      "type": "true_false_not_given",
+      "questionText": "You should not agree to a contract until you have thoroughly read and understood its contents.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 6,
+      "type": "true_false_not_given",
+      "questionText": "A builder must provide you with a schedule of payments before work begins.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 7,
+      "type": "true_false_not_given",
+      "questionText": "The contract should include details of the construction materials to be used.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 8,
+      "type": "MATCHING",
+      "questionText": "You will be provided with safety equipment.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 9,
+      "type": "MATCHING",
+      "questionText": "You may get some minor injuries doing this activity.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 10,
+      "type": "MATCHING",
+      "questionText": "You can see a disused building from this activity.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 4
+    },
+    {
+      "id": 11,
+      "type": "MATCHING",
+      "questionText": "You will need to be reasonably fit to do this activity.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 5
+    },
+    {
+      "id": 12,
+      "type": "MATCHING",
+      "questionText": "This activity involves following a coastal route with the help of a guide.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 13,
+      "type": "MATCHING",
+      "questionText": "You will travel at high speed while doing this activity.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 14,
+      "type": "MATCHING",
+      "questionText": "You need to be unafraid of heights to do this activity.",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "correctAnswer": 5
+    }
+  ]
+}

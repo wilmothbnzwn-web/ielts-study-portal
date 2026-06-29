@@ -1,0 +1,175 @@
+{
+  "id": "gt-cam16-test3-section3",
+  "testType": "general",
+  "title": "Feathers as Decoration in European History",
+  "topic": "History — Fashion & European Culture",
+  "source": "Cambridge IELTS 16 General Training Test 3 Section 3",
+  "difficulty": 3,
+  "totalTime": 1200,
+  "wordCount": 850,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Feathers as decoration in European history</h3><p><strong>A</strong> Today, we do not generally associate feathers with the military in Europe, yet history shows that in fact feathers have played an intriguing role in European military clothing. The Bersaglieri of the Italian Army, for example, still wear a bunch of long black feathers in their hats hanging down to one side, while British fusiliers have a clipped feather plume.</p><p><strong>B</strong> In the 16th century, feathers began to be used more widely as personal adornment. European explorers travelling to the Americas discovered birds with spectacular plumage that was highly sought after back home. The feathers of tropical birds such as parrots and birds of paradise were particularly prized. Some feathers were coloured artificially to make them even more striking.</p><p><strong>C</strong> Given the link with new territories and conquest, ruling elites wore feathers partly to express their power and reach. But there were also more complex reasons. In 1599, for example, Duke Frederick of Wiirttemberg held a display at his court at which he personally appeared wearing a costume covered in exotic feathers and representing the Americas. This was not just a symbol of power, but of global awareness and sophistication.</p><p><strong>D</strong> The feather trade became a significant commercial enterprise. By the 19th century, millions of bird skins were being imported into Europe each year. The demand was driven by the fashion industry, particularly the millinery trade. Hats decorated with feathers, and sometimes entire birds, became extremely popular among fashionable women.</p><p><strong>E</strong> This massive trade had devastating consequences for bird populations. Conservationists began to raise the alarm, and the resulting campaigns led to some of the earliest wildlife protection laws. This created a link between feathers and a wider international awareness about the need for conservation.</p>",
+  "questions": [
+    {
+      "id": 28,
+      "type": "MATCHING",
+      "questionText": "Section A — Choose the correct heading.",
+      "options": [
+        "i The link between feathers and a wider international awareness",
+        "ii An unexpected connection",
+        "iii Protest against the use of feathers",
+        "iv The growth of the market for feathers",
+        "v A symbolic gesture of global sophistication",
+        "vi Surprising survival of a tradition",
+        "vii Feathers in military history",
+        "viii The negative impact on bird populations"
+      ],
+      "correctAnswer": 6
+    },
+    {
+      "id": 29,
+      "type": "MATCHING",
+      "questionText": "Section B — Choose the correct heading.",
+      "options": [
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "vi",
+        "vii",
+        "viii"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 30,
+      "type": "MATCHING",
+      "questionText": "Section C — Choose the correct heading.",
+      "options": [
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "vi",
+        "vii",
+        "viii"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 31,
+      "type": "MATCHING",
+      "questionText": "Section D — Choose the correct heading.",
+      "options": [
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "vi",
+        "vii",
+        "viii"
+      ],
+      "correctAnswer": 5
+    },
+    {
+      "id": 32,
+      "type": "MATCHING",
+      "questionText": "Section E — Choose the correct heading.",
+      "options": [
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "vi",
+        "vii",
+        "viii"
+      ],
+      "correctAnswer": 7
+    },
+    {
+      "id": 33,
+      "type": "MATCHING",
+      "questionText": "Section F — Choose the correct heading.",
+      "options": [
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "vi",
+        "vii",
+        "viii"
+      ],
+      "correctAnswer": -1
+    },
+    {
+      "id": 34,
+      "type": "CHOICE",
+      "questionText": "In Section B, what information is given about the use of feathers in the 16th century?",
+      "options": [
+        "A Some were not real feathers, but imitations.",
+        "B They were sometimes coloured artificially.",
+        "C Birds were specially bred for their feathers.",
+        "D There was some disapproval of their use for decoration."
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 35,
+      "type": "CHOICE",
+      "questionText": "What reason is given for the Duke of Wiirttemberg's display in 1599?",
+      "options": [
+        "A to impress a visiting dignitary",
+        "B to celebrate a military victory",
+        "C to show his awareness of the wider world",
+        "D to promote the use of feathers in fashion"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 36,
+      "type": "CHOICE",
+      "questionText": "What was the main driving force behind the feather trade in the 19th century?",
+      "options": [
+        "A the military",
+        "B scientific research",
+        "C the fashion industry",
+        "D interior decoration"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 37,
+      "type": "COMPLETION",
+      "questionText": "The campaign against the feather trade led to some of the earliest _____ laws. (TWO WORDS)",
+      "correctAnswer": "wildlife protection",
+      "wordLimit": 2
+    },
+    {
+      "id": 38,
+      "type": "COMPLETION",
+      "questionText": "The humeral feather of the _____, a bird of paradise, was particularly valuable. (TWO WORDS)",
+      "correctAnswer": "bird of",
+      "wordLimit": 2
+    },
+    {
+      "id": 39,
+      "type": "COMPLETION",
+      "questionText": "The trade eventually led to laws that were among the earliest concerning the protection of _____. (ONE WORD)",
+      "correctAnswer": "wildlife",
+      "wordLimit": 1
+    },
+    {
+      "id": 40,
+      "type": "COMPLETION",
+      "questionText": "The campaigns raised _____ awareness of conservation needs. (ONE WORD)",
+      "correctAnswer": "international",
+      "wordLimit": 1
+    }
+  ]
+}

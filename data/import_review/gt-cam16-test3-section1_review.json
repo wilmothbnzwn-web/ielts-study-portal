@@ -1,0 +1,179 @@
+{
+  "id": "gt-cam16-test3-section1",
+  "testType": "general",
+  "title": "Bingham Walks & The Maplehampton Scarecrow Competition",
+  "topic": "Leisure — Walking & Community Events",
+  "source": "Cambridge IELTS 16 General Training Test 3 Section 1",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 700,
+  "questionCount": 14,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Maps showing walks starting from Bingham Town Hall</h3><p><strong>A</strong> The walk described in this leaflet takes you to one of the many places in the district where bricks were made for hundreds of years, until it was closed in the late 19th century. This brickworks is now the largest and best-known nature reserve in the area. Please note that this walk is unsuitable for young children as there are steep drops in places.</p><p><strong>B</strong> This walk takes you through woodland to a lake where you can enjoy the peace and quiet. The lake is home to many species of water birds and there is a hide where you can observe them without disturbing them. You may be lucky enough to see a kingfisher diving for fish.</p><p><strong>C</strong> This walk takes you past some unusual architecture, including a house built to look like a castle with turrets and a moat. There is also the chance to go into caves that were once used as dwellings. Torches are provided but you should wear sturdy footwear.</p><p><strong>D</strong> This is the longest of the walks and takes you out into open countryside. Depending on the weather conditions, you may be able to extend the walk further. On a clear day, there are excellent views across the valley.</p><p><strong>E</strong> This walk takes you along a disused railway line that has been converted into a nature trail. The route is flat and suitable for pushchairs and wheelchairs, making it accessible for all visitors.</p><hr><h3>The Maplehampton scarecrow competition — a great success!</h3><p>There was once a time when farmers all over the country put scarecrows in fields of growing crops. A traditional scarecrow was a model — usually life-size — of a man or woman dressed in old clothes, and their purpose was to frighten the birds away; though how successful they were is a matter of debate.</p><p>Nowadays, scarecrows have taken on a new purpose as part of community festivals and competitions. Maplehampton's annual scarecrow competition, held in September, has grown to become one of the biggest events in the local calendar. Residents and businesses throughout the town create scarecrows based on a theme announced at the beginning of the year.</p><p>The event attracts visitors from across the region and raises significant funds for local charities. Last year's competition attracted over 5,000 visitors and raised more than £10,000 for the Maplehampton Community Fund. The quality of the entries has improved year on year, with some scarecrows being genuinely impressive works of art.</p>",
+  "questions": [
+    {
+      "id": 1,
+      "type": "MATCHING",
+      "questionText": "the chance to go into caves",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 2,
+      "type": "MATCHING",
+      "questionText": "the chance to spend time beside a lake",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 3,
+      "type": "MATCHING",
+      "questionText": "some unusual architecture",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 4,
+      "type": "MATCHING",
+      "questionText": "unsuitability for young children",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 5,
+      "type": "MATCHING",
+      "questionText": "the length of the walk depending on the weather",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "correctAnswer": 3
+    },
+    {
+      "id": 6,
+      "type": "true_false_not_given",
+      "questionText": "Traditionally, most scarecrows were the same size as a human being.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 7,
+      "type": "true_false_not_given",
+      "questionText": "The competition in September was the first such event in the town.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 8,
+      "type": "true_false_not_given",
+      "questionText": "The theme of the competition is announced early in the year.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 9,
+      "type": "true_false_not_given",
+      "questionText": "Last year's event was attended by more people than the previous year.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 10,
+      "type": "true_false_not_given",
+      "questionText": "Entries for the competition are restricted to residents of Maplehampton.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "id": 11,
+      "type": "true_false_not_given",
+      "questionText": "Money raised by the event is used to support local causes.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 12,
+      "type": "true_false_not_given",
+      "questionText": "Over 5,000 visitors attended last year's competition.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    },
+    {
+      "id": 13,
+      "type": "true_false_not_given",
+      "questionText": "The competition has been running for more than a decade.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 2
+    },
+    {
+      "id": 14,
+      "type": "true_false_not_given",
+      "questionText": "The quality of entries has steadily improved.",
+      "options": [
+        "TRUE",
+        "FALSE",
+        "NOT GIVEN"
+      ],
+      "correctAnswer": 0
+    }
+  ]
+}

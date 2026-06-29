@@ -1,0 +1,106 @@
+{
+  "id": "gt-cam16-test4-section2",
+  "testType": "general",
+  "title": "Should You Pay Someone to Write Your CV? & Starting a New Job",
+  "topic": "Workplace — Career Development",
+  "source": "Cambridge IELTS 16 General Training Test 4 Section 2",
+  "difficulty": 2,
+  "totalTime": 1200,
+  "wordCount": 720,
+  "questionCount": 13,
+  "main_class": "General Training Reading (G类阅读)",
+  "passageText": "<h3>Should you pay someone to write your CV?</h3><p>In my view, the belief that the individual is the best person to write their own CV is not always true. Although many people can write their own CVs, and do it well, others struggle with a variety of problems initially, such as not knowing how to structure a CV or how to highlight their most impressive qualities.</p><p>A professional CV writer can help jobseekers identify which details are most relevant and provide insights into what employers are looking for. They know which pieces of information are best left out of the final document, such as irrelevant work experience or personal details that could lead to bias. They can also suggest a layout that is appropriate for the specific industry being targeted.</p><p>However, it is crucial that the jobseeker remains involved in the process. The CV writer should conduct a questionnaire or interview to gather authentic information about the client's achievements and career goals. The jobseeker should provide samples of their work if relevant. The final CV must be an authentic representation of the individual, not a generic document that could belong to anyone.</p><hr><h3>Starting a new job</h3><p>First impressions really do last, so it's important you perform well on your first day in the new job. Here are our top tips that will help you sail through your first day with ease.</p><p>A new job is a great opportunity to hit the reset button. Try out a different morning routine that will create a sense of well-being before you even arrive. Make sure your chosen outfit conforms to the company's dress code — if in doubt, dress slightly more formally than you think is necessary.</p><p>When you arrive, make an effort to learn people's names and something about their personalities. Having a few conversation starters prepared in advance can help ease any initial awkwardness. Set yourself some clear goals for the first week and maintain an open mind about how things are done. Be receptive to feedback and look for opportunities to suggest improvements once you've established yourself.</p>",
+  "questions": [
+    {
+      "id": 15,
+      "type": "COMPLETION",
+      "questionText": "Some jobseekers have difficulty with their CV because they have not learnt which qualities they should _____. (ONE WORD)",
+      "correctAnswer": "highlight",
+      "wordLimit": 1
+    },
+    {
+      "id": 16,
+      "type": "COMPLETION",
+      "questionText": "Professional CV writers know which _____ are best left out of the final document. (ONE WORD)",
+      "correctAnswer": "details",
+      "wordLimit": 1
+    },
+    {
+      "id": 17,
+      "type": "COMPLETION",
+      "questionText": "CV writers can provide _____ into what employers are looking for. (ONE WORD)",
+      "correctAnswer": "insights",
+      "wordLimit": 1
+    },
+    {
+      "id": 18,
+      "type": "COMPLETION",
+      "questionText": "The jobseeker should provide _____ of their work if relevant. (ONE WORD)",
+      "correctAnswer": "samples",
+      "wordLimit": 1
+    },
+    {
+      "id": 19,
+      "type": "COMPLETION",
+      "questionText": "A CV writer should use a _____ to gather information from the client. (ONE WORD)",
+      "correctAnswer": "questionnaire",
+      "wordLimit": 1
+    },
+    {
+      "id": 20,
+      "type": "COMPLETION",
+      "questionText": "The final CV must be an _____ representation of the individual. (ONE WORD)",
+      "correctAnswer": "authentic",
+      "wordLimit": 1
+    },
+    {
+      "id": 21,
+      "type": "COMPLETION",
+      "questionText": "Try out a different morning _____ that will create a sense of well-being. (ONE WORD)",
+      "correctAnswer": "routine",
+      "wordLimit": 1
+    },
+    {
+      "id": 22,
+      "type": "COMPLETION",
+      "questionText": "Make sure your outfit conforms to the company's _____ (TWO WORDS)",
+      "correctAnswer": "dress code",
+      "wordLimit": 2
+    },
+    {
+      "id": 23,
+      "type": "COMPLETION",
+      "questionText": "Make an effort to learn people's names and their _____. (ONE WORD)",
+      "correctAnswer": "personalities",
+      "wordLimit": 1
+    },
+    {
+      "id": 24,
+      "type": "COMPLETION",
+      "questionText": "Have a few _____ prepared in advance to ease initial awkwardness. (TWO WORDS)",
+      "correctAnswer": "conversation starters",
+      "wordLimit": 2
+    },
+    {
+      "id": 25,
+      "type": "COMPLETION",
+      "questionText": "Set yourself some clear _____ for the first week. (ONE WORD)",
+      "correctAnswer": "goals",
+      "wordLimit": 1
+    },
+    {
+      "id": 26,
+      "type": "COMPLETION",
+      "questionText": "Maintain an _____ about how things are done. (TWO WORDS)",
+      "correctAnswer": "open mind",
+      "wordLimit": 2
+    },
+    {
+      "id": 27,
+      "type": "COMPLETION",
+      "questionText": "Look for opportunities to suggest _____ once established. (ONE WORD)",
+      "correctAnswer": "improvements",
+      "wordLimit": 1
+    }
+  ]
+}
