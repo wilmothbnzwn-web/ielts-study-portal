@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>词书大厅 — IELTS Study Portal</title>
+  <title>雅思词汇练习 — IELTS Study Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: { brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' } }, fontFamily: { serif: ['Georgia', 'Times New Roman', 'serif'], sans: ['Inter', 'system-ui', 'sans-serif'] } } } }
@@ -13,100 +13,195 @@
   </script>
   <style>
     body { background: #f8fafc; }
-    .deck-cover {
-      position: relative;
-      min-height: 220px;
-      overflow: hidden;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+
+    /* Skeleton loading animation */
+    @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 6px;
     }
-    .deck-cover:hover {
-      transform: translateY(-6px) scale(1.018);
-      box-shadow: 0 18px 48px rgba(16, 42, 67, 0.12);
+
+    /* Category chip scroll (mobile) */
+    .category-scroll {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+
+    /* Category chip */
+    .cat-chip {
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .cat-chip:hover { transform: translateY(-1px); }
+    .cat-chip.active {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    /* Quick action card */
+    .action-card {
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+    }
+    .action-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(16,42,67,0.1);
+    }
+    .action-card.muted {
+      opacity: 0.65;
+      cursor: default;
+    }
+    .action-card.muted:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Compact deck card */
+    .deck-card {
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .deck-card:hover {
       border-color: #9fb3c8;
+      box-shadow: 0 2px 12px rgba(16,42,67,0.06);
     }
-    .deck-cover::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.64)),
-        radial-gradient(circle at 92% 12%, rgba(98,125,152,0.18), transparent 34%),
-        linear-gradient(140deg, rgba(219,226,236,0.62), rgba(240,244,248,0.2));
-      pointer-events: none;
+
+    /* Mode chip */
+    .mode-chip {
+      transition: all 0.18s ease;
+      cursor: pointer;
     }
-    .deck-spine {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 9px;
-      background: linear-gradient(180deg, #334e68, #829ab1);
+    .mode-chip:not(.disabled):hover {
+      transform: translateY(-1px);
     }
-    .deck-content { position: relative; z-index: 1; }
-    .deck-tag {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      background: #e0f2fe;
-      color: #075985;
-    }
-    .deck-count {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      background: #ecfdf5;
-      color: #047857;
-    }
-    .mini-word {
-      display: inline-flex;
-      max-width: 100%;
-      border-radius: 7px;
-      border: 1px solid #d9e2ec;
-      background: rgba(255,255,255,0.76);
-      color: #486581;
-      padding: 4px 7px;
-      font-size: 0.72rem;
-      line-height: 1;
+    .mode-chip.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body class="font-sans text-brand-800 antialiased min-h-screen flex flex-col">
   <div id="navbar-container"></div>
 
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-7 sm:py-9 flex-grow w-full">
-    <section class="mb-7 sm:mb-9">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow w-full">
+
+    <!-- ═══ SECTION 1: Hero + Stats ═══ -->
+    <section class="mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
         <div>
-          <p class="text-xs font-bold uppercase tracking-[0.18em] text-brand-400 mb-2">Vocabulary Deck Library</p>
-          <h1 class="text-2xl sm:text-4xl font-serif font-bold text-brand-900 mb-2">词书大厅</h1>
-          <p id="deck-summary" class="text-sm sm:text-base text-brand-500">正在整理词包...</p>
+          <h1 class="text-2xl sm:text-3xl font-serif font-bold text-brand-900 mb-1">雅思词汇练习</h1>
+          <p id="hero-subtitle" class="text-sm text-brand-400">加载中...</p>
         </div>
-        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
-          <select id="tag-filter" class="text-sm border border-brand-200 rounded-lg px-3 py-2 bg-white text-brand-700 focus:outline-none focus:border-brand-500" onchange="filterDecks()">
-            <option value="all">全部主题</option>
-          </select>
-          <input id="deck-search" type="search" placeholder="搜索词包"
-            class="text-sm border border-brand-200 rounded-lg px-3 py-2 bg-white text-brand-700 focus:outline-none focus:border-brand-500"
-            oninput="filterDecks()">
+      </div>
+      <!-- Stat pills -->
+      <div id="stats-row" class="flex flex-wrap gap-2 sm:gap-3">
+        <div class="skeleton" style="width:100px;height:32px;"></div>
+        <div class="skeleton" style="width:85px;height:32px;"></div>
+        <div class="skeleton" style="width:90px;height:32px;"></div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 2: Quick Actions ═══ -->
+    <section class="mb-6 sm:mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <!-- Continue -->
+        <div id="action-continue" class="action-card bg-white border border-brand-100 rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4" onclick="actionContinue()">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-brand-800 text-white flex items-center justify-center flex-shrink-0 text-lg">▶</div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-brand-900">继续学习</p>
+            <p id="action-continue-sub" class="text-xs text-brand-400 truncate">选择词包开始</p>
+          </div>
+        </div>
+        <!-- Start New -->
+        <div id="action-start" class="action-card bg-white border border-brand-100 rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4" onclick="actionStartNew()">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0 text-lg">📚</div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-brand-900">开始新词</p>
+            <p id="action-start-sub" class="text-xs text-brand-400 truncate">推荐起点</p>
+          </div>
+        </div>
+        <!-- Review -->
+        <div id="action-review" class="action-card bg-white border border-brand-100 rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 muted" onclick="actionReview()">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center flex-shrink-0 text-lg">🔄</div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-brand-900">今日复习</p>
+            <p id="action-review-sub" class="text-xs text-brand-400">完成词包后生成</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="deck-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-      <p class="text-brand-400 col-span-full">Loading vocabulary decks...</p>
+    <!-- ═══ SECTION 3: Learning Modes ═══ -->
+    <section class="mb-5 sm:mb-6">
+      <p class="text-xs font-semibold text-brand-400 uppercase tracking-wide mb-2">学习模式</p>
+      <div class="flex flex-wrap gap-2">
+        <span class="mode-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-800 text-white text-sm font-semibold" title="翻卡学习模式">📇 翻卡学习</span>
+        <span class="mode-chip disabled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 text-brand-400 text-sm font-medium border border-brand-100" title="即将上线">✏️ 选择题测验</span>
+        <span class="mode-chip disabled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 text-brand-400 text-sm font-medium border border-brand-100" title="即将上线">⌨️ 拼写练习</span>
+        <span class="mode-chip disabled inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 text-brand-400 text-sm font-medium border border-brand-100" title="即将上线">🔍 词义速查</span>
+      </div>
     </section>
+
+    <!-- ═══ SECTION 4: Category Tabs ═══ -->
+    <section class="mb-4">
+      <div id="category-tabs" class="flex gap-2 category-scroll overflow-x-auto pb-1">
+        <span class="cat-chip px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-800 text-white active">全部</span>
+        <!-- dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 5: Search + Sort Toolbar ═══ -->
+    <section class="sticky top-[73px] z-40 bg-f8fafc py-3 -mx-4 px-4 sm:-mx-6 sm:px-6" style="background:#f8fafc;">
+      <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+        <div class="relative flex-1">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-brand-300 text-sm pointer-events-none">🔍</span>
+          <input id="deck-search" type="search" placeholder="搜索单词、释义或词包"
+            class="w-full text-sm border border-brand-200 rounded-lg pl-9 pr-4 py-2 bg-white text-brand-700 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            oninput="applyFilters()">
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <select id="sort-select" class="text-sm border border-brand-200 rounded-lg px-3 py-2 bg-white text-brand-700 focus:outline-none focus:border-brand-500" onchange="applyFilters()">
+            <option value="recommended">默认推荐</option>
+            <option value="wordCount-asc">单词数：少 → 多</option>
+            <option value="wordCount-desc">单词数：多 → 少</option>
+            <option value="alpha">A-Z 排序</option>
+          </select>
+          <select id="status-filter" class="text-sm border border-brand-200 rounded-lg px-3 py-2 bg-white text-brand-700 focus:outline-none focus:border-brand-500" onchange="applyFilters()">
+            <option value="all">全部状态</option>
+            <option value="not-started">未开始</option>
+            <option value="in-progress">学习中</option>
+            <option value="completed">已完成</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 6: Deck List ═══ -->
+    <section id="deck-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mt-2">
+      <!-- Skeleton loading placeholders -->
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+      <div class="deck-card bg-white border border-brand-100 rounded-lg p-4 skeleton" style="height:100px;"></div>
+    </section>
+
+    <!-- Results count -->
+    <p id="results-count" class="text-xs text-brand-400 mt-3 hidden"></p>
   </main>
 
-  <footer class="border-t border-brand-100 py-6 px-6 bg-white/60 mt-8">
-    <div class="max-w-6xl mx-auto text-center text-xs text-brand-400">
-      <p>IELTS Study Portal · Vocabulary decks generated from academic IELTS word data</p>
+  <footer class="border-t border-brand-100 py-5 px-6 bg-white/60 mt-8">
+    <div class="max-w-5xl mx-auto text-center text-xs text-brand-400">
+      <p>IELTS Study Portal · Flashcard-based vocabulary learning</p>
     </div>
   </footer>
 
+  <!-- ═══ Scripts ═══ -->
   <script>
     window.SITE_BASE_PATH = window.location.hostname.endsWith('github.io') ? '/ielts-study-portal' : '';
     window.assetPath = function (path) { return window.SITE_BASE_PATH + path; };
@@ -118,7 +213,7 @@
     };
     window.loadPageScript = function (src) {
       return new Promise(function (resolve, reject) {
-        const script = document.createElement('script');
+        var script = document.createElement('script');
         script.src = src;
         script.onload = resolve;
         script.onerror = reject;
@@ -126,92 +221,316 @@
       });
     };
   </script>
-  <script>
-    let allDecks = [];
 
+  <script>
+    // ── State ──
+    var allDecks = [];          // adapted decks
+    var activeCategory = 'all';
+    var totalWordCount = 0;
+
+    // ── HTML escape ──
+    function escapeHtml(str) {
+      if (str == null) return '';
+      var div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    // ── Category color utilities (mirrors vocab-decks.js) ──
+    var CAT_COLORS = {
+      blue:   { bg: 'bg-blue-50', text: 'text-blue-700' },
+      green:  { bg: 'bg-green-50', text: 'text-green-700' },
+      purple: { bg: 'bg-purple-50', text: 'text-purple-700' },
+      orange: { bg: 'bg-orange-50', text: 'text-orange-700' },
+      indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700' },
+      pink:   { bg: 'bg-pink-50', text: 'text-pink-700' },
+      slate:  { bg: 'bg-slate-50', text: 'text-slate-600' },
+    };
+
+    function catBadgeClass(color) {
+      var c = CAT_COLORS[color] || CAT_COLORS['slate'];
+      return 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ' + c.bg + ' ' + c.text;
+    }
+
+    function statusLabel(status) {
+      switch (status) {
+        case 'completed':   return '已完成';
+        case 'in-progress': return '学习中';
+        default:            return '未开始';
+      }
+    }
+
+    function statusClass(status) {
+      switch (status) {
+        case 'completed':   return 'text-green-600 bg-green-50';
+        case 'in-progress': return 'text-blue-600 bg-blue-50';
+        default:            return 'text-brand-400 bg-brand-50';
+      }
+    }
+
+    // ── Init ──
     window.loadPageScript(window.assetPath('/js/vocab-decks.js'))
-      .then(initDeckLibrary)
+      .then(initPage)
       .catch(function (e) {
         console.error('Failed to load deck builder', e);
-        document.getElementById('deck-grid').innerHTML = '<p class="text-brand-400 col-span-full text-center py-12">词包加载失败，请刷新页面重试</p>';
+        showError('脚本加载失败，请刷新页面重试');
       });
 
-    function initDeckLibrary() {
+    function initPage() {
       fetch(window.vocabApiPath())
-      .then(function (r) { return r.json(); })
-      .then(function (words) {
-        allDecks = buildVocabularyDecks(words);
-        renderFilterOptions(allDecks);
-        renderDecks(allDecks);
-        document.getElementById('deck-summary').textContent =
-          allDecks.length + ' 个词包 · ' + words.length + ' IELTS Academic Core Words · 每包约 20-30 词';
-      })
-      .catch(function (e) {
-        console.error('Failed to load vocabulary decks', e);
-        document.getElementById('deck-grid').innerHTML = '<p class="text-brand-400 col-span-full text-center py-12">词包加载失败，请刷新页面重试</p>';
-      });
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (words) {
+          if (!words || !words.length) throw new Error('Empty vocabulary data');
+
+          totalWordCount = words.length;
+          var rawDecks = buildVocabularyDecks(words);
+          allDecks = adaptVocabularyDecks(rawDecks);
+
+          // Populate UI
+          renderStats(allDecks);
+          renderCategoryTabs(allDecks);
+          renderActions(allDecks);
+          applyFilters();
+        })
+        .catch(function (e) {
+          console.error('Failed to load vocabulary data', e);
+          showError('词汇数据加载失败，请检查网络后重试');
+        });
     }
 
-    function renderFilterOptions(decks) {
-      const select = document.getElementById('tag-filter');
-      const tags = Array.from(new Set(decks.map(function (deck) { return deck.tag; })));
-      select.innerHTML = '<option value="all">全部主题</option>' + tags.map(function (tag) {
-        return '<option value="' + escapeHtml(tag) + '">' + escapeHtml(tag) + '</option>';
+    // ── Render: Stats row ──
+    function renderStats(decks) {
+      var stats = getStudyStats(decks);
+      var deckCount = decks.length;
+
+      var pills = [
+        { icon: '📚', label: '总词汇', value: totalWordCount.toLocaleString() },
+        { icon: '📦', label: '词包', value: deckCount },
+        { icon: '✅', label: '已学习', value: stats.studiedCount },
+      ];
+      // Only show review if there are words to review
+      if (stats.reviewCount > 0) {
+        pills.push({ icon: '🔄', label: '待复习', value: stats.reviewCount });
+      }
+
+      document.getElementById('stats-row').innerHTML = pills.map(function (p) {
+        return '<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-brand-100 text-sm">' +
+          '<span class="text-base">' + p.icon + '</span>' +
+          '<span class="text-brand-400 text-xs">' + p.label + '</span>' +
+          '<span class="font-bold text-brand-800">' + p.value + '</span>' +
+        '</div>';
       }).join('');
+
+      document.getElementById('hero-subtitle').textContent =
+        totalWordCount.toLocaleString() + ' 个核心词 · ' + deckCount + ' 个词包 · 按场景和题型练习';
     }
 
+    // ── Render: Category tabs ──
+    function renderCategoryTabs(decks) {
+      // Count decks per category
+      var counts = {};
+      var cats = [];
+      decks.forEach(function (d) {
+        if (!counts[d.category]) {
+          counts[d.category] = 0;
+          var meta = getCategoryMeta(d.category);
+          cats.push({ key: d.category, label: meta.label, icon: meta.icon, color: meta.color, order: meta.order });
+        }
+        counts[d.category]++;
+      });
+      cats.sort(function (a, b) { return a.order - b.order; });
+
+      // Build chips: "全部" + each category
+      var html = '<span class="cat-chip px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-800 text-white active" data-cat="all" onclick="selectCategory(\'all\')">全部 <span class="text-brand-300 text-xs ml-0.5">' + decks.length + '</span></span>';
+
+      cats.forEach(function (cat) {
+        html += '<span class="cat-chip px-3 py-1.5 rounded-lg text-sm font-medium border border-brand-200 bg-white text-brand-700" data-cat="' + cat.key + '" onclick="selectCategory(\'' + cat.key + '\')">' +
+          cat.icon + ' ' + cat.label + ' <span class="text-brand-300 text-xs ml-0.5">' + counts[cat.key] + '</span>' +
+        '</span>';
+      });
+
+      document.getElementById('category-tabs').innerHTML = html;
+    }
+
+    // ── Render: Quick Action cards ──
+    function renderActions(decks) {
+      // Continue: last studied deck or first recommended
+      var lastDeck = getLastStudiedDeck(decks);
+      var recDeck = getRecommendedDeck(decks);
+      var continueDeck = lastDeck || recDeck;
+      var stats = getStudyStats(decks);
+
+      if (continueDeck) {
+        document.getElementById('action-continue-sub').textContent = continueDeck.title || '继续上次学习';
+        document.getElementById('action-continue').setAttribute('data-deck-id', continueDeck.id);
+        document.getElementById('action-continue').classList.remove('muted');
+      }
+
+      if (recDeck) {
+        // Find first not-started deck, or just use recommended
+        var startDeck = null;
+        for (var i = 0; i < decks.length; i++) {
+          if (getDeckStatus(decks[i].id) === 'not-started' && decks[i].category === 'ielts-academic-core') {
+            startDeck = decks[i];
+            break;
+          }
+        }
+        if (!startDeck) startDeck = recDeck;
+        document.getElementById('action-start-sub').textContent = startDeck.title || '推荐词包';
+        document.getElementById('action-start').setAttribute('data-deck-id', startDeck.id);
+        document.getElementById('action-start').classList.remove('muted');
+      }
+
+      if (stats.reviewCount > 0) {
+        document.getElementById('action-review-sub').textContent = stats.reviewCount + ' 个单词待复习';
+        document.getElementById('action-review').classList.remove('muted');
+      }
+    }
+
+    // ── Render: Deck list ──
     function renderDecks(decks) {
-      const grid = document.getElementById('deck-grid');
+      var list = document.getElementById('deck-list');
+      var counter = document.getElementById('results-count');
+
       if (!decks.length) {
-        grid.innerHTML = '<p class="text-brand-400 col-span-full text-center py-12">没有匹配的词包。</p>';
+        list.innerHTML = '<div class="col-span-full text-center py-12">' +
+          '<p class="text-4xl mb-3">🔍</p>' +
+          '<p class="text-brand-500 font-medium mb-1">没有找到匹配的词包</p>' +
+          '<p class="text-brand-400 text-sm">试试其他关键词或切换分类</p>' +
+        '</div>';
+        counter.classList.add('hidden');
         return;
       }
 
-      grid.innerHTML = decks.map(function (deck) {
-        const previewWords = deck.words.slice(0, 5).map(function (word) {
-          return '<span class="mini-word truncate">' + escapeHtml(word.word) + '</span>';
-        }).join('');
+      counter.textContent = '显示 ' + decks.length + ' 个词包';
+      counter.classList.remove('hidden');
 
-        return '<a href="' + window.deckPath(deck.id) + '" class="deck-cover bg-white rounded-lg border border-brand-100 p-5 sm:p-6 no-underline block">' +
-          '<span class="deck-spine"></span>' +
-          '<div class="deck-content h-full flex flex-col">' +
-            '<div class="flex items-start justify-between gap-3 mb-7">' +
-              '<span class="deck-tag">' + escapeHtml(deck.tag) + '</span>' +
-              '<span class="deck-count">' + deck.wordCount + ' Words</span>' +
+      list.innerHTML = decks.map(function (deck) {
+        var catMeta = getCategoryMeta(deck.category);
+        var status = getDeckStatus(deck.id);
+        var previewHtml = (deck.previewWords || []).map(function (w) {
+          return '<span class="text-brand-300 text-xs">' + escapeHtml(w.word) + '</span>';
+        }).join(' <span class="text-brand-200 text-xs">·</span> ');
+
+        var partInfo = '';
+        if (deck.totalParts > 1) {
+          partInfo = '<span class="text-brand-300 text-xs">Part ' + deck.part + '/' + deck.totalParts + '</span>';
+        }
+
+        return '<a href="' + window.deckPath(deck.id) + '" ' +
+          'class="deck-card bg-white border border-brand-100 rounded-lg p-3 sm:p-4 no-underline block" ' +
+          'onclick="setLastStudiedDeckId(\'' + escapeHtml(deck.id) + '\')">' +
+          '<!-- Top row: category badge + word count + part -->' +
+          '<div class="flex items-center justify-between gap-2 mb-2">' +
+            '<span class="' + catBadgeClass(deck.categoryColor) + '">' + (catMeta.icon || '') + ' ' + escapeHtml(catMeta.label) + '</span>' +
+            '<div class="flex items-center gap-2 flex-shrink-0">' +
+              '<span class="text-xs text-brand-400 font-medium">' + deck.wordCount + ' 词</span>' +
+              partInfo +
             '</div>' +
-            '<h2 class="text-xl sm:text-2xl font-serif font-bold text-brand-900 leading-tight mb-3">' + escapeHtml(deck.title) + '</h2>' +
-            '<p class="text-sm text-brand-500 mb-5">Part ' + deck.part + ' / ' + deck.totalParts + ' · 单张翻卡学习模式</p>' +
-            '<div class="flex flex-wrap gap-1.5 mt-auto">' + previewWords + '</div>' +
+          '</div>' +
+          '<!-- Title -->' +
+          '<h3 class="text-sm font-bold text-brand-800 leading-snug mb-1.5 truncate">' + escapeHtml(deck.title) + '</h3>' +
+          '<!-- Preview words -->' +
+          '<div class="mb-2.5 truncate">' + previewHtml + '</div>' +
+          '<!-- Bottom row: status + action -->' +
+          '<div class="flex items-center justify-between gap-2">' +
+            '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + statusClass(status) + '">' + statusLabel(status) + '</span>' +
+            '<span class="text-xs font-semibold text-brand-600">' + (status === 'not-started' ? '开始学习 →' : '继续学习 →') + '</span>' +
           '</div>' +
         '</a>';
       }).join('');
     }
 
-    window.filterDecks = function () {
-      const tag = document.getElementById('tag-filter').value;
-      const query = document.getElementById('deck-search').value.trim().toLowerCase();
-      const filtered = allDecks.filter(function (deck) {
-        const tagMatch = tag === 'all' || deck.tag === tag;
-        const queryMatch = !query ||
-          deck.title.toLowerCase().includes(query) ||
-          deck.tag.toLowerCase().includes(query) ||
-          deck.words.some(function (word) { return word.word.toLowerCase().includes(query); });
-        return tagMatch && queryMatch;
+    // ── Category selection ──
+    window.selectCategory = function (cat) {
+      activeCategory = cat;
+      // Update chip styles
+      var chips = document.querySelectorAll('#category-tabs .cat-chip');
+      chips.forEach(function (chip) {
+        var chipCat = chip.getAttribute('data-cat');
+        if (chipCat === cat) {
+          chip.className = 'cat-chip px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-800 text-white active';
+        } else {
+          chip.className = 'cat-chip px-3 py-1.5 rounded-lg text-sm font-medium border border-brand-200 bg-white text-brand-700';
+        }
       });
-      renderDecks(filtered);
+      applyFilters();
     };
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str == null ? '' : String(str);
-      return div.innerHTML;
+    // ── Apply all filters ──
+    window.applyFilters = function () {
+      if (!allDecks.length) return;
+
+      var query = document.getElementById('deck-search').value;
+      var sortBy = document.getElementById('sort-select').value;
+      var statusFilter = document.getElementById('status-filter').value;
+
+      var result = filterDecksByCategory(allDecks, activeCategory);
+      result = filterDecksBySearch(result, query);
+      result = filterDecksByStatus(result, statusFilter);
+      result = sortDecks(result, sortBy);
+
+      renderDecks(result);
+    };
+
+    // ── Action handlers ──
+    window.actionContinue = function () {
+      var el = document.getElementById('action-continue');
+      if (el.classList.contains('muted')) return;
+      var deckId = el.getAttribute('data-deck-id');
+      if (deckId) {
+        setLastStudiedDeckId(deckId);
+        window.location.href = window.deckPath(deckId);
+      }
+    };
+
+    window.actionStartNew = function () {
+      var el = document.getElementById('action-start');
+      if (el.classList.contains('muted')) return;
+      var deckId = el.getAttribute('data-deck-id');
+      if (deckId) {
+        setLastStudiedDeckId(deckId);
+        window.location.href = window.deckPath(deckId);
+      }
+    };
+
+    window.actionReview = function () {
+      var el = document.getElementById('action-review');
+      if (el.classList.contains('muted')) return;
+      // Filter to show decks that have unknown words
+      var reviewDecks = allDecks.filter(function (d) {
+        var prog = getDeckProgress(d.id);
+        if (!prog || !prog.status) return false;
+        return Object.values(prog.status).some(function (s) { return s === 'unknown'; });
+      });
+      if (reviewDecks.length > 0) {
+        setLastStudiedDeckId(reviewDecks[0].id);
+        window.location.href = window.deckPath(reviewDecks[0].id);
+      }
+    };
+
+    // ── Error state ──
+    function showError(msg) {
+      document.getElementById('stats-row').innerHTML =
+        '<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">⚠️ 加载失败</div>';
+      document.getElementById('hero-subtitle').textContent = '数据加载出错';
+      document.getElementById('deck-list').innerHTML =
+        '<div class="col-span-full text-center py-12">' +
+          '<p class="text-4xl mb-3">⚠️</p>' +
+          '<p class="text-brand-600 font-medium mb-1">' + escapeHtml(msg) + '</p>' +
+          '<button onclick="location.reload()" class="mt-3 px-5 py-2 bg-brand-800 text-white rounded-lg text-sm font-semibold hover:bg-brand-900 transition-colors">重试</button>' +
+        '</div>';
+      document.getElementById('results-count').classList.add('hidden');
     }
   </script>
 
   <script type="module">
-    const base = window.SITE_BASE_PATH || '';
-    const { renderNavbar } = await import(base + '/js/navbar.js');
-    const { initAuth } = await import(base + '/js/auth-store.js');
+    var base = window.SITE_BASE_PATH || '';
+    var { renderNavbar } = await import(base + '/js/navbar.js');
+    var { initAuth } = await import(base + '/js/auth-store.js');
     await initAuth();
     renderNavbar();
   </script>
