@@ -299,7 +299,7 @@ class VocabImporter:
         print(f"  Map DOCX: parsed {count} phrases, +{self.stats['per_source'].get('IELTS听力地图题词汇', 0)} new")
 
     def save(self):
-        """Write updated data back to vocabulary.json"""
+        """Write updated data back to vocabulary.json (both data/ and api/ copies)"""
         # Remove any accidental header-like entries
         self.data = [d for d in self.data
                      if d['word'].lower().strip() not in ['part 2', 'part 3', '1类', '2类']
@@ -311,6 +311,13 @@ class VocabImporter:
 
         with open(VOCAB_PATH, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
+
+        # Sync to api/ directory (used by GitHub Pages static hosting)
+        api_path = os.path.join(PROJECT_DIR, 'api', 'vocabulary.json')
+        if os.path.exists(os.path.dirname(api_path)):
+            with open(api_path, 'w', encoding='utf-8') as f:
+                json.dump(self.data, f, ensure_ascii=False, indent=2)
+            print(f"  Synced to {api_path}")
 
     def print_report(self):
         print(f"\n{'='*60}")
